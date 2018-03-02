@@ -1,7 +1,6 @@
 ﻿/// <reference path="./node_modules/@types/bootstrap/index.d.ts" />
 /// <reference path="./node_modules/@types/bootstrap-treeview/index.d.ts" />
 /// <reference path="./local.d.ts" />
-/// <reference path="./node_modules/@types/angular-route/index.d.ts" />
 var srAngularApp = angular.module("srAngular", ["ngRoute"])
     .config(($routeProvider: angular.route.IRouteProvider, $iot: typeof Iot) => {
         $routeProvider.when("/entranceGuardSystem", {
