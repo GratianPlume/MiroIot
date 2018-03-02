@@ -1,4 +1,4 @@
-var ArchService = (function () {
+var ArchService = /** @class */ (function () {
     function ArchService() {
         this.flatTable = {};
     }

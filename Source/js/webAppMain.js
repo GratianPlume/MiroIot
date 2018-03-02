@@ -1,3 +1,7 @@
+/// <reference path="./node_modules/@types/bootstrap/index.d.ts" />
+/// <reference path="./node_modules/@types/bootstrap-treeview/index.d.ts" />
+/// <reference path="./local.d.ts" />
+/// <reference path="./node_modules/@types/angular-route/index.d.ts" />
 var srAngularApp = angular.module("srAngular", ["ngRoute"])
     .config(function ($routeProvider, $iot) {
     $routeProvider.when("/entranceGuardSystem", {
@@ -56,7 +60,9 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             $location.path("/");
         }
     });
+    //当前操作小区
     $rootScope.currentCommunity = false;
+    //关闭广告功能 默认打开
     $rootScope.openAdsystem = $iot.advertisingMode;
     try {
         $iot.connect()
@@ -203,25 +209,34 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
 }; })
     .factory("getTime", function () { return new TimeConvert(); })
     .controller("mainCtrl", function ($scope, $timeout, $rootScope, $location, $filter, getTime, $fp, $iot) {
+    /*动态样式*/
+    //主导航
     var urlChoose;
     $scope.chooseUrl = function (num) {
         $rootScope.currentCommunity = num === 1;
         urlChoose = num;
     };
     $scope.Urlstyle = function (num) { return num === urlChoose ? "active" : ""; };
+    //侧边管理导航
     var sideUrlChoose;
     $scope.entrancesidebarStyle = function (num) { return num === sideUrlChoose ? "active" : ""; };
+    //侧边查询导航
     var sideUrlChooseQuery;
     $scope.querysidebarStyle = function (num) { return num === sideUrlChooseQuery ? "active" : ""; };
+    //侧边广告导航
     var sideUrlChooseAdvertising;
     $scope.advertisingsidebarStyle = function (num) { return num === sideUrlChooseAdvertising ? "active" : ""; };
+    //帐号管理路径导航
     $scope.accountUrl = function (num) { return $scope.viewSwitch.mode === num ? "active" : ""; };
+    /*动态样式*/
     $scope.hideGuardSystem = false;
     $scope.hideAdSystem = false;
     $scope.hideAdFileManage = true;
     $scope.hideAdLaunch = true;
     $scope.userGradeList = Helper.adminConstans.slice(0);
+    //小区操作
     $scope.showOperateCom = true;
+    //注册登录
     $scope.GradeValue = "";
     $scope.chooseAdPowerView = function (newVal) {
         var parsePower = function () {
@@ -254,6 +269,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 $scope.adminData.communities = data.communities;
                 $scope.adminData.name = data.name;
                 $scope.adminData.level = data.level;
+                //超级管理员
                 if (data.level === 0) {
                     $location.path("/entranceGuardSystem");
                     urlChoose = 1;
@@ -264,6 +280,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                     $scope.userGradeList = Helper.adminConstans.slice(0);
                     return;
                 }
+                //一级管理员
                 if ((data.level & 63) === 1) {
                     $scope.showOperateCom = true;
                     $scope.userGradeList = Helper.adminConstans.slice(1);
@@ -284,6 +301,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                         return;
                     }
                 }
+                //二级管理员
                 if ((data.level & 63) === 2) {
                     $scope.showOperateCom = false;
                     $scope.userGradeList = Helper.adminConstans.slice(2);
@@ -314,6 +332,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                     $location.path("/entranceGuardSystem");
                     urlChoose = 1;
                 }
+                //三级管理员
                 if ((data.level & 63) === 3) {
                     $scope.userGradeList = [];
                     $scope.hideGuardSystem = true;
@@ -376,6 +395,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             alert("请填写完所有数据！");
         }
     };
+    /*注册登录结束*/
+    /*门禁模块视图切换开始*/
     $scope.chooseView = function (viewNumber) {
         switch (viewNumber) {
             case 1:
@@ -436,7 +457,10 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         }
     };
     $scope.asideView = true;
+    /*门禁模块视图切换结束*/
+    /*账号管理数据*/
     $scope.adminData = new AdminView();
+    /*进入账号管理时获取当前管理员管理的人员数据*/
     $scope.getAdminList = function () {
         $iot.accounts
             .getSubAdmins()
@@ -446,6 +470,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             });
         });
     };
+    /*管理界面视图切换开始*/
     $scope.adminViewList = [
         { control: 0, name: "小区列表" },
         { control: 1, name: "管理员列表" },
@@ -456,6 +481,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
     $scope.switchView = function (control) {
         $scope.viewSwitch.mode = control;
     };
+    /*管理界面视图切换结束*/
+    //修改小区
     var editCommunityData;
     $scope.openEditCommunity = function (community) {
         editCommunityData = community;
@@ -485,6 +512,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
     function mapToArray(elements, method) {
         return Helper.getSeq(elements).map(method).toArray();
     }
+    /*删除小区开始*/
     $scope.deleteCommunity = function () {
         var deleteCommunityList = angular.element("input:checkbox[name='chooseDeleteCommunity']:checked");
         var sure = confirm("你确定删除这" + deleteCommunityList.length + "个小区吗？");
@@ -503,6 +531,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             console.log(err);
         });
     };
+    /*删除小区结束*/
+    /*新建小区开始*/
     $scope.createNewCommunity = function (area, newCommunityName, newCommunityRemark) {
         if (!area || !newCommunityName || !newCommunityRemark) {
             alert("请填写完所有信息");
@@ -523,6 +553,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             console.log(err);
         });
     };
+    /*新建小区结束*/
+    /*删除管理员开始*/
     $scope.deleteAdmin = function () {
         var deleteAdminList = angular.element("input:checkbox[name='managerChoose']:checked");
         var sure = confirm("你确定删除这" + deleteAdminList.length + "个管理员吗？");
@@ -541,13 +573,17 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             console.log(err);
         });
     };
+    /*删除管理员结束*/
+    /*编辑管理员开始*/
     var editedManagerOpenid;
     $scope.editAdmin = function (manager, index) {
         console.log(manager.communities);
         $("#editAdmin").modal("show");
         editedManagerOpenid = manager.openid;
         $scope.editedAdmin = manager.name ? manager.name : manager.openid;
+        //已授权小区列表
         $scope.editedAdminCommunities = Helper.arrToDic(manager.communities);
+        //未授权小区列表
         if ($scope.editedAdminCommunities.length === 0) {
             $scope.uneditedAdminCommunities = Helper.arrToDic(manager.communities);
         }
@@ -558,6 +594,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 .toDict(function (x) { return x.id; });
         }
     };
+    //授权小区
     $scope.authCommunity = function () {
         var authCommunityList = angular.element("input:checkbox[name='unAuthorizedCommunity']:checked");
         if (authCommunityList.length === 0) {
@@ -582,6 +619,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             console.log(err);
         });
     };
+    //删除授权
     $scope.unAuthCommunity = function () {
         var unauthCommunityList = angular.element("input:checkbox[name='AuthorizedCommunity']:checked");
         if (unauthCommunityList.length === 0) {
@@ -606,6 +644,9 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             console.log(err);
         });
     };
+    /*编辑管理员结束*/
+    /*生成邀请码开始*/
+    //授权小区下拉
     $scope.authList = true;
     $scope.showList = function () {
         $scope.authList = !$scope.authList;
@@ -635,6 +676,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             console.log(err);
         });
     };
+    /*生成邀请码结束*/
+    /*修改密码开始*/
     $scope.changepwd = function (oldPwd, newPwd) {
         if (!oldPwd || !newPwd) {
             alert("请填写旧密码或者新密码！");
@@ -648,12 +691,14 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             console.log(err);
         });
     };
+    /*修改密码结束*/
     $scope.communityData = new MainView();
+    /*小区结构开始*/
     var treeData = [];
-    var treeComData;
-    var blockData;
-    var unitData;
-    var roomData;
+    var treeComData; //小区数据
+    var blockData; //楼数据
+    var unitData; //单元数据
+    var roomData; //房间数据
     $scope.addTree = true;
     $scope.closeaddTree = function () {
         $scope.addTree = true;
@@ -667,7 +712,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             $("#tree").treeview({
                 data: treeData,
                 levels: 3,
-                multiSelect: false
+                multiSelect: false //多
             });
             $("#tree").on("nodeSelected", function (event, data) {
                 switch (data.id) {
@@ -714,6 +759,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             return;
         }
         $rootScope.currentCommunity = true;
+        //请求小区结构数据
         $scope.asideView = false;
         $iot.communities
             .loadArch(com.id)
@@ -732,7 +778,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 $("#tree").treeview({
                     data: treeData,
                     levels: 2,
-                    multiSelect: false
+                    multiSelect: false //多
                 });
                 $("#tree").on("nodeSelected", function (event, data) {
                     switch (data.id) {
@@ -769,7 +815,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 $("#tree").treeview({
                     data: treeData,
                     levels: 3,
-                    multiSelect: false
+                    multiSelect: false //多
                 });
                 $("#tree").on("nodeSelected", function (event, data) {
                     switch (data.id) {
@@ -811,11 +857,13 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 });
             }
         });
+        //请求人员数据
         $iot.persons.sum(com.id).then(function (data) {
             $timeout(function () {
                 $scope.communityData.personnel = data.copy;
             });
         });
+        //请求设备数据
         $iot.devices.items(com.id, function (data) {
             $timeout(function () {
                 $scope.communityData.devices = data;
@@ -823,6 +871,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 $scope.unalreadyAuthFingerprint = data.copy;
             });
         });
+        //请求卡数据
         $iot.cards.sum(com.id).then(function (data) {
             console.log(data);
             $timeout(function () {
@@ -830,6 +879,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 $scope.card_viewData = data.slice(0);
             });
         });
+        //请求指纹数据
         $iot.fingerprints.sum(com.id).then(function (data) {
             $timeout(function () {
                 $scope.communityData.Fingerprints = data.slice(0);
@@ -837,6 +887,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             });
         });
     };
+    //添加楼
     $scope.addBuilding = function (id, name) {
         if (!id || !name) {
             alert("请填写完整信息！");
@@ -860,7 +911,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $("#tree").treeview({
             data: treeData,
             levels: 2,
-            multiSelect: false
+            multiSelect: false //多
         });
         $("#tree").on("nodeSelected", function (event, data) {
             switch (data.id) {
@@ -900,6 +951,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             }
         });
     };
+    //修改楼
     $scope.editBuilding = function (id, name) {
         if (!id || !name) {
             alert("请填写完整信息");
@@ -932,7 +984,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $("#tree").treeview({
             data: treeData,
             levels: 2,
-            multiSelect: false
+            multiSelect: false //多
         });
         $("#tree").on("nodeSelected", function (event, data) {
             switch (data.id) {
@@ -972,6 +1024,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             }
         });
     };
+    //删除楼
     $scope.deleteBuilding = function () {
         for (var i = 0; i < treeData[0].nodes.length; i++) {
             if (treeData[0].nodes[i].blockName === blockData.blockNumber) {
@@ -986,7 +1039,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $("#tree").treeview({
             data: treeData,
             levels: 2,
-            multiSelect: false
+            multiSelect: false //多
         });
         $timeout(function () {
             $scope.ComStrViewSwitch.mode = "0";
@@ -1031,6 +1084,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             }
         });
     };
+    //添加单元
     $scope.addunit = function (unitid, unitname) {
         if (!unitid || !unitname) {
             alert("请填写完整信息！");
@@ -1059,7 +1113,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $("#tree").treeview({
             data: treeData,
             levels: 3,
-            multiSelect: false
+            multiSelect: false //多
         });
         $("#tree").on("nodeSelected", function (event, data) {
             switch (data.id) {
@@ -1099,6 +1153,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             }
         });
     };
+    //修改单元
     $scope.editunit = function (editunitId, editunitName) {
         if (!editunitId || !editunitName) {
             alert("请填写完整信息！");
@@ -1136,7 +1191,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $("#tree").treeview({
             data: treeData,
             levels: 3,
-            multiSelect: false
+            multiSelect: false //多
         });
         $("#tree").on("nodeSelected", function (event, data) {
             switch (data.id) {
@@ -1195,7 +1250,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $("#tree").treeview({
             data: treeData,
             levels: 3,
-            multiSelect: false
+            multiSelect: false //多
         });
         $("#tree").on("nodeSelected", function (event, data) {
             switch (data.id) {
@@ -1278,7 +1333,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $("#tree").treeview({
             data: treeData,
             levels: 3,
-            multiSelect: false
+            multiSelect: false //多
         });
         $("#tree").on("nodeSelected", function (event, data) {
             switch (data.id) {
@@ -1356,7 +1411,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $("#tree").treeview({
             data: treeData,
             levels: 3,
-            multiSelect: false
+            multiSelect: false //多
         });
         $("#tree").on("nodeSelected", function (event, data) {
             switch (data.id) {
@@ -1419,7 +1474,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $("#tree").treeview({
             data: treeData,
             levels: 4,
-            multiSelect: false
+            multiSelect: false //多
         });
         $("#tree").on("nodeSelected", function (event, data) {
             switch (data.id) {
@@ -1495,7 +1550,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 $("#tree").treeview({
                     data: treeData,
                     levels: 3,
-                    multiSelect: false
+                    multiSelect: false //多
                 });
                 $("#tree").on("nodeSelected", function (event, data) {
                     switch (data.id) {
@@ -1540,6 +1595,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             console.log(err);
         });
     };
+    /*小区结构结束*/
+    /*人员管理开始*/
     $scope.editing = true;
     $scope.addAddressview = true;
     $scope.addAddressListView = [];
@@ -1570,6 +1627,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $scope.addAddressListView.splice(deleteIndex, 1);
         $scope.addAddressList.splice(deleteIndex, 1);
     };
+    //根据身份证查询人员
     $scope.queryPersonnerl = function (id) {
         if (id.length !== 18) {
             return;
@@ -1612,6 +1670,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             });
         });
     };
+    //刷新添加人员地址
     $scope.refreshAddAddressList = function () {
         if (refreshOrNo) {
             $scope.addAddressList = [];
@@ -1619,6 +1678,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             refreshOrNo = false;
         }
     };
+    //添加人员
     $scope.addPersonnel = function (addName, addId, addNumber, addWorkUnit, addQQ, addWeChat, addphoneMac, addRemark) {
         if (!addName) {
             alert("请填写姓名!");
@@ -1671,6 +1731,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             });
         });
     };
+    //选定人员
     var deletechoosePersonId;
     $scope.choosePersonnel = function (person) {
         $scope.choosePersonEditRooms = person.rooms.slice(0);
@@ -1687,7 +1748,9 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $scope.choosePersonEditID = person.nric.length === 18 ? person.nric : "";
         $scope.editing = person.nric.length === 18;
     };
+    //添加选定人员背景
     $scope.chooseStyle = function (person) { return $scope.chooseBackColor === person.nric ? "success" : ""; };
+    //删除人员
     $scope.deletePersonnel = function () {
         if (!deletechoosePersonId) {
             alert("请选择你要删除的人员！");
@@ -1708,6 +1771,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             console.log(err);
         });
     };
+    //修改人员
     $scope.editAddAddress = function (building, unit, room) {
         if (!building || !unit || !room) {
             alert("请选择完整地址");
@@ -1790,7 +1854,10 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             });
         });
     };
+    /*人员管理结束*/
+    /*设备管理开始*/
     var choosedeviceId;
+    //添加设备
     $scope.addDevice = function (addressBuilding, addressUnit, deviceNumber, devicePwd, deviceRemark) {
         if (!addressBuilding || !addressUnit || deviceNumber.length === 0 || !devicePwd) {
             alert("请填写设备ID或者设备密码！");
@@ -1828,13 +1895,16 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             console.log(err);
         });
     };
+    //选定设备
     $scope.chooseDevice = function (device) {
         choosedeviceId = device.address;
         $scope.choosedeviceGuid = device.id;
         $scope.newDevicepwd = device.password;
         $scope.newRemark = device.remark;
     };
+    //选定设备高亮
     $scope.chooseDeviceStyle = function (device) { return device.address === choosedeviceId ? "success" : ""; };
+    //删除设备
     $scope.deleteDevice = function () {
         if (!choosedeviceId) {
             alert("请选择你要删除的设备！");
@@ -1857,6 +1927,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             console.log(err);
         });
     };
+    //修改设备密码
     $scope.editDevicepwd = function (newDevicepwd, newRemark) {
         if (newDevicepwd.length < 6) {
             alert("密码需要大于6位数");
@@ -1891,17 +1962,23 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             console.log(err);
         });
     };
+    /*设备管理结束*/
+    /*门禁卡管理开始*/
+    //选定待授权设备判断是否可以绑定房间
     $scope.selectAuthDevice = function () {
+        //获取选择的门口机
         var authDevice = angular.element("input:checkbox[name='chooseAuthDevice']:checked");
+        //获取的门口机地址列表
         var authDeviceAddress = mapToArray(authDevice, function (x) {
             var itemValue = angular.fromJson(x.value);
             return Helper.deviceAddressToStr(itemValue.address);
         });
         if (authDeviceAddress.length === 0) {
-            $scope.chooseBinding = true;
-            $scope.alreadyBinding = false;
+            $scope.chooseBinding = true; //禁用绑定房复选框
+            $scope.alreadyBinding = false; //禁用选择绑定房号下拉框
             return;
         }
+        //如果是同一栋同一个单元，获取它的所有房间
         var getTheFlats = function () {
             var first = authDeviceAddress[0].slice(0, 10);
             if (authDeviceAddress.length > 1) {
@@ -1918,9 +1995,9 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         };
         getTheFlats()
             .data(function (flats) {
-            $scope.chooseBinding = false;
+            $scope.chooseBinding = false; //启用绑定房复选框
             if ($("#alreadyBindingAuth").is(":checked")) {
-                $scope.alreadyBinding = true;
+                $scope.alreadyBinding = true; //启用选择绑定房号下拉框
             }
             $scope.bindingRoom = flats.toArray(function (x) { return ({
                 room: x.id,
@@ -1932,16 +2009,18 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             $scope.bindingRoom = [];
         });
     };
-    $scope.addCardNumberValidate = true;
-    $scope.addcardPersonnelsValidate = true;
-    $scope.addCardcomplete = true;
+    $scope.addCardNumberValidate = true; //添加卡号验证提醒文字显示
+    $scope.addcardPersonnelsValidate = true; //添加卡号，用户验证提醒文字显示
+    $scope.addCardcomplete = true; //添加卡完成提醒文字显示
     $scope.chooseBinding = true;
     $scope.authCompleteinfo = [];
+    //卡号验证
     function validateCardNumber(cardNumber) {
         var characterArr = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
         var cardNumberLow = Array.prototype.slice.call(cardNumber.toLowerCase());
         return cardNumberLow.every(function (t) { return characterArr.indexOf(t) !== -1; });
     }
+    //添加卡选择房间的时候过滤人员
     $scope.cardPersonnels = Dict.ofArray(function (t) { return t.nric; }, []);
     $scope.cardPersonnel = {};
     $scope.roomPersonnel = function (roomId) {
@@ -1955,17 +2034,21 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             $scope.cardPersonnel.x = $scope.cardPersonnels.first.nric;
         }
     };
+    //打开添加卡modal
     $scope.openAddCard = function () {
         $scope.speedyAddCardSuccessList = [];
         $("#speedyAddCard_input").val("");
     };
+    //添加卡方式
     $scope.showSpeedyAddCard = true;
     $scope.switchAddCard = function () {
         $scope.showSpeedyAddCard = !$scope.showSpeedyAddCard;
         $scope.speedyAddCardSuccessList = [];
         $("#speedyAddCard_input").val("");
     };
+    //快速添加卡信息提醒
     $scope.speedyAddCardInfo = true;
+    //快速添加卡
     $scope.addCard_speedy = function (event, cardNumber) {
         var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
         if (keyCode === 13) {
@@ -2019,6 +2102,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             });
         }
     };
+    //正常添加卡
     $scope.addCard = function (cardNumber, cardPersonnel) {
         if (!cardNumber) {
             $scope.addCardNumberValidate = false;
@@ -2090,6 +2174,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             console.log(err);
         });
     };
+    //选定卡
     var lastTimeCard;
     var thisTimeCard;
     $scope.chooseCard = function (index, event, card) {
@@ -2131,7 +2216,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             }
         }
         var selectCard = angular.element("input:checkbox[name='chooseAuthCard']:checked");
-        var selectCardList = mapToArray(selectCard, function (x) { return angular.fromJson(x.value); });
+        var selectCardList = mapToArray(selectCard, function (x) { return angular.fromJson(x.value); }); //选择卡的列表
         if (selectCardList.length === 0) {
             $scope.tobe_editCardList = [];
             $scope.cardEdit_show = false;
@@ -2149,12 +2234,13 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $scope.ChooseauthDevice = Helper.complementOfIntersect(selectCardList, $scope.communityData.devices);
         $scope.alreadyAuth = Helper.unionAuths(selectCardList);
     };
+    //全选卡
     $scope.selectAllCard = function () {
         var cardAll = $("input:checkbox[name='chooseAuthCard']");
         cardAll.attr("checked", true);
         cardAll.parent().parent().addClass("bg-success");
         var selectCard = angular.element("input:checkbox[name='chooseAuthCard']:checked");
-        var selectCardList = mapToArray(selectCard, function (x) { return angular.fromJson(x.value); });
+        var selectCardList = mapToArray(selectCard, function (x) { return angular.fromJson(x.value); }); //选择卡的列表
         if (selectCardList.every(function (value) { return value.auth.length === 0; })) {
             $scope.tobe_editCardList = selectCardList;
             $scope.cardEdit_show = true;
@@ -2166,12 +2252,13 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $scope.ChooseauthDevice = Helper.complementOfIntersect(selectCardList, $scope.communityData.devices);
         $scope.alreadyAuth = Helper.unionAuths(selectCardList);
     };
+    //取消选择卡
     $scope.selectAllCard_not = function () {
         var cardAll = $("input:checkbox[name='chooseAuthCard']");
         cardAll.attr("checked", false);
         cardAll.parent().parent().removeClass("bg-success");
         var selectCard = angular.element("input:checkbox[name='chooseAuthCard']:checked");
-        var selectCardList = mapToArray(selectCard, function (x) { return angular.fromJson(x.value); });
+        var selectCardList = mapToArray(selectCard, function (x) { return angular.fromJson(x.value); }); //选择卡的列表
         $scope.tobe_editCardList = [];
         $scope.cardEdit_show = false;
         $scope.ChooseauthDevice = Helper.complementOfIntersect(selectCardList, $scope.communityData.devices);
@@ -2185,8 +2272,10 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             $scope.alreadyBinding = false;
         }
     };
+    //编辑按钮默认不显示
     $scope.cardEdit_show = false;
     $scope.editCardcomplete = true;
+    //打开编辑卡
     $scope.tobe_editCardSerial = "";
     $scope.selectCard_Edit = function () {
         console.log($scope.tobe_editCardList);
@@ -2215,6 +2304,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             $scope.tobe_editCardSerial = $scope.tobe_editCardSerial + value.serial + "；";
         });
     };
+    //编辑卡
     $scope.editCard = function (nric) {
         var _loop_4 = function (i) {
             var editData = $scope.tobe_editCardList[i];
@@ -2263,9 +2353,10 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             _loop_4(i);
         }
     };
+    //删除卡
     $scope.deleteCard = function () {
         var selectCard = angular.element("input:checkbox[name='chooseAuthCard']:checked");
-        var selectCardList = mapToArray(selectCard, function (x) { return angular.fromJson(x.value); });
+        var selectCardList = mapToArray(selectCard, function (x) { return angular.fromJson(x.value); }); //选择卡的列表
         if (selectCardList.length === 0) {
             return;
         }
@@ -2342,6 +2433,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             $scope.authCompleteinfo[deviceIdx].fail.push(secrets[secretIdx]);
         }
     }
+    //授权生成器
     function authGenerator(cardList, deviceList, $time, $binding) {
         var getNext = Helper.permitGenerator(cardList, deviceList);
         function auth(deviceIdx, cardIdx) {
@@ -2375,7 +2467,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                     if (!value || cardIdx === cardList.length - 1) {
                         $timeout(function () {
                             var selectCard = angular.element("input:checkbox[name='chooseAuthCard']:checked");
-                            var selectCardList = mapToArray(selectCard, function (x) { return angular.fromJson(x.value); });
+                            var selectCardList = mapToArray(selectCard, function (x) { return angular.fromJson(x.value); }); //选择卡的列表
                             $scope.ChooseauthDevice = Helper.complementOfIntersect(selectCardList, $scope.communityData.devices);
                             $scope.alreadyAuth = Helper.unionAuths(selectCardList);
                         });
@@ -2388,6 +2480,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         }
         getNext(true, auth);
     }
+    //授权
+    //是否选择时间
     $scope.alreadyTime = false;
     $scope.validityTimeDefault = function () {
         if ($("#alreadyTimeAuth").is(":checked")) {
@@ -2395,6 +2489,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             $("#validityTime").val(nowDate);
         }
     };
+    //是否选择绑定房号
     $scope.alreadyBinding = false;
     $scope.authCardToDevice = function () {
         var selectCard = angular.element("input:checkbox[name='chooseAuthCard']:checked");
@@ -2432,6 +2527,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $scope.authCompleteinfo = [];
         authGenerator(authCardList, authDeviceList, $time, $binding);
     };
+    //取消授权
     $scope.deleteAuthCard = function () {
         var selectCard = angular.element("input:checkbox[name='chooseAuthCard']:checked");
         var authCardList = mapToArray(selectCard, function (x) { return angular.fromJson(x.value).id; });
@@ -2470,7 +2566,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                     if (deviceIdx === deviceList.length - 1) {
                         if (!data.result || cardIdx === cardList.length - 1) {
                             $timeout(function () {
-                                var selectCardList = mapToArray(selectCard, function (x) { return angular.fromJson(x.value); });
+                                //const selectCard = angular.element("input:checkbox[name='chooseAuthCard']:checked");
+                                var selectCardList = mapToArray(selectCard, function (x) { return angular.fromJson(x.value); }); //选择卡的列表
                                 $scope.ChooseauthDevice = Helper.complementOfIntersect(selectCardList, $scope.communityData.devices);
                                 $scope.alreadyAuth = Helper.unionAuths(selectCardList);
                             });
@@ -2486,6 +2583,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $scope.authCompleteinfo = [];
         unauthGenerator(authCardList, unAuthDeviceList);
     };
+    //卡片查询过滤器
     $scope.cardFilter = function (str) {
         $scope.card_viewData = !str
             ? $scope.communityData.cards.slice(0)
@@ -2508,7 +2606,11 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 return false;
             });
     };
+    /*门禁卡管理结束*/
+    /*指纹管理开始*/
+    //手指是否已经录入提醒是否显示
     $scope.chooseFingersInfoHide = true;
+    //手指数据
     $scope.FingerConstans = Helper.fingerConstans;
     function createFingerprint() {
         var fp = $fp.create();
@@ -2569,7 +2671,9 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         return fp;
     }
     var fpService;
+    //已经添加过
     var fingeradded = [];
+    //切换手指初始化指纹输入
     $scope.chooseFingerConstans = function (finger) {
         if (fingeradded.some(function (t) { return t.finger === Number(finger); })) {
             $scope.chooseFingersInfoHide = false;
@@ -2582,6 +2686,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $("#fingerprint2").attr("src", "images/scanfinger2.png");
         $("#fingerprint3").attr("src", "images/scanfinger3.png");
     };
+    //获取用户已经保存的指纹
     $scope.getUserFingerprints = function (user) {
         if (!user) {
             return;
@@ -2592,25 +2697,30 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             console.log($scope.communityData.Fingerprints);
         });
     };
+    //是否已经有指纹信息
     $scope.chooseFinger = function (finger) {
         return !finger
             ? finger :
             (fingeradded.some(function (t) { return t.finger === finger.id; }) ? "text-success" : "text-danger");
     };
+    //打开添加指纹
     $scope.openAddFinger = function () {
         fpService = createFingerprint();
         $("#addFinger").modal("show");
     };
+    //重置指纹读取
     $scope.resetFinger = function () {
         fpService.reset();
         $("#fingerprint1").attr("src", "images/scanfinger1.png");
         $("#fingerprint2").attr("src", "images/scanfinger2.png");
         $("#fingerprint3").attr("src", "images/scanfinger3.png");
     };
+    //关闭添加指纹
     $scope.closeAddFinger = function () {
         $("#addFinger").modal("hide");
         fpService.close();
     };
+    //添加指纹
     $scope.addFinger = function (finger, user) {
         if (!finger) {
             alert("请选择手指");
@@ -2709,6 +2819,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             });
         }
     };
+    //选定指纹
     var thisTimeFinger;
     var lastTimeFinger;
     $scope.chooseFingerprint = function (index, event, fingerprint) {
@@ -2750,31 +2861,34 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             }
         }
         var selectfingerprint = angular.element("input:checkbox[name='chooseAuthFingerprint']:checked");
-        var selectfingerprintList = mapToArray(selectfingerprint, function (x) { return angular.fromJson(x.value); });
+        var selectfingerprintList = mapToArray(selectfingerprint, function (x) { return angular.fromJson(x.value); }); //选择的列表 
         $scope.alreadyAuthFingerprint = Helper.unionAuths(selectfingerprintList);
         $scope.unalreadyAuthFingerprint = Helper.complementOfIntersect(selectfingerprintList, $scope.communityData.devices);
     };
+    //全选指纹
     $scope.selectAllFingerprint = function () {
         var cardAll = $("input:checkbox[name='chooseAuthFingerprint']");
         cardAll.attr("checked", true);
         cardAll.parent().parent().addClass("bg-success");
         var selectfingerprint = angular.element("input:checkbox[name='chooseAuthFingerprint']:checked");
-        var selectfingerprintList = mapToArray(selectfingerprint, function (x) { return angular.fromJson(x.value); });
+        var selectfingerprintList = mapToArray(selectfingerprint, function (x) { return angular.fromJson(x.value); }); //选择卡的列表
         $scope.alreadyAuthFingerprint = Helper.unionAuths(selectfingerprintList);
         $scope.unalreadyAuthFingerprint = Helper.complementOfIntersect(selectfingerprintList, $scope.communityData.devices);
     };
+    //取消选择指纹
     $scope.selectAllfingerprint_not = function () {
         var cardAll = $("input:checkbox[name='chooseAuthFingerprint']");
         cardAll.attr("checked", false);
         cardAll.parent().parent().removeClass("bg-success");
         var selectfingerprint = angular.element("input:checkbox[name='chooseAuthFingerprint']:checked");
-        var selectfingerprintList = mapToArray(selectfingerprint, function (x) { return angular.fromJson(x.value); });
+        var selectfingerprintList = mapToArray(selectfingerprint, function (x) { return angular.fromJson(x.value); }); //选择卡的列表
         $scope.alreadyAuthFingerprint = Helper.unionAuths(selectfingerprintList);
         $scope.unalreadyAuthFingerprint = Helper.complementOfIntersect(selectfingerprintList, $scope.communityData.devices);
     };
+    //删除指纹
     $scope.deletefingerprint = function () {
         var selectfingerprint = angular.element("input:checkbox[name='chooseAuthFingerprint']:checked");
-        var selectfingerprintList = mapToArray(selectfingerprint, function (x) { return angular.fromJson(x.value); });
+        var selectfingerprintList = mapToArray(selectfingerprint, function (x) { return angular.fromJson(x.value); }); //选择指纹的列表
         if (selectfingerprintList.length === 0) {
             return;
         }
@@ -2851,8 +2965,9 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 if (deviceIdx === deviceList.length - 1) {
                     if (!value || fpIdx === fingerprintList.length - 1) {
                         $timeout(function () {
+                            /*更新授权和未授权门口机列表*/
                             var selectfingerprint = angular.element("input:checkbox[name='chooseAuthFingerprint']:checked");
-                            var selectfingerprintList = mapToArray(selectfingerprint, function (x) { return angular.fromJson(x.value); });
+                            var selectfingerprintList = mapToArray(selectfingerprint, function (x) { return angular.fromJson(x.value); }); //选择指纹的列表
                             $scope.alreadyAuthFingerprint = Helper.unionAuths(selectfingerprintList);
                             $scope.unalreadyAuthFingerprint =
                                 Helper.complementOfIntersect(selectfingerprintList, $scope.communityData.devices);
@@ -2866,6 +2981,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         }
         getNext(true, auth);
     }
+    //授权指纹到门口机
     $scope.authFingerprintToDevice = function () {
         var selectFingerprint = angular.element("input:checkbox[name='chooseAuthFingerprint']:checked");
         var authFingerprintList = mapToArray(selectFingerprint, function (x) { return angular.fromJson(x.value); });
@@ -2896,6 +3012,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $scope.authCompleteinfo = [];
         fingerprintAuthGenerator(authFingerprintList, authDeviceList, $time, $binding);
     };
+    //取消授权指纹
     $scope.deleteAuthfingerprint = function () {
         var selectFingerprint = angular.element("input:checkbox[name='chooseAuthFingerprint']:checked");
         var authFingerprintList = mapToArray(selectFingerprint, function (x) { return angular.fromJson(x.value).id; });
@@ -2934,8 +3051,9 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                     if (deviceIdx === deviceList.length - 1) {
                         if (!data.result || fpIdx === fingerprintList.length - 1) {
                             $timeout(function () {
+                                /*更新授权和未授权门口机列表*/
                                 var selectfingerprint = angular.element("input:checkbox[name='chooseAuthFingerprint']:checked");
-                                var selectfingerprintList = mapToArray(selectfingerprint, function (x) { return angular.fromJson(x.value); });
+                                var selectfingerprintList = mapToArray(selectfingerprint, function (x) { return angular.fromJson(x.value); }); //选择指纹的列表
                                 $scope.alreadyAuthFingerprint = Helper.unionAuths(selectfingerprintList);
                                 $scope.unalreadyAuthFingerprint = Helper.complementOfIntersect(selectfingerprintList, $scope.communityData.devices);
                             });
@@ -2951,6 +3069,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $scope.authCompleteinfo = [];
         unauthGenerator(authFingerprintList, unAuthDeviceList);
     };
+    //指纹查询过滤器
     $scope.fingerprintFilter = function (str) {
         if (!str) {
             $scope.fingerprint_viewData = $scope.communityData.Fingerprints.slice(0);
@@ -2977,6 +3096,9 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         });
         $scope.fingerprint_viewData = filterData;
     };
+    /*指纹管理结束*/
+    /*广告投放开始*/
+    //广告系统视图加载
     $scope.chooseadvertisingView = function (viewNumber) {
         switch (viewNumber) {
             case 1:
@@ -3009,6 +3131,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 }
         }
     };
+    //个人文件获取
     $scope.getAdminAdvertisingFile = function () {
         $iot.advertising.files.sum().then(function (data) {
             $timeout(function () {
@@ -3017,9 +3140,14 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             });
         });
     };
+    //上传广告
     $scope.upAdvertisingFile = function () {
         var upForm = $("#upFileForm");
         var formData = new FormData(upForm[0]);
+        /*var $time = form_data.get("Term");
+        var $timeStrap = new Date($time).getTime()/1000;
+        form_data.set('Term', $timeStrap);*/
+        /*mp4 = 1 flv = 2*/
         var type = formData.get("File").type;
         var size = formData.get("File").size;
         console.log(type);
@@ -3049,6 +3177,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             });
         });
     };
+    //编辑广告文件
     $scope.open_EditFile = function (file) {
         $scope.whoFile = JSON.parse(JSON.stringify(file));
         $("#editPlayCom").multiselect();
@@ -3066,6 +3195,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         console.log(reqData);
         $iot.advertising.files.put(reqData).then(function () { });
     };
+    //获取小区播放计划
     $scope.getComPlans = function (com) {
         $scope.authADCompleteinfo = [];
         $iot.advertising.plans.get(com).then(function (data) {
@@ -3074,6 +3204,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 $scope.communityData.AdvertisingPlans = data;
             });
         });
+        //请求设备数据
         $iot.devices.items(com, function (data) {
             $timeout(function () {
                 $scope.communityData.ADunAuthDevice = data.copy;
@@ -3082,6 +3213,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             });
         });
     };
+    //获取小区的广告文件
     var chooseComAdvertising;
     $scope.getcomAdFile = function (com) {
         chooseComAdvertising = com;
@@ -3091,6 +3223,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             });
         });
     };
+    //添加时段form
     $scope.addPlayTimeForm = function () {
         $("#addplayTime").append("<form class=\"form-inline addplayform\">\n" +
             "                            <div class=\"form-group form-group-sm\">\n" +
@@ -3125,17 +3258,20 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             buttonContainer: '<div class="btn-group btn-group-sm" />'
         });
     };
+    //删除时段form
     function removeSelf(event) {
         var parent = document.getElementById("addplayTime");
         parent.removeChild(event.srcElement.parentElement);
     }
     ;
+    //时间转换成秒数
     function timeToSeconds(time) {
         var timeStr = String(time);
         var hours = Number(timeStr.substring(0, 2));
         var minutes = Number(timeStr.substring(3));
         return hours * 3600 + minutes * 60;
     }
+    //秒数转化成时间
     $scope.secondsTotime = function (secondStr) {
         var second = Number(secondStr);
         var hour = ("0" + (second / 3600 | 0))
@@ -3144,6 +3280,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             .slice(-2);
         return hour + ":" + minute;
     };
+    //星期过滤器
     $scope.weekDayToStr = function (weekDays) {
         if (weekDays.length === 0) {
             return "星期";
@@ -3158,6 +3295,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         str = "星期" + str;
         return str;
     };
+    //上传计划
     $scope.addPlaybackPlan = function () {
         var playbackPlanData = {
             fileId: "",
@@ -3231,6 +3369,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             console.log(err);
         });
     };
+    //删除计划
     var selectedPlan;
     $scope.deletePlaybackPlan = function () {
         if (!selectedPlan) {
@@ -3254,8 +3393,10 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             console.log(err);
         });
     };
+    //选择播放计划
     $scope.choosePlan = function (plan) {
         selectedPlan = plan.id;
+        //获取计划的已投放设备
         $iot.advertising.devices.get(selectedPlan).then(function (data) {
             $timeout(function () {
                 $scope.ChooseauthDevice_AD = $scope.communityData.ADunAuthDevice.filter(function (item) { return data.indexOf(item.id) === -1; });
@@ -3263,7 +3404,9 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             });
         });
     };
+    //选择播放计划样式
     $scope.choosePlanStyle = function (item) { return item.id === selectedPlan ? "success" : ""; };
+    //授权播放计划
     $scope.authAdPlayToDevice = function () {
         $scope.authADCompleteinfo = [];
         var selectDevice = angular.element("input:checkbox[name='chooseAuthDevice_AD']:checked");
@@ -3294,6 +3437,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             })(i));
         }
     };
+    //取消授权播放计划
     $scope.deleteAuth_AD = function () {
         $scope.authADCompleteinfo = [];
         var selectDevice = angular.element("input:checkbox[name='chooseAlreadyAuth_AD']:checked");
@@ -3324,6 +3468,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             })(i));
         }
     };
+    /*广告投放结束*/
+    /*查询系统开始*/
     $scope.moreQuery = "更多选项";
     $scope.openMore = false;
     $scope.openMoreChange = function () {
@@ -3336,6 +3482,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             $scope.moreQuery = "关闭更多";
         }
     };
+    //查询系统视图加载
     $scope.chooseQueryView = function (viewNumber) {
         switch (viewNumber) {
             case 1:
@@ -3359,11 +3506,14 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 return "views/QueryView/record.html";
         }
     };
+    //缓存查询字段
     $scope.searchData = {
         GateList: []
     };
+    //静态事件列表
     $scope.eventlist = Helper.eventConstans;
-    $scope.event = $scope.eventlist[0].id;
+    $scope.event = $scope.eventlist[0].id; //事件初始化
+    //初始化搜索时间
     $scope.initTime = function () {
         $("#startTime").val(new Date().format("yyyy-MM-dd") + " 00:00:00");
         $("#endTime").val(new Date().format("yyyy-MM-dd") + " 23:59:59");
@@ -3386,6 +3536,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             });
         });
     };
+    //查询记录
     $rootScope.recordBarData = false;
     $rootScope.listQuery = false;
     $scope.QueryRecord = function (com, gate, event, name, nric, phone, addressBuilding, addressUnit, addressRoom) {
@@ -3396,12 +3547,14 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 return;
             }
         }
+        //查询的小区
         for (var i = 0; i < $scope.adminData.communities.length; i++) {
             if ($scope.adminData.communities[i].id === com) {
                 $scope.comName = $scope.adminData.communities[i].name;
                 break;
             }
         }
+        //获取查询时间范围
         var startTimeStr = document.getElementById("startTime").value;
         var endTimeStr = document.getElementById("endTime").value;
         var beginTime = getTime.getTimestamp(startTimeStr);
@@ -3441,15 +3594,19 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
     $scope.restoreImg = function () {
         $("#detailModal").removeClass("enlargeImg");
     };
+    //设备日志查询
+    //设备状态
     $scope.StatusIds = Helper.statusConstans;
     $scope.StatusId = undefined;
     $scope.QueryStatus = function (com, gate, statusid) {
+        //查询的小区
         for (var i = 0; i < $scope.adminData.communities.length; i++) {
             if ($scope.adminData.communities[i].id === com) {
                 $scope.comName = $scope.adminData.communities[i].name;
                 break;
             }
         }
+        //获取查询时间范围
         var startTimeStr = document.getElementById("startTime").value;
         var endTimeStr = document.getElementById("endTime").value;
         var beginTime = getTime.getTimestamp(startTimeStr);

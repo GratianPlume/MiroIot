@@ -1,4 +1,4 @@
-var WebClient = (function () {
+var WebClient = /** @class */ (function () {
     function WebClient(ws) {
         var _this = this;
         this._ws = ws;
@@ -112,4 +112,4 @@ var WebClient = (function () {
     };
     return WebClient;
 }());
-//# sourceMappingURL=webClient.js.map
+//# sourceMappingURL=WebClient.js.map

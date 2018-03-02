@@ -1,4 +1,4 @@
-var Seq = (function () {
+var Seq = /** @class */ (function () {
     function Seq(iter, state) {
         this._iter = iter;
         this._state = state;
@@ -53,4 +53,38 @@ var Seq = (function () {
     };
     return Seq;
 }());
+//function DeferArray(arr, calc) {
+//    this.filter = function (predicate) {
+//        function combo(cont) {
+//            return calc(function (x) {
+//                if (predicate(x)) {
+//                    cont(x);
+//                }
+//            });
+//        }
+//        return new DeferArray(arr, combo);
+//    }
+//    this.map = function (maper) {
+//        function combo(cont) {
+//            return calc(function (x) {
+//                cont(maper(x));
+//            })
+//        }
+//        return new DeferArray(arr, combo);
+//    }
+//    this.toArray = function () {
+//        var ret = [];
+//        function cont(x) {
+//            ret.push(x);
+//        }
+//        arr.forEach(calc(cont));
+//        return ret;
+//    }
+//}
+//Array.prototype.delay = function () {
+//    function calc(cont) {
+//        return cont.bind(this);
+//    }
+//    return new DeferArray(this, calc);
+//}
 //# sourceMappingURL=Seq.js.map

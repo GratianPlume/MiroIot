@@ -1,4 +1,4 @@
-var MainView = (function () {
+var MainView = /** @class */ (function () {
     function MainView() {
         this.chooseCommunity = {};
         this.address = {};
@@ -11,7 +11,7 @@ var MainView = (function () {
     }
     return MainView;
 }());
-var AdminView = (function () {
+var AdminView = /** @class */ (function () {
     function AdminView() {
         this.name = "";
         this.communities = [];
@@ -20,7 +20,7 @@ var AdminView = (function () {
     }
     return AdminView;
 }());
-var TimeConvert = (function () {
+var TimeConvert = /** @class */ (function () {
     function TimeConvert() {
     }
     TimeConvert.prototype.getTimestamp = function (timeStr) {
@@ -30,7 +30,7 @@ var TimeConvert = (function () {
     };
     return TimeConvert;
 }());
-var Vadicate = (function () {
+var Vadicate = /** @class */ (function () {
     function Vadicate() {
     }
     Vadicate.blockId = function (id) {
@@ -72,7 +72,7 @@ var Vadicate = (function () {
     };
     return Vadicate;
 }());
-var Dict = (function () {
+var Dict = /** @class */ (function () {
     function Dict(keySelector, item, length) {
         if (item === void 0) { item = {}; }
         if (length === void 0) { length = 0; }
@@ -88,6 +88,10 @@ var Dict = (function () {
         configurable: true
     });
     Object.defineProperty(Dict.prototype, "$", {
+        /**
+         * 返回只读字典
+         * @returns {}
+         */
         get: function () {
             return this._item;
         },
@@ -95,6 +99,10 @@ var Dict = (function () {
         configurable: true
     });
     Object.defineProperty(Dict.prototype, "$$", {
+        /**
+         * 返回一个反序的对象
+         * @returns {}
+         */
         get: function () {
             var combo = function (state, key, value) {
                 var f0 = Dict.setter(key, value);
@@ -114,6 +122,11 @@ var Dict = (function () {
     Dict.prototype.containKey = function (key) {
         return this._item[key] !== undefined;
     };
+    /**
+     * 返回一个绑定键值的函数：该函数把键值输入参数字典中,并返回字典
+     * @param key
+     * @param value
+     */
     Dict.setter = function (key, value) {
         return function (x) {
             x[key] = value;
@@ -255,6 +268,10 @@ var Dict = (function () {
         return new Dict(this._keySelector, x, length);
     };
     Object.defineProperty(Dict.prototype, "copy", {
+        /**
+         * 用浅克隆获取一个新的字典
+         * @returns {}
+         */
         get: function () {
             var x = {};
             var item = this._item;
@@ -269,6 +286,10 @@ var Dict = (function () {
         enumerable: true,
         configurable: true
     });
+    /**
+     * 创建一个空的字典
+     * @param keySelector 键选择器
+     */
     Dict.zero = function (keySelector) {
         return new Dict(keySelector);
     };
@@ -302,12 +323,16 @@ var Dict = (function () {
     };
     return Dict;
 }());
-var Helper = (function () {
+var Helper = /** @class */ (function () {
     function Helper() {
     }
     Helper.arrToDic = function (arr, mapping) {
         return Dict.ofArray(function (x) { return x.id; }, arr, mapping);
     };
+    /**
+     * 把设备码从数字转换为7位字符串
+     * @param value
+     */
     Helper.deviceAddressToStr = function (value) {
         if (value !== undefined) {
             var doorStr = "000000" + value;
@@ -352,9 +377,14 @@ var Helper = (function () {
                 }); })
             }];
     };
+    /**
+     * 生成一个迭代器
+     * @param permits 指纹或者门禁卡数组
+     * @param devices 设备数组
+     */
     Helper.permitGenerator = function (permits, devices) {
-        var deviceIdx = 0;
-        var permitIdx = 0;
+        var deviceIdx = 0; // 门口机
+        var permitIdx = 0; // 印信
         return function (result, next) {
             if (result) {
                 if (permitIdx < permits.length) {
@@ -386,6 +416,10 @@ var Helper = (function () {
     Helper.none = function () {
         return { data: function () { return ({ none: function (f) { return f(); } }); } };
     };
+    /**
+     * 权限的并集
+     * @param secrets 指纹或者门禁卡数组
+     */
     Helper.unionAuths = function (secrets) {
         if (!secrets || secrets.length === 0) {
             return Dict.zero(function (x) { return x.deviceId; });
@@ -399,6 +433,11 @@ var Helper = (function () {
         }
         return dicts;
     };
+    /**
+     * 权限的交集的补集
+     * @param secrets 指纹或者门禁卡数组
+     * @param devices
+     */
     Helper.complementOfIntersect = function (secrets, devices) {
         if (!secrets || secrets.length === 0) {
             return devices.copy;
@@ -425,6 +464,13 @@ var Helper = (function () {
         }
         return undefined;
     };
+    /**
+     * 把两个已排序数组合并为一个排序数组，相同数据被合并。
+     * @param arr1
+     * @param arr2
+     * @param defIdx 合并相同数据时选用的数据，0 表示来自第一个数组，1表示来自第二个数组。
+     * @param comparator 比较器
+     */
     Helper.sortedMerge = function (arr1, arr2, defIdx, comparator) {
         var idx1 = 0;
         var idx2 = 0;

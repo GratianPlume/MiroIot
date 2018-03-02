@@ -1,10 +1,11 @@
-var Community = (function () {
+/// <reference path="./node_modules/@types/jquery/index.d.ts" />
+var Community = /** @class */ (function () {
     function Community(id) {
         this.id = id;
     }
     return Community;
 }());
-var Iot = (function () {
+var Iot = /** @class */ (function () {
     function Iot() {
     }
     Iot.connect = function () {
@@ -22,6 +23,10 @@ var Iot = (function () {
             processData: false
         });
     };
+    /**
+     * 获取或者创建一个社区对象
+     * @param id 社区ID
+     */
     Iot.getCommunity = function (id) {
         var x = Iot.comms.$[id];
         if (x)
@@ -159,6 +164,9 @@ var Iot = (function () {
             return Iot.comms.$[communityId].arch.flatTable[room];
         }
     };
+    /**
+     * 管理自己的账户
+     */
     Iot.manage = {
         changePassword: function (oldPassword, newPassword) {
             var reqData = {
@@ -215,6 +223,7 @@ var Iot = (function () {
                     callbackfn(data);
                 });
             }
+            //else 
         },
         put: function (value) {
             return $.ajax({

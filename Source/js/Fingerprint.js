@@ -1,4 +1,4 @@
-var FpService = (function () {
+var FpService = /** @class */ (function () {
     function FpService() {
         var _this = this;
         this.fingerSocket = new WebSocket("ws://localhost:5018/");
