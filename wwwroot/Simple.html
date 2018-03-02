@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Simple</title>
+    <script type="text/javascript">
+        var url = "ws://localhost/";
+        var ws = null;
+        function onLoaded() {
+
+            if ("WebSocket" in window) {
+                ws = new WebSocket(url);
+                console.log(ws);
+            }
+            else if ("MozWebSocket" in window) {
+                ws = new MozWebSocket(url);
+            } else {
+                document.getElementById("message_output").innerHTML = "浏览器不支持WebSocket";
+            }
+
+            ws.onopen = function () {
+                document.getElementById("message_output").innerHTML += "连接服务器成功" + "<br/>";
+            }
+            ws.onclose = function () {
+                document.getElementById("message_output").innerHTML += "与服务器断开连接" + "<br/>";
+            }
+
+            ws.onerror = function () {
+                document.getElementById("message_output").innerHTML += "通信发生错误" + "<br/>";
+            }
+            ws.onmessage = function (msg) {
+
+                if (msg.data instanceof Blob) {
+                    //服务器端发送的是BinaryMessage
+                    document.getElementById("message_output").innerHTML += msg.data.size + "<br/>";
+                } else {
+                    //服务器端发送的是TextMessage
+                    document.getElementById("message_output").innerHTML += msg.data + "<br/>";
+                }
+
+            }
+
+        }
+
+        function sendTextMessage() {
+            if (ws) {
+                //此时的ws.binaryType = "blob";
+                ws.send("Hello World!");
+            }
+        }
+
+        function sendBinaryMessage() {
+            if (ws) {
+                //这个方法有点问题 没办法传大文件 待改善
+                var fileInput = document.getElementById("file_input");
+                if (fileInput.files.length > 0) {
+
+                    var fileReader = new FileReader();
+
+                    fileReader.onloadend = function (e) {
+                        //此时的ws.binaryType="arraybuffer"
+                        ws.send(this.result);//发送读取到的二进制流
+                    }
+                    fileReader.readAsArrayBuffer(fileInput.files[0]);
+                }
+            }
+        }
+    </script>
+</head>
+<body onload="onLoaded()">
+    <div>
+        <input type="button" value="SendTextMessage" onclick="sendTextMessage()" />
+    </div>
+    <div>
+        <input type="file" id="file_input" />
+        <input type="button" value="SendBinaryMessage" onclick="sendBinaryMessage()" />
+    </div>
+    <div id="message_output"></div>
+</body>
+</html>

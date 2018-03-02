@@ -1,0 +1,190 @@
+<div class="input-group" style="width: 400px">
+    <span class="input-group-addon">请选择小区</span>
+    <select class="form-control" style="max-width: 100%" ng-model="communityData.chooseCommunity"  ng-options="item.name for item in adminData.communities"></select>
+    <span class="input-group-addon btn btn-default" ng-click="SendArch(communityData.chooseCommunity)">确定</span>
+</div>
+<div class="col-xs-12" style="margin-top: 25px">
+    <div class="row">
+        <div class="col-xs-6">
+            <div class="row" style="margin-right: 0">
+                <div id="tree"></div>
+            </div>
+        </div>
+        <div class="col-xs-6" ng-hide="addTree">
+            <div class="row">
+                <div class="panel panel-info">
+                    <div class="panel-heading clearfix">
+                        <h3 class="panel-title" style="display: inline-block">修改小区结构</h3>
+                        <button type="button" class="close pull-right" aria-label="Close" ng-click="closeaddTree()"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="panel-body">
+                        <div ng-switch on="ComStrViewSwitch.mode">
+                            <div ng-switch-when="0">
+                                <form class="form-horizontal">
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label">楼号</label>
+                                        <div class="col-sm-3">
+                                            <input type="text" class="form-control" ng-model="ComStrViewSwitch.buildingID">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label">楼的名称</label>
+                                        <div class="col-sm-5">
+                                            <input type="text" class="form-control" ng-model="ComStrViewSwitch.buildingName">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-sm-offset-3 col-sm-10">
+                                            <button type="button" class="btn btn-default" ng-click="addBuilding(ComStrViewSwitch.buildingID,ComStrViewSwitch.buildingName)">添加楼</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div ng-switch-when="1">
+                                <div class="col-xs-6">
+                                    <div class="row">
+                                        <form class="form-horizontal">
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" style="padding-right: 0">单元号</label>
+                                                <div class="col-sm-7">
+                                                    <input type="text" class="form-control" ng-model="ComStrViewSwitch.unitID">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" style="padding-right: 0">单元名称</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" ng-model="ComStrViewSwitch.unitName">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="col-sm-offset-4 col-sm-8" style="padding-right: 0">
+                                                    <button type="button" class="btn btn-default" ng-click="addunit(ComStrViewSwitch.unitID,ComStrViewSwitch.unitName)">添加单元</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="col-xs-6">
+                                    <div class="row">
+                                        <form class="form-horizontal">
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" style="padding-right: 0">楼号</label>
+                                                <div class="col-sm-7">
+                                                    <input type="text" class="form-control" ng-model="ComStrViewSwitch.editbuildingID">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" style="padding-right: 0">楼的名称</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" ng-model="ComStrViewSwitch.editbuildingName">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="col-sm-offset-4 col-sm-8" style="padding-right: 0">
+                                                    <button type="button" class="btn btn-default" ng-click="editBuilding(ComStrViewSwitch.editbuildingID,ComStrViewSwitch.editbuildingName)">修改楼</button>
+                                                    <button type="button" class="btn btn-danger" ng-click="deleteBuilding()">删除楼</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-switch-when="2">
+                                <div class="col-xs-6">
+                                    <div class="row">
+                                        <form class="form-horizontal">
+                                            <div class="form-group">
+                                                <label class="col-xs-5 control-label">房间号从</label>
+                                                <div class="col-xs-5">
+                                                    <input type="text" class="form-control" ng-model="roomidstart">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-xs-5 control-label">到</label>
+                                                <div class="col-xs-5">
+                                                    <input type="text" class="form-control" ng-model="roomidend">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-xs-5 control-label">楼层号从</label>
+                                                <div class="col-xs-5">
+                                                    <input type="text" class="form-control" ng-model="storeyidstart">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-xs-5 control-label">到</label>
+                                                <div class="col-xs-5">
+                                                    <input type="text" class="form-control" ng-model="storeyidend">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="col-xs-offset-5 col-xs-7">
+                                                    <button type="submit" class="btn btn-default" ng-click="addroom(roomidstart,roomidend,storeyidstart,storeyidend)">添加房间</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="col-xs-6">
+                                    <div class="row">
+                                        <form class="form-horizontal">
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" style="padding-right: 0">单元号</label>
+                                                <div class="col-sm-7">
+                                                    <input type="text" class="form-control" ng-model="ComStrViewSwitch.editunitID">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label" style="padding-right: 0">单元名称</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" ng-model="ComStrViewSwitch.editunitName">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="col-sm-offset-4 col-sm-8" style="padding-right: 0">
+                                                    <button type="button" class="btn btn-default" ng-click="editunit(ComStrViewSwitch.editunitID,ComStrViewSwitch.editunitName)">修改单元</button>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="col-sm-offset-4 col-sm-8" style="padding-right: 0">
+                                                    <button type="button" class="btn btn-danger" ng-click="deleteunit()">删除单元</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-switch-when="3">
+                                <form class="form-horizontal">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label" style="padding-right: 0">房间号</label>
+                                        <div class="col-sm-7">
+                                            <input type="text" class="form-control" ng-model="ComStrViewSwitch.editroomID">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-sm-offset-4 col-sm-8" style="padding-right: 0">
+                                            <button type="button" class="btn btn-default" ng-click="editroom(ComStrViewSwitch.editroomID)">修改房间</button>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-sm-offset-4 col-sm-8" style="padding-right: 0">
+                                            <button type="button" class="btn btn-danger" ng-click="deleteroom()">删除房间</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer clearfix">
+                    <span style="color: #31708f; display: inline-block;margin-top: 8px;">
+                    结构修改完成后，记得提交！
+                    </span>
+                        <button class="btn btn-info pull-right" ng-click="SubmitComTree()">提交</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

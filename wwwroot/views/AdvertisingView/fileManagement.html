@@ -1,0 +1,116 @@
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <span style="font-size:larger;">文件管理</span>
+    </div>
+    <div class="panel-body" style="height: 510px;overflow: scroll">
+        <button class="btn btn-default" type="button" style="margin-bottom: 20px" data-toggle="collapse"
+                data-target="#uploadFile" aria-controls="uploadFile">
+            上传文件
+        </button>
+        <div class="collapse" id="uploadFile">
+            <div class="well">
+                <form id="upFileForm" class="form-horizontal" enctype="multipart/form-data" action="/Advertising/Files" method="post">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">标题：</label>
+                        <div class="col-sm-10">
+                            <input name="Title" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">文件：</label>
+                        <div class="col-sm-10">
+                            <input name="File" accept="video/mp4,video/flv" type="file">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">备注：</label>
+                        <div class="col-sm-10">
+                            <input name="Remark" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <!--<div class="form-group">
+                        <label class="col-sm-2 control-label">有效期：</label>
+                        <div class="col-sm-10">
+                            <input name="Term" type="date" class="form-control">
+                        </div>
+                    </div>-->
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">可投放小区：</label>
+                        <div class="col-sm-10">
+                            <select id="selectedPlayCom" multiple="multiple" name="Communities">
+                                <option ng-repeat="item in adminData.communities" value="{{item.id}}">{{item.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <button type="button" class="btn btn-default" ng-click="upAdvertisingFile()">上传</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <table class="table table-condensed table-hover">
+            <thead>
+            <tr>
+                <th>标题</th>
+                <th>Guid</th>
+                <th>备注</th>
+                <th>修改</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="item in adminData.Advertising">
+                <td>{{item.title}}</td>
+                <td>{{item.id}}</td>
+                <td>{{item.remark}}</td>
+                <td><span class="glyphicon glyphicon-edit" ng-click="open_EditFile(item)"></span></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!--修改文件-->
+<div class="modal fade" id="editFile" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header" style="padding: 7px 20px;">
+                <span class="text-info">正在修改{{whoFile.title}}</span>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top: 0">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body clearfix" style="padding: 0">
+                <div class="well" style="margin-bottom: 0">
+                    <form id="editFileForm" class="form-horizontal" enctype="multipart/form-data" >
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">标题：</label>
+                            <div class="col-sm-9">
+                                <input name="Title" type="text" class="form-control" value="{{whoFile.title}}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">备注：</label>
+                            <div class="col-sm-9">
+                                <input name="Remark" type="text" class="form-control" value="{{whoFile.remark}}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">可投放小区：</label>
+                            <div class="col-sm-9">
+                                <select id="editPlayCom" multiple="multiple" name="Communities">
+                                    <option ng-repeat="item in adminData.communities" value="{{item.id}}">{{item.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-3 col-sm-9">
+                                <button type="button" class="btn btn-default" ng-click="editFile()">修改</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

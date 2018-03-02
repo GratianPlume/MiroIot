@@ -1,0 +1,308 @@
+<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="padding-left: 0;min-width: 460px">
+    <div class="panel panel-info myPanel">
+        <div class="panel-heading clearfix" style="padding: 10px 5px">
+            <span style="display: inline-block">门禁卡管理</span>
+            <input style="width: 130px;border: 1px;border-radius: 4px;margin-left: 15px;padding: 1px 5px" ng-model="cardFilterStr">
+            <button class="btn btn-xs btn-primary" ng-click="cardFilter(cardFilterStr)">查询</button>
+            <button class="btn btn-xs btn-default" ng-click="selectAllCard()">全选</button>
+            <button class="btn btn-xs btn-default" ng-click="selectAllCard_not()">取消</button>
+            <button class="btn btn-xs btn-info" ng-show="cardEdit_show"
+                    ng-click="selectCard_Edit()" data-toggle="modal"
+                    data-target=".editCard">
+                编辑
+            </button>
+            <button ng-click="deleteCard()"
+                    class="btn btn-danger pull-right"
+                    style="padding: 1px 10px;margin-left: 10px">
+                删除卡
+            </button>
+            <button type="button" class="btn btn-success pull-right"
+                    style="padding: 1px 10px" data-toggle="modal"
+                    data-target=".addCard" ng-click="openAddCard()">
+                添加卡
+            </button>
+        </div>
+        <div style="height: 365px;overflow-y: scroll">
+            <table class="table table-bordered table-hover table-condensed voucher">
+                <thead>
+                    <tr>
+                        <th> </th>
+                        <th>#</th>
+                        <th>姓名</th>
+                        <th>卡号</th>
+                        <th>住址</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in card_viewData" ng-mousedown="chooseCard($index,$event,item)">
+                        <td>{{$index+1}}</td>
+                        <td style="position: relative">
+                            <input type="checkbox" value="{{item}}" name="chooseAuthCard" id="{{$index}}">
+                            <div style="position: absolute;width: 100%;height: 100%;z-index: 99;top: 0;left: 0"></div>
+                        </td>
+                        <td>{{item.nric | nricToname:communityData.personnel}}</td>
+                        <td>{{item.serial}}</td>
+                        <td>
+                            <table>
+                                <tr ng-repeat="room in item.nric | nricTorooms:communityData.personnel">
+                                    <td>{{room | roomName:communityData.address}}</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 Authorized" style="padding: 0;min-width: 450px">
+    <div class="panel panel-info clearfix">
+        <div class="panel-heading">
+            <input style="width: 100px;border: 1px;border-radius: 4px;margin-right: 15px;padding: 1px 5px"
+                   ng-model="authDevice_Filter">
+            <button class="btn btn-default pull-right" style="padding: 1px 10px" ng-click="authCardToDevice()">授权</button>
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="height: 150px;overflow-y: scroll">
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>门口机</th>
+                        <th>备注</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="device in ChooseauthDevice | unAuthDevice_filter:authDevice_Filter">
+                        <td><input type="checkbox" value="{{device}}" name="chooseAuthDevice" ng-click="selectAuthDevice()"></td>
+                        <td>{{device.address | deviceAddress}}</td>
+                        <td>{{device.remark}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <form>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" id="alreadyTimeAuth" ng-model="alreadyTime" ng-click="validityTimeDefault()">有效期：
+                    </label>
+                </div>
+                <div class="form-group">
+                    <input type="datetime-local" class="form-control" id="validityTime" ng-disabled="!alreadyTime">
+                </div>
+            </form>
+            <div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" id="alreadyBindingAuth" ng-disabled="chooseBinding" ng-click="selectBinding()">绑定房：
+                    </label>
+                </div>
+                <div class="form-group">
+                    <select class="form-control" id="bindingRoomAddress" ng-disabled="!alreadyBinding">
+                        <option ng-repeat="item in bindingRoom" value="{{item.id}}">{{item.id | bindingroomToaddress:communityData.address}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 Authorized"
+     style="padding: 0;min-width: 450px;">
+    <div class="panel panel-success">
+        <div class="panel-heading">
+            <span style="display: inline-block">已授权门禁</span>
+            <button ng-click="deleteAuthCard()"
+                    class="btn btn-warning pull-right"
+                    style="padding: 1px 10px;margin-left: 10px">
+                取消授权
+            </button>
+        </div>
+        <div style="height: 135px;overflow-y: scroll">
+            <table class="table table-condensed table-bordered">
+                <thead>
+                    <tr><th>#</th><th>门禁</th><th>期限</th><th>绑定房号</th></tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="authDevice in alreadyAuth.$">
+                        <td>
+                            <input type="checkbox" value="{{authDevice}}" name="chooseAlreadyAuth">
+                        </td>
+                        <td>{{authDevice.deviceId | deviceToAddress:communityData.devices | deviceAddress}}</td>
+                        <td>{{authDevice.expire ? authDevice.expire*1000 : " " |  date:'yyyy-MM-dd HH:mm'}}</td>
+                        <td>{{authDevice.binding | bindingroomToaddress:communityData.address}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="col-xs-12">
+    <div class="row">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <span style="display: inline-block">授权结果</span>
+            </div>
+            <table class="table table-condensed table-bordered">
+                <thead>
+                    <tr><th>门口机</th><th>成功</th><th>失败</th><th>失败原因</th></tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in authCompleteinfo">
+                        <td>{{item.device | deviceToAddress:communityData.devices | deviceAddress}}</td>
+                        <td>
+                            {{item.success.length || 0}}
+                            <div class="dropdown pull-right">
+                                <button class="btn btn-success btn-xs dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    查看
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                    <li ng-repeat="menu in item.success"><a>{{menu | cardidTonumber:communityData.card}}</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td>
+                            {{item.fail.length || 0}}
+                            <div class="dropdown pull-right">
+                                <button class="btn btn-danger btn-xs dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    查看
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                                    <li ng-repeat="menu in item.fail"><a>{{menu | cardidTonumber:communityData.card}}</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td>{{item.message}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!--添加卡的模态框-->
+<div class="modal addCard" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog modal-sm myModalSize" role="document">
+        <div class="modal-content">
+            <div class="panel panel-primary" style="margin-bottom: 0">
+                <div class="panel-heading">
+                    添加门禁卡
+                    <button ng-show="showSpeedyAddCard" ng-click="switchAddCard()" class="btn btn-xs btn-default pull-right">快速</button>
+                    <button ng-hide="showSpeedyAddCard" ng-click="switchAddCard()" class="btn btn-xs btn-default pull-right">常规</button>
+                </div>
+                <!--正常添加卡form-->
+                <form class="form-horizontal" ng-show="showSpeedyAddCard" style="padding: 15px 5px 5px 0;margin: 10px 0 0 10px;width: auto">
+                    <div class="form-group" style="margin-left: 0;margin-right: 0">
+                        <label class="col-sm-2 control-label" style="padding: 7px 0 0 0;min-width: 35px">卡号:</label>
+                        <div class="col-sm-10" style="padding-right: 0;width: inherit">
+                            <input class="form-control" style="width: inherit" ng-model="cardNumber" onfocus="this.style.imeMode='disabled'">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-left: 0;margin-right: 0" ng-hide="addCardNumberValidate">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <p class="text-warning addNumber"></p>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-left: 0;margin-right: 0">
+                        <label class="col-sm-2 control-label" style="padding: 7px 0 0 0;min-width: 35px">用户:</label>
+                        <div class="col-sm-10" style="padding-right: 0">
+                            <select class="form-control col-sm-5" style="width: 104px" ng-model="addressBuilding" ng-options="item.name for item in communityData.address.items.$"></select>
+                            <select class="form-control col-sm-4" style="width: 104px" ng-model="addressUnit" ng-options="item.name for item in addressBuilding.items.$"></select>
+                            <select class="form-control col-sm-3" style="width: 80px" ng-model="addressRoom" ng-options="item.id for item in addressUnit.items.$" ng-change="roomPersonnel(addressRoom)"></select>
+                            <!--<select class="form-control" style="float: left;width: 90px" ng-model="cardPersonnel">
+                                <option ng-repeat="item in cardPersonnels" value="{{item}}">{{item.name}}</option>
+                            </select>-->
+                            <select class="form-control" style="float: left;width: 90px"
+                                    ng-model="cardPersonnel.x"
+                                    ng-options="item.nric as item.name for item in cardPersonnels.$"></select>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-left: 0;margin-right: 0" ng-hide="addcardPersonnelsValidate">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <p class="text-warning addCardPersonnels"></p>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-left: 0;margin-right: 0">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <button type="button" class="btn btn-default"
+                                    ng-click="addCard(cardNumber,cardPersonnel.x)">
+                                保存
+                            </button>
+                        </div>
+                        <div class="col-sm-offset-2 col-sm-10" ng-hide="addCardcomplete">
+                            <p class="text-success addCardcomplete"></p>
+                        </div>
+                    </div>
+                </form>
+                <!--快速添加卡form-->
+                <form class="form-horizontal" ng-hide="showSpeedyAddCard" style="padding: 15px 5px 5px 0;margin: 10px 0 0 10px;width: auto">
+                    <div class="form-group" style="margin-left: 0;margin-right: 0">
+                        <label class="col-sm-2 control-label" style="padding: 7px 0 0 0;min-width: 35px">卡号:</label>
+                        <div class="col-sm-10" style="padding-right: 0;width: inherit">
+                            <input id="speedyAddCard_input" class="form-control" style="width: inherit" ng-model="cardNumber_speedy" ng-keydown="addCard_speedy($event,cardNumber_speedy)" onfocus="this.style.imeMode='disabled'">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-left: 0;margin-right: 0" ng-hide="speedyAddCardInfo">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <p class="text-warning speedyAddNumber"></p>
+                        </div>
+                    </div>
+                </form>
+                <ul style="max-height: 300px;overflow-y: scroll;font-family: 'Courier New',NSimSun,Fixedsys">
+                    <li ng-repeat="item in speedyAddCardSuccessList">{{item}}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<!--编辑卡的模态框-->
+<div class="modal editCard" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog modal-sm myModalSize" role="document">
+        <div class="modal-content">
+            <div class="panel panel-primary" style="margin-bottom: 0">
+                <div class="panel-heading">
+                    编辑门禁卡
+                </div>
+                <form class="form-horizontal" style="padding: 15px 5px 5px 0;margin: 10px 0 0 10px;width: auto">
+                    <div class="form-group" style="margin-left: 0;margin-right: 0">
+                        <label class="col-sm-2 control-label" style="padding: 7px 0 0 0;min-width: 35px">卡号:</label>
+                        <div class="col-sm-10" style="padding-right: 0;width: inherit">
+                            <input class="form-control" ng-model="tobe_editCardSerial" style="width: inherit" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-left: 0;margin-right: 0">
+                        <label class="col-sm-2 control-label" style="padding: 7px 0 0 0;min-width: 35px">用户:</label>
+                        <div class="col-sm-10" style="padding-right: 0">
+                            <select class="form-control col-sm-5" style="width: 104px" ng-model="editCard_address.building" ng-options="item.name for item in communityData.address.items.$"></select>
+                            <select class="form-control col-sm-4" style="width: 104px" ng-model="editCard_address.unit" ng-options="item.name for item in editCard_address.building.items.$"></select>
+                            <select class="form-control col-sm-3" style="width: 80px" ng-model="editCard_address.room"
+                                    ng-options="item.id for item in editCard_address.unit.items.$"
+                                    ng-change="roomPersonnel(editCard_address.room)"></select>
+                            <select class="form-control" style="float: left;width: 90px" ng-model="editCard_address.nric">
+                                <option ng-repeat="item in cardPersonnels.$" value="{{item.nric}}">{{item.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-left: 0;margin-right: 0" ng-hide="addcardPersonnelsValidate">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <p class="text-warning addCardPersonnels"></p>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-left: 0;margin-right: 0">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <button type="button" class="btn btn-default"
+                                    ng-click="editCard(editCard_address.nric)">
+                                保存
+                            </button>
+                        </div>
+                        <div class="col-sm-offset-2 col-sm-10" ng-hide="editCardcomplete">
+                            <p class="text-success editCardcomplete"></p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,17 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-3 col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li ng-click="chooseView(6);getAdminList()" ng-class="entrancesidebarStyle(6)"><a>账号管理</a></li>
+                <li ng-click="chooseView(5)" ng-class="entrancesidebarStyle(5)"><a>选择小区</a></li>
+                <li ng-click="chooseView(1)" ng-class="entrancesidebarStyle(1)" ng-hide="asideView"><a>设备管理</a></li>
+                <li ng-click="chooseView(2)" ng-class="entrancesidebarStyle(2)" ng-hide="asideView"><a>人员管理</a></li>
+                <li ng-click="chooseView(3)" ng-class="entrancesidebarStyle(3)" ng-hide="asideView"><a>指纹管理</a></li>
+                <li ng-click="chooseView(4)" ng-class="entrancesidebarStyle(4)" ng-hide="asideView"><a>门禁卡管理</a></li>
+            </ul>
+        </div>
+        <div class="col-xs-9 col-xs-offset-3 col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+            <ng-include src = "functionalView()" onload="drawTree()"></ng-include>
+        </div>
+    </div>
+</div>

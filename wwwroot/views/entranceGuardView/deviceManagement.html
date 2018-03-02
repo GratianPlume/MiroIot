@@ -1,0 +1,78 @@
+<div class="panel panel-info myPanel">
+    <div class="panel-heading">设备管理</div>
+    <div style="max-height: calc(100vh - 190px);overflow-y: scroll">
+    <table class="table table-bordered table-hover table-condensed">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>设备ID</th>
+            <th>设备密码</th>
+            <th>备注</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="item in communityData.devices.$" ng-click="chooseDevice(item)" ng-class="chooseDeviceStyle(item)">
+            <td>{{$index+1}}</td>
+            <td>{{item.address | deviceAddress}}</td>
+            <td>{{item.password}}</td>
+            <td>{{item.remark}}</td>
+        </tr>
+        </tbody>
+    </table>
+    </div>
+</div>
+<div class="btn-group" role="group" aria-label="...">
+    <button type="button" class="btn btn-default" data-toggle="modal" data-target=".addDevice">添加新设备</button>
+    <button type="button" class="btn btn-default" ng-click="deleteDevice()">删除所选项</button>
+    <button type="button" class="btn btn-default" data-toggle="modal" data-target=".DeviceEdit">修改编辑</button>
+</div>
+
+<div class="modal addDevice" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog modal-sm myModalSize" role="document">
+        <div class="modal-content">
+            <form class="form-horizontal" autocomplete="off">
+                <div class="input-group mySet-input-group">
+                    <span class="input-group-addon" id="deviceType">设备类型</span>
+                    <select  class="form-control" aria-describedby="deviceType">
+                        <option value="0">广域网门口机</option>
+                    </select>
+                </div>
+                <div class="input-group mySet-input-group">
+                    <span class="input-group-addon">设备 ID</span>
+                    <select class="form-control" style="width: 115px;padding-left: 5px" ng-model="addressBuilding" ng-options="item.name for item in communityData.address.items.$"></select>
+                    <select class="form-control" style="width: 105px;padding-left: 5px"ng-model="addressUnit" ng-options="item.name for item in addressBuilding.items.$"></select>
+                    <select class="form-control" style="width: 72px;padding-left: 5px"ng-model="deviceNumber">
+                        <option ng-repeat="item in [0,1,2,3,4,5,6,7,8,9]">{{item}}</option>
+                    </select>
+                </div>
+                <div class="input-group mySet-input-group">
+                    <span class="input-group-addon">备注</span>
+                    <input type="text" class="form-control" autocomplete="off" ng-model="deviceRemark">
+                </div>
+                <div class="input-group mySet-input-group">
+                    <span class="input-group-addon">设定密码</span>
+                    <input type="text" class="form-control" autocomplete="off" ng-model="devicePwd">
+                </div>
+                <button type="button" class="btn btn-default" ng-click="addDevice(addressBuilding,addressUnit,deviceNumber,devicePwd,deviceRemark)">提交</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal DeviceEdit" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog modal-sm myModalSize" role="document">
+        <div class="modal-content">
+            <form class="form-horizontal">
+                <div class="input-group mySet-input-group">
+                    <span class="input-group-addon" id="resetPwd">重设密码</span>
+                    <input type="text" class="form-control" ng-model="newDevicepwd">
+                </div>
+                <div class="input-group mySet-input-group">
+                    <span class="input-group-addon" id="resetRemark">重设备注</span>
+                    <input type="text" class="form-control" ng-model="newRemark">
+                </div>
+                <button type="submit" class="btn btn-default" ng-click="editDevicepwd(newDevicepwd,newRemark)">提交</button>
+            </form>
+        </div>
+    </div>
+</div>

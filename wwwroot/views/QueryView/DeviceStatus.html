@@ -1,0 +1,111 @@
+<div ng-init="initTime()">
+    <section class="form-section">
+        <div class="form-section-row">
+            <span>社区：</span><select  id="comTy" class="community inputList"
+                                     ng-model="searchData.Community"
+                                     ng-options="x.id as x.name for x in adminData.communities"
+                                     ng-change="getGate(searchData.Community)"></select>
+            <span>时间：</span><input type="text" class="inputList" id="startTime" class="aside_input" onclick="SetDate(this,'yyyy-MM-dd hh:mm:ss')" readonly="readonly">
+            <span>至</span><input type="text" id="endTime" class="inputList" onclick="SetDate(this,'yyyy-MM-dd hh:mm:ss')" readonly="readonly">
+        </div>
+        <div class="form-section-row">
+            <span>门口机ID：</span><select class="doorMachine inputList"
+                                       ng-model="searchData.Gate"
+                                       ng-options="x.id as x.address for x in searchData.GateList"></select>
+            <span>状态：</span><select  class="status inputList" ng-model="StatusId" ng-options="x.id as x.name for x in StatusIds"></select>
+
+        </div>
+        <div>
+            <button class="btn btn-primary" ng-click="QueryStatus(searchData.Community,searchData.Gate,StatusId)">确定查询</button>
+            <!--<button class="btn btn-info">显示实时</button>
+            <button class="btn btn-default">关闭实时</button>-->
+        </div>
+    </section>
+    <!--<div class="table_section" ng-show="ActualList">
+        <h4>门口机实时状态</h4>
+        <p class="info">灰色背景表示离线门口机</p>
+        <div class="col-sm-4">
+            <table class="table table-condensed table-hover">
+                <thead>
+                <tr>
+                    <th>门口机</th>
+                    <th>当前状态</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="n in doorIdsListA"  ng-class="{true:'outline', false: 'online'}[n.Status>1]">
+                    <td>{{n.Name}}</td>
+                    <td><span ng-class="{true:'doorClose', false: 'doorOpen'}[n.Status % 2 == 0]">{{["关闭","打开","","","","","关闭/离线","打开/离线"][n.Status]}}</span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-sm-4">
+            <table class="table table-condensed table-hover">
+                <thead>
+                <tr>
+                    <th>门口机</th>
+                    <th>当前状态</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="n in doorIdsListB"  ng-class="{true:'outline', false: 'online'}[n.Status>1]">
+                    <td>{{n.Name}}</td>
+                    <td><span ng-class="{true:'doorClose', false: 'doorOpen'}[n.Status % 2 == 0]">{{["关闭","打开","","","","","关闭/离线","打开/离线"][n.Status]}}</span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-sm-4">
+            <table class="table table-condensed table-hover">
+                <thead>
+                <tr>
+                    <th>门口机</th>
+                    <th>当前状态</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="n in doorIdsListC"  ng-class="{true:'outline', false: 'online'}[n.Status>1]">
+                    <td>{{n.Name}}</td>
+                    <td><span ng-class="{true:'doorClose', false: 'doorOpen'}[n.Status % 2 == 0]">{{["关闭","打开","","","","","关闭/离线","打开/离线"][n.Status]}}</span></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>-->
+    <section class="table_section">
+        <div class="progress progress-striped active" ng-show="logsbarData">
+            <div id="divbar" class="progress-bar progress-bar-success" role="progressbar"
+                 aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+                 style="width:100%;">
+                数据加载中...
+                <span class="sr-only">40% 完成</span>
+            </div>
+        </div>
+        <div ng-show="listStatus" style="margin-top: 10px">
+            <table class="table table-bordered table-hover">
+                <caption>门口机状态记录</caption>
+                <thead>
+                <tr>
+                    <th align="center" style="text-align:center">序号</th>
+                    <th align="center" style="text-align:center">社区</th>
+                    <th align="center" style="text-align:center">门口机ID</th>
+                    <th align="center" style="text-align:center">时间</th>
+                    <th align="center" style="text-align:center">状态</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="X in Status">
+                    <td style="text-align:center">{{$index }}</td>
+                    <td style="text-align:center">{{comName}}</td>
+                    <td style="text-align:center">{{X.address| deviceAddress}}</td>
+                    <td style="text-align:center">{{X.timestamp | dateFilter}}</td>
+                    <td style="text-align:center" ng-class="{true:'open', false: ' '}[X.Status==1]">{{["关闭","打开","离线","网络恢复","软件上线"][X.status]}}</td>
+                </tr>
+                </tbody>
+            </table>
+           <!-- <button class="btn btn-block btn-success" ng-hide="disMoreStatus" ng-click="loadMoreStatus()">加载更多</button>
+            <button class="btn btn-default btn-block" ng-show="disMoreStatus">加载完成</button>-->
+        </div>
+    </section>
+</div>

@@ -1,0 +1,182 @@
+<div class="panel panel-info myPanel">
+    <div class="panel-heading clearfix">
+        <span>人员管理</span>
+        <input style="width: 200px;border: 1px;border-radius: 4px;margin-left: 15px;padding: 1px 5px" ng-model="personnelFilterStr">
+        <button class="btn btn-xs btn-primary" ng-click="personnelFilterStr=''">全部</button>
+        <div class="btn-group pull-right" role="group" aria-label="...">
+            <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target=".addPersonnel">添加人员</button>
+            <button type="button" class="btn btn-default btn-xs" ng-click="deletePersonnel()">删除人员</button>
+            <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target=".PersonnelEdit">修改编辑</button>
+        </div>
+    </div>
+    <div style="max-height: calc(100vh - 170px);overflow-y: scroll">
+        <table class="table table-bordered table-hover table-condensed">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>姓名</th>
+                <th>身份证号码</th>
+                <th>住址</th>
+                <th>电话号码</th>
+                <th>职业</th>
+                <th>QQ号码</th>
+                <th>微信</th>
+                <th>手机MAC</th>
+                <th>备注</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="item in communityData | personFilter:personnelFilterStr" ng-click="choosePersonnel(item)" ng-class="chooseStyle(item)">
+                <td>{{$index+1}}</td>
+                <td>{{item.name}}</td>
+                <td>{{item.nric | nricFilter}}</td>
+                <td>
+                    <table>
+                        <tr ng-repeat="room in item.rooms">
+                            <td>{{room | roomName:communityData.address}}</td>
+                        </tr>
+                    </table>
+                </td>
+                <td>{{item.phone}}</td>
+                <td>{{item.occupation}}</td>
+                <td>{{item.QQ}}</td>
+                <td>{{item.wechat}}</td>
+                <td>{{item.phoneMac}}</td>
+                <td>{{item.remark}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal addPersonnel" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog modal-sm myModalSize" role="document">
+        <div class="modal-content">
+            <form class="form-horizontal" style="margin: 20px auto" ng-submit="addPersonnel(addName,addID,addNumber,addWorkUnit,addQQ,addWeChat,addphoneMac,addRemark)">
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
+                    <span class="input-group-addon" id="ID">身份证</span>
+                    <input type="text" class="form-control" aria-describedby="ID" ng-model="addID" ng-change="queryPersonnerl(addID)">
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
+                    <span class="input-group-addon" id="name">姓名</span>
+                    <input type="text" class="form-control"aria-describedby="name" ng-model="addName">
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
+                    <span class="input-group-addon" id="address">住址</span>
+                    <select class="form-control" style="width: 115px;padding-left: 5px" ng-model="addressBuilding" ng-options="item.name for item in communityData.address.items.$"></select>
+                    <select class="form-control" style="width: 105px;padding-left: 5px"ng-model="addressUnit" ng-options="item.name for item in addressBuilding.items.$"></select>
+                    <select class="form-control" style="width: 72px;padding-left: 5px"ng-model="addressRoom" ng-options="item.id for item in addressUnit.items.$" ng-change="refreshAddAddressList()"></select>
+                    <span class="input-group-addon btn btn-default" ng-click="addAddress(addressBuilding,addressUnit,addressRoom)">添加</span>
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px" ng-hide="addAddressview">
+                    <div style="margin-left: 140px">
+                        <table class="table table-hover table-condensed" style="margin-bottom: 0">
+                            <tr ng-repeat="item in addAddressListView">
+                                <td>{{item.name}}</td>
+                                <td><button class="btn btn-warning btn-xs" ng-click="deleteAddAddress(item.guid)">删除</button></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
+                    <span class="input-group-addon" id="number">电话号码：</span>
+                    <input type="text" class="form-control" aria-describedby="number" ng-model="addNumber">
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
+                    <span class="input-group-addon" id="WorkUnit">职业：</span>
+                    <input type="text" class="form-control" aria-describedby="WorkUnit" ng-model="addWorkUnit">
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
+                    <span class="input-group-addon" id="QQ">QQ：</span>
+                    <input type="text" class="form-control" aria-describedby="QQ" ng-model="addQQ">
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
+                    <span class="input-group-addon" >微信</span>
+                    <input type="text" class="form-control"  ng-model="addWeChat">
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
+                    <span class="input-group-addon" >手机MAC：</span>
+                    <input type="text" class="form-control"  ng-model="addphoneMac">
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
+                    <span class="input-group-addon" id="reMark">备注</span>
+                    <input type="text" class="form-control" aria-describedby="reMark" ng-model="addRemark">
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px" ng-show="alertSuccess">
+                    <span class="text-success">添加成功</span>
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px" ng-show="alertFail">
+                    <span class="text-danger">添加失败</span>
+                </div>
+                <button type="submit" class="btn btn-default">提交</button>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal PersonnelEdit" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog modal-sm myModalSize" role="document">
+        <div class="modal-content">
+            <form class="form-horizontal" style="margin: 20px auto"
+                  ng-submit="editPerson(choosePersonEditID,editName,editQQ,editPhone,editOccupation,editWechat,editPhoneMac,editRemark)">
+                <div class="input-group mySet-input-group"  style="margin-bottom: 10px">
+                    <span class="input-group-addon">身份证</span>
+                    <input type="text" class="form-control" ng-model="choosePersonEditID" ng-disabled="editing">
+                </div>
+                <div class="input-group mySet-input-group"  style="margin-bottom: 10px">
+                    <span class="input-group-addon">姓名</span>
+                    <input type="text" class="form-control" ng-model="editName">
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
+                    <span class="input-group-addon">住址</span>
+                    <select class="form-control" style="width: 115px;padding-left: 5px" ng-model="addressBuilding" ng-options="item.name for item in communityData.address.items.$"></select>
+                    <select class="form-control" style="width: 105px;padding-left: 5px"ng-model="addressUnit" ng-options="item.name for item in addressBuilding.items.$"></select>
+                    <select class="form-control" style="width: 72px;padding-left: 5px"
+                            ng-model="addressRoom"
+                            ng-options="item.id for item in addressUnit.items.$">
+                    </select>
+                    <span class="input-group-addon btn btn-default" ng-click="editAddAddress(addressBuilding,addressUnit,addressRoom)">添加</span>
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
+                    <div style="margin-left: 140px">
+                        <table class="table table-hover table-condensed" style="margin-bottom: 0">
+                            <tr ng-repeat="item in choosePersonEditRooms">
+                                <td>{{item | roomName:communityData.address}}</td>
+                                <td><button class="btn btn-warning btn-xs" ng-click="editDeleteAddAddress(item)">删除</button></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
+                    <span class="input-group-addon">QQ</span>
+                    <input type="text" class="form-control" ng-model="editQQ">
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
+                    <span class="input-group-addon">电话号码：</span>
+                    <input type="text" class="form-control" ng-model="editPhone">
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
+                    <span class="input-group-addon">职业</span>
+                    <input type="text" class="form-control" ng-model="editOccupation">
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
+                    <span class="input-group-addon">微信</span>
+                    <input type="text" class="form-control" ng-model="editWechat">
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
+                    <span class="input-group-addon">手机Mac</span>
+                    <input type="text" class="form-control" ng-model="editPhoneMac">
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
+                    <span class="input-group-addon">备注</span>
+                    <input type="text" class="form-control" ng-model="editRemark">
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px" ng-show="alertSuccess">
+                    <span class="text-success">修改成功</span>
+                </div>
+                <div class="input-group mySet-input-group" style="margin-bottom: 10px" ng-show="alertFail">
+                    <span class="text-danger">修改失败</span>
+                </div>
+                <button type="submit" class="btn btn-default">提交</button>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,29 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script>
+        var json = { "community": [{ "name": "杭州公安系统", "guid": "f5d5cf26-7dd9-4684-a087-1cd0b54d9745" }, { "name": "泰联试用", "guid": "b82d1208-5969-4a62-8971-de4e262ddf3b" }, { "name": "临平东安景苑", "guid": "ae8e65a9-4f7f-41d7-b869-d9555f1cff6d" }, { "name": "秦潮主题酒店", "guid": "37c58990-b284-4cb8-8189-6c967ff0650f" }, { "name": "杭州测试", "guid": "9348e007-f763-45f5-9efd-a0d6710438fe" }, { "name": "三里亭村民家园1幢", "guid": "b83616b0-606a-4934-a74a-fd956c414d16" }, { "name": "三里亭东苑10栋32", "guid": "0449de30-6839-467a-905b-8367f5531e10" }, { "name": "布丁酒店(杭州虎跑四眼井店)", "guid": "ea26992a-62f9-4694-a73f-45db8f0b7766" }, { "name": "金瑞快捷酒店(天城路)", "guid": "d75a5218-3dd1-4ae3-ba56-f37939a7d10d" }, { "name": "雅尚宾馆(天城路)", "guid": "1c90f690-a845-4bef-9b71-7cfb2d9e9bba" }, { "name": "晨虹假日酒店(范家路)", "guid": "453953f4-f29a-4732-a617-b189ff1f781d" }, { "name": "游记快捷酒店(范家路)", "guid": "13db4982-effe-4b8d-a171-de25192bc9eb" }, { "name": "东腾快捷酒店(天城路)", "guid": "25c09835-c687-4801-829a-d154f4edc3c7" }, { "name": "腾兴假日酒店(天城路)", "guid": "0540f04c-9f1f-43bb-8fa5-52bec9f4228a" }, { "name": "耀达假日酒店(天城路)", "guid": "82ed300c-b154-4bcf-a7a5-5d28e6241742" }, { "name": "酷酷旅店(范家路)", "guid": "c87435b2-3716-4951-b7e9-0fb10f811f40" }, { "name": "杭银客房（秋涛北路）", "guid": "0af176a8-3a18-4148-b249-af3f19e97053" }, { "name": "鸿儒客房（秋涛北路）", "guid": "5cfdd1dd-46da-45b0-a044-c9e7d68aaebc" }, { "name": "博莱商务酒店（秋涛路）", "guid": "98a1a2b0-afeb-4e94-af96-4ad2504bb70b" }, { "name": "海圣快捷酒店（天城路）", "guid": "81880241-77ea-45cf-a0aa-fe55f8d32006" }, { "name": "仟汇假日酒店（机场路）", "guid": "70a1cec8-d60d-476d-958d-74c34c1e2ae8" }, { "name": "乔西宾馆（机场路）", "guid": "bb2cee6f-e1e3-47bb-a05b-2980519605bf" }, { "name": "格调假日酒店（机场路）", "guid": "67fd238b-c967-4972-ab4e-4603edd2d8fa" }, { "name": "庭滔商务酒店（机场路）", "guid": "d307a68e-a32c-4682-8fcf-b2d1ad688f6f" }, { "name": "海林旅馆（艮山西路一弄）", "guid": "8ef53ca6-a46f-419b-b019-93239491c0f0" }, { "name": "物资市场（天台山路）", "guid": "e5af1577-1fbc-45e5-9085-d33a436ba8da" }, { "name": "新京东快捷酒店（艮山西路一弄）", "guid": "a439d9f4-e762-4ac2-bf15-462c7e452e88" }, { "name": "杭州荣悦酒店（秋涛北路）", "guid": "5627b825-1eb3-43cf-abed-77b76281739b" }, { "name": "兴隆假日酒店（秋涛北路）", "guid": "4cb8cdc0-abb0-4673-95d9-8b5bbca0e058" }, { "name": "振华假日酒店（天城路）", "guid": "6bd6992f-d5fd-47a8-b04d-cc20798ffd85" }, { "name": "德江假日酒店", "guid": "ad525e11-2fa5-4212-8291-32bf1f9612f7" }, { "name": "龙泉酒家假日客房(秋涛北路)", "guid": "96cdabbb-9f4d-4ff4-990d-00e897853534" }, { "name": "家豪假日酒店", "guid": "3bf56417-1798-4094-95f8-f4460cd62fe4" }, { "name": "杭州腾讯", "guid": "3b9abae2-b5d6-4f09-a36d-0c2dcb035410" }, { "name": "下沙金沙湖1号", "guid": "37b52fb2-a293-4fb0-9843-4c0fa452c304" }, { "name": "皖尚好宾馆", "guid": "5a47ced4-9464-47fe-8de2-6ce00663ae45" }, { "name": "梦巢情侣酒店", "guid": "9066ae06-13ae-4f44-b664-43a34e6b73d6" }] }
+        var data = {
+            "": JSON.stringify(json)
+        };
+        $.ajax({
+            type: 'POST',
+            url: '/Community/Index',
+            dataType: 'text',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify(json)
+        }).done(function (data) {
+            console.log(data);
+            alert(data);
+        }).fail(err => {
+            console.log(err);
+            alert(err.responseText);
+        });
+    </script>
+</head>
+
+<body></body>
+
+</html>

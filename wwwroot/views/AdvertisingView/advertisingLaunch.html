@@ -1,0 +1,182 @@
+
+<!--<div class="input-group" style="width: 400px;margin-bottom: 10px">
+    <span class="input-group-addon">请选择小区</span>
+    <select class="form-control" style="max-width: 100%" ng-model="AdvertisingCom"  ng-options="item.name for item in adminData.communities"></select>
+    <span class="input-group-addon btn btn-default" ng-click="getComPlans(AdvertisingCom.id);getcomAdFile(AdvertisingCom.id)">确定</span>
+</div>-->
+<div class="col-xs-7 col-sm-7 col-md-7 col-lg-7" style="padding-left: 0;min-width: 460px">
+    <div class="panel panel-info myPanel">
+        <div class="panel-heading clearfix">
+            <span style="display: inline-block;padding: 2px">选择小区</span>
+            <select
+                    style="min-width: 130px;max-width: 100%;height:24px;border: 1px;border-radius: 4px;margin-left: 15px;padding: 1px 5px"
+                    ng-model="communityData.AdchooseCom" ng-options="item.name for item in adminData.communities"
+                    ng-change="getComPlans(communityData.AdchooseCom.id);getcomAdFile(communityData.AdchooseCom.id)"
+            >
+            </select>
+            <button ng-click="deletePlaybackPlan()"
+                    class="btn btn-danger pull-right"
+                    style="padding: 1px 10px;margin-left: 10px">
+                删除计划
+            </button>
+            <button type="button" class="btn btn-success pull-right"
+                    style="padding: 1px 10px" data-toggle="modal"
+                    data-target=".addPlan">
+                新增计划
+            </button>
+        </div>
+        <div style="height: 365px;overflow-y: scroll">
+            <table class="table table-bordered table-hover table-condensed">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>文件标题</th>
+                    <th>备注</th>
+                    <th>终止时间</th>
+                    <th>播放时段</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="item in communityData.AdvertisingPlans" ng-click="choosePlan(item)" ng-class="choosePlanStyle(item)">
+                    <td>{{$index+1}}</td>
+                    <td>{{item.fileTitle}}</td>
+                    <td>{{item.remark}}</td>
+                    <td>{{item.term ? item.term*1000 : " " |  date:'yyyy-MM-dd'}}</td>
+                    <td>
+                        <div class="btn-group btn-block">
+                            <button type="button" class="btn btn-default btn-xs btn-block dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                查看 <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" style="min-width: max-content;padding: 5px;left:auto;right: 0;color: #333">
+                                <li ng-repeat="list in item.plans">
+                                    {{secondsTotime(list.startTime) + "--" + secondsTotime(list.endTime) + " " + weekDayToStr(list.weekDays) + "&nbsp;&nbsp;&nbsp;"}}
+                                    <span class="glyphicon glyphicon-repeat" ng-show="list.loop" style="color: #4cae4c"></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+<div class="col-xs-5 col-sm-5 col-md-5 col-lg-5 Authorized" style="padding: 0;min-width: 450px">
+    <div class="panel panel-info clearfix">
+        <div class="panel-heading">
+            <input style="width: 100px;border: 1px;border-radius: 4px;margin-right: 15px;padding: 1px 5px"
+                   ng-model="authDevice_Filter">
+            <button class="btn btn-default pull-right" style="padding: 1px 10px" ng-click="authAdPlayToDevice()">授权</button>
+        </div>
+        <div style="height: 150px;overflow-y: scroll">
+            <table class="table table-condensed">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>门口机</th>
+                    <th>备注</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="device in ChooseauthDevice_AD | unAuthDevice_filter:authDevice_Filter">
+                    <td><input type="checkbox" value="{{device}}" name="chooseAuthDevice_AD"></td>
+                    <td>{{device.address | deviceAddress}}</td>
+                    <td>{{device.remark}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="col-xs-5 col-sm-5 col-md-5 col-lg-5 Authorized"
+     style="padding: 0;min-width: 450px;">
+    <div class="panel panel-success">
+        <div class="panel-heading">
+            <span style="display: inline-block">已授权设备</span>
+            <button ng-click="deleteAuth_AD()"
+                    class="btn btn-warning pull-right"
+                    style="padding: 1px 10px;margin-left: 10px">
+                取消授权
+            </button>
+        </div>
+        <div style="height: 135px;overflow-y: scroll">
+            <table class="table table-condensed table-bordered">
+                <thead>
+                <tr><th>#</th><th>门口机</th><th>备注</th></tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="authDevice in alreadyAuth_AD">
+                    <td>
+                        <input type="checkbox" value="{{authDevice}}" name="chooseAlreadyAuth_AD">
+                    </td>
+                    <td>{{authDevice.address | deviceAddress}}</td>
+                    <td>{{authDevice.remark}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="col-xs-12">
+    <div class="row">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <span style="display: inline-block">授权结果</span>
+            </div>
+            <table class="table table-condensed table-bordered">
+                <thead>
+                <tr><th>门口机</th><th>结果</th><th>原因</th></tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="item in authADCompleteinfo">
+                    <td>{{item.device | deviceToAddress:communityData.ADunAuthDevice | deviceAddress}}</td>
+                    <td>{{item.result}}</td>
+                    <td>{{item.message}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!--添加计划的模态框-->
+<div class="modal fade addPlan" id="addPlan" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="width:70%">
+        <div class="modal-content">
+            <div class="modal-header" style="padding: 7px 20px;">
+                <span class="text-info">创建播放计划</span>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top: 0">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body clearfix" style="padding: 0">
+                <div class="well clearfix" style="margin-bottom: 0;text-align: center">
+                    <form class="form-inline" id="playbackPlanForm">
+                        <div class="form-group">
+                            <label>文件：</label>
+                            <select name="FileId" class="form-control">
+                                <option ng-repeat="item in communityData.AdFiles" value="{{item.id}}">{{item.title}}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>备注：</label>
+                            <input type="text" class="form-control" name="Remark">
+                        </div>
+                        <div class="form-group">
+                            <label>终止时间：</label>
+                            <input name="Term" type="date" class="form-control">
+                        </div>
+                        <button class="btn btn-default" ng-click="addPlayTimeForm()">添加播放时段</button>
+                    </form>
+                    <div id="addplayTime" style="padding: 20px">
+
+                    </div>
+                    <div class="col-xs-4 col-xs-offset-4">
+                        <button class="btn btn-success btn-lg btn-block" ng-click="addPlaybackPlan()">提交</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
