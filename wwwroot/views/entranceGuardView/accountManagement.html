@@ -40,7 +40,7 @@
                         <th ng-show="showOperateCom"><button ng-click="deleteCommunity()">删除</button></th>
                     </tr></thead>
                     <tbody>
-                    <tr ng-repeat="item in adminData.communities">
+                    <tr ng-repeat="item in adminData.communities track by $index">
                         <td>{{item.name}}</td>
                         <td>{{item.id}}</td>
                         <td>{{item.remark}}</td>
@@ -66,7 +66,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="item in adminData.manager">
+                    <tr ng-repeat="item in adminData.manager.$ track by $index">
                         <td style="text-align: center"><input type="checkbox" value="{{item.openid}}" name="managerChoose" ></td>
                         <td>{{item.name || "未注册"}}</td>
                         <td>{{item.openid}}</td>
@@ -184,7 +184,7 @@
                        <table class="table table-condensed table-hover">
                            <thead><tr><th>已授权小区</th><th><button ng-click="unAuthCommunity()">删除</button></th></tr></thead>
                            <tbody>
-                           <tr ng-repeat="item in editedAdminCommunities">
+                           <tr ng-repeat="item in editedAdminCommunities.$">
                                <td>{{item.name}}</td>
                                <td><input type="checkbox" value="{{item.id}}" name="AuthorizedCommunity"></td>
                            </tr>
@@ -196,7 +196,7 @@
                        <table class="table table-condensed table-hover">
                            <thead><tr><th>未授权小区</th><th><button ng-click="authCommunity()">授权</button></th></tr></thead>
                            <tbody>
-                                <tr ng-repeat="item in uneditedAdminCommunities">
+                                <tr ng-repeat="item in uneditedAdminCommunities.$">
                                     <td>{{item.name}}</td>
                                     <td><input type="checkbox" value="{{item.id}}" name="unAuthorizedCommunity"></td>
                                 </tr>

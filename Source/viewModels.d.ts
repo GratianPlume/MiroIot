@@ -1,6 +1,4 @@
 ﻿/// <reference path="./models.d.ts"/>
-/// <reference path="./node_modules/@types/angular/index.d.ts"/>
-/// <reference path="./node_modules/@types/angular-route/index.d.ts" />
 
 interface StConstans {
     readonly id: number;

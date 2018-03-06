@@ -1988,7 +1988,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
 
             //如果是同一栋同一个单元，获取它的所有房间
             const getTheFlats = () => {
-                const first = authDeviceAddress[0].slice(0, 10);
+                const first = authDeviceAddress[0].slice(0, 6);
                 if (authDeviceAddress.length > 1) {
                     for (let i = 1; i < authDeviceAddress.length; i++) {
                         if (authDeviceAddress[i].slice(0, 10) !== first) {
