@@ -40,14 +40,14 @@
             this._resolve = (value: T) => {
                 const result = onfulfilled(value);
                 this.continue(result, promise._resolve);
-            }
+            };
         }
 
         if (onrejected) {
             this._reject = (reason: any) => {
                 const result = onrejected(reason);
                 this.continue(result, promise._resolve);
-            }
+            };
         }
         return promise;
     }
@@ -60,8 +60,7 @@
                 const result = onrejected(reason);
                 this.continue(result, promise._resolve);
             }
-        }
+        };
         return promise;
     }
-
 }

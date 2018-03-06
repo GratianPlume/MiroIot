@@ -4,7 +4,7 @@
     }
 }
 
-type Key = string | number
+type Key = string | number;
 
 class MainView {
     chooseCommunity: CommunityDetail | {} = {};
@@ -29,8 +29,9 @@ class AdminView {
 }
 
 class TimeConvert {
-    getTimestamp(timeStr: string): number {
-        const newTimeStr = timeStr.replace(/:/g, "-").replace(/[/]/g, "-").replace(/ /g, "-").split("-").map(parseInt);
+    static getTimestamp(timeStr: string): number {
+        const newTimeStr = timeStr.replace(/:/g, "-").replace(/[/]/g, "-").replace(/ /g, "-").split("-").map(Number);
+        console.log(`${timeStr}:${newTimeStr}`);
         const result = new Date(Date.UTC(newTimeStr[0], newTimeStr[1] - 1, newTimeStr[2], newTimeStr[3] - 8, newTimeStr[4], newTimeStr[5]));
         return Math.floor(result.getTime() / 1000);
     }
@@ -130,10 +131,10 @@ class Dict<TValue> {
         const combo = (state: Transducer, key: Key, value: TValue): Transducer => {
             const f0 = Dict.setter(key, value);
             return f1 => state(x => f0(f1(x)));
-        }
+        };
         let counter: (cont: Reducing) => Reducing = angular.identity;
         const item = this._item;
-        for (let key in item) {
+        for (const key in item) {
             if (item.hasOwnProperty(key))
                 counter = combo(counter, key, item[key]);
         }
@@ -151,7 +152,7 @@ class Dict<TValue> {
         return (x: DictCore<TValue>) => {
             x[key] = value;
             return x;
-        }
+        };
     }
 
     addOrUpdate(value: TValue) {
@@ -174,9 +175,9 @@ class Dict<TValue> {
     }
     tryAddHead(values: TValue[]): TValue[] {
         const item = this._item;
-        const reduces: [number | string, TValue][] = [];
+        const reduces: Array<[number | string, TValue]> = [];
         const unhandled: TValue[] = [];
-        for (let val of values) {
+        for (const val of values) {
             const key = this._keySelector(val);
             if (item[key] === undefined) {
                 reduces.push([key, val]);
@@ -193,10 +194,10 @@ class Dict<TValue> {
         const combo = (key: Key, value: TValue, state: Transducer): Transducer => {
             const f0 = Dict.setter(key, value);
             return f1 => state(x => f1(f0(x)));
-        }
+        };
         const trans = (cont: Reducing) => {
             let state: Transducer = angular.identity;
-            for (let key in item) {
+            for (const key in item) {
                 if (item.hasOwnProperty(key)) {
                     const value = item[key];
                     delete item[key];
@@ -204,10 +205,10 @@ class Dict<TValue> {
                 }
             }
             return state(cont);
-        }
+        };
         const counter = trans(angular.identity);
 
-        for (let [key, val] of reduces) {
+        for (const [key, val] of reduces) {
             item[key] = val;
         }
         counter(item);
@@ -234,7 +235,7 @@ class Dict<TValue> {
     }
     get first() {
         const item = this._item;
-        for (let key in item) {
+        for (const key in item) {
             if (item.hasOwnProperty(key)) {
                 return item[key];
             }
@@ -243,11 +244,11 @@ class Dict<TValue> {
     }
     toArray(): TValue[];
     toArray<T>(mapping: (source: TValue) => T): T[];
-    toArray<T>(mapping?: (source: TValue) => T): (T | TValue)[] {
+    toArray<T>(mapping?: (source: TValue) => T): Array<T | TValue> {
         const item = this._item;
         if (mapping) {
             const x: T[] = [];
-            for (let key in item) {
+            for (const key in item) {
                 if (item.hasOwnProperty(key)) {
                     x.push(mapping(this._item[key]));
                 }
@@ -255,7 +256,7 @@ class Dict<TValue> {
             return x;
         } else {
             const x: TValue[] = [];
-            for (let key in item) {
+            for (const key in item) {
                 if (item.hasOwnProperty(key)) {
                     x.push(this._item[key]);
                 }
@@ -265,7 +266,7 @@ class Dict<TValue> {
     }
     some(predicate: (value: TValue) => boolean) {
         const item = this._item;
-        for (let key in item) {
+        for (const key in item) {
             if (item.hasOwnProperty(key)) {
                 const value = this._item[key];
                 if (predicate(value)) {
@@ -279,7 +280,7 @@ class Dict<TValue> {
         const x = {};
         const item = this._item;
         let length = 0;
-        for (let key in item) {
+        for (const key in item) {
             if (item.hasOwnProperty(key)) {
                 const value = this._item[key];
                 if (predicate(value)) {
@@ -297,7 +298,7 @@ class Dict<TValue> {
     get copy() {
         const x = {};
         const item = this._item;
-        for (let key in item) {
+        for (const key in item) {
             if (item.hasOwnProperty(key)) {
                 const value = this._item[key];
                 x[key] = value;
@@ -315,7 +316,8 @@ class Dict<TValue> {
     static ofArray<T>(keySelector: KeySelector<T>, arr: T[]): Dict<T>;
     static ofArray<T, R>(keySelector: KeySelector<T>, arr: T[], mapping: (source: T) => R): Dict<R>;
     static ofArray<T, R>(keySelector: KeySelector<T>, arr: T[], mapping?: (source: T) => R): Dict<T | R> {
-        return new Dict<T | R>(keySelector, Dict.arrToDicc(keySelector, arr, mapping), arr.length);
+        const src = arr || [];
+        return new Dict<T | R>(keySelector, Dict.arrToDicc(keySelector, src, mapping), src.length);
     }
     static orderByArray<T>(keySelector: KeySelector<T>, arr: T[], sortKeySelector: KeySelector<T>): Dict<T>;
     static orderByArray<T, R>(keySelector: KeySelector<T>, arr: T[], sortKeySelector: KeySelector<T>, mapping: (source: T) => R): Dict<R>;
@@ -335,21 +337,20 @@ class Dict<TValue> {
     static arrToDicc<T>(keySelector: KeySelector<T>, arr: T[]): DictCore<T>;
     static arrToDicc<T, R>(keySelector: KeySelector<T>, arr: T[], mapping: (source: T) => R): DictCore<R>;
     static arrToDicc<T, R>(keySelector: KeySelector<T>, arr: T[], mapping?: (source: T) => R): DictCore<T | R> {
-        const x = {}
+        const x = {};
         if (mapping) {
-            for (let item of arr) {
+            for (const item of arr) {
                 x[keySelector(item)] = mapping(item);
             }
             return x;
         } else {
-            for (let item of arr) {
+            for (const item of arr) {
                 x[keySelector(item)] = item;
             }
             return x;
         }
     }
 }
-
 
 class Helper {
     /**
@@ -423,7 +424,7 @@ class Helper {
             text: data.name,
             id: "0",
             guid: data.guid,
-            nodes: data.items.toArray((block) => <BlockItem>{
+            nodes: data.items.toArray(block => <BlockItem>{
                 text: block.id + "--" + block.name,
                 id: "1",
                 blockNumber: block.id,
@@ -467,7 +468,7 @@ class Helper {
                 permitIdx = 0;
                 return next(deviceIdx, permitIdx++);
             }
-        }
+        };
 
     }
 
@@ -480,13 +481,13 @@ class Helper {
         return {
             data: cont => {
                 cont(val);
-                return { none: angular.noop }
+                return { none: angular.noop };
             }
-        }
+        };
     }
 
     static none<T>(): Option<T> {
-        return { data: () => ({ none: f => f() }) }
+        return { data: () => ({ none: f => f() }) };
     }
 
     /**
@@ -517,7 +518,7 @@ class Helper {
         }
         const dicts = secrets.map(x => Dict.arrToDicc<Auth>(t => t.deviceId, x.auth));
         const cache = dicts[0];
-        for (let key in cache) {
+        for (const key in cache) {
             if (cache.hasOwnProperty(key)) {
                 for (let i = 1; i < secrets.length; i++) {
                     if (!dicts[i][key]) {
@@ -553,7 +554,7 @@ class Helper {
                 result.push(arr[i]);
             }
             return result;
-        }
+        };
         while (true) {
             if (arr1.length === idx1)
                 return reduce(idx2, arr2);
@@ -582,4 +583,3 @@ class Helper {
         }
     }
 }
-

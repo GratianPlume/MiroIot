@@ -1,53 +1,58 @@
 ﻿/// <reference path="./node_modules/@types/bootstrap/index.d.ts" />
 /// <reference path="./node_modules/@types/bootstrap-treeview/index.d.ts" />
 /// <reference path="./local.d.ts" />
-var srAngularApp = angular.module("srAngular", ["ngRoute"])
+const srAngularApp = angular
+    .module("srAngular", ["ngRoute"])
     .config(($routeProvider: angular.route.IRouteProvider, $iot: typeof Iot) => {
-        $routeProvider.when("/entranceGuardSystem", {
-            templateUrl: `views/entranceGuardSystem.html?${$iot.startTime}`,
-            resolve: {
-                auth: ($q: ng.IQService, $rootScope: RootScope) => {
-                    const auth = $rootScope.isAuthorize;
-                    if (auth) {
-                        return $q.when(auth);
-                    } else {
-                        return $q.reject({
-                            authenticated: false
-                        });
+        $routeProvider
+            .when("/entranceGuardSystem", {
+                templateUrl: `views/entranceGuardSystem.html?${$iot.startTime}`,
+                resolve: {
+                    auth: ($q: ng.IQService, $rootScope: RootScope) => {
+                        const auth = $rootScope.isAuthorize;
+                        if (auth) {
+                            return $q.when(auth);
+                        } else {
+                            return $q.reject({
+                                authenticated: false
+                            });
+                        }
                     }
                 }
-            }
-        }).when("/querySystem", {
-            templateUrl: "views/querySystem.html?" + $iot.startTime,
-            resolve: {
-                auth: ($q: ng.IQService, $rootScope: RootScope) => {
-                    const auth = $rootScope.isAuthorize;
-                    if (auth) {
-                        return $q.when(auth);
-                    } else {
-                        return $q.reject({
-                            authenticated: false
-                        });
+            })
+            .when("/querySystem", {
+                templateUrl: "views/querySystem.html?" + $iot.startTime,
+                resolve: {
+                    auth: ($q: ng.IQService, $rootScope: RootScope) => {
+                        const auth = $rootScope.isAuthorize;
+                        if (auth) {
+                            return $q.when(auth);
+                        } else {
+                            return $q.reject({
+                                authenticated: false
+                            });
+                        }
                     }
                 }
-            }
-        }).when("/advertisingSystem", {
-            templateUrl: "views/advertisingSystem.html?" + $iot.startTime,
-            resolve: {
-                auth: ($q: ng.IQService, $rootScope: RootScope) => {
-                    const auth = $rootScope.isAuthorize;
-                    if (auth) {
-                        return $q.when(auth);
-                    } else {
-                        return $q.reject({
-                            authenticated: false
-                        });
+            })
+            .when("/advertisingSystem", {
+                templateUrl: "views/advertisingSystem.html?" + $iot.startTime,
+                resolve: {
+                    auth: ($q: ng.IQService, $rootScope: RootScope) => {
+                        const auth = $rootScope.isAuthorize;
+                        if (auth) {
+                            return $q.when(auth);
+                        } else {
+                            return $q.reject({
+                                authenticated: false
+                            });
+                        }
                     }
                 }
-            }
-        }).otherwise({
-            templateUrl: "views/Login.html?" + $iot.startTime
-        });
+            })
+            .otherwise({
+                templateUrl: "views/Login.html?" + $iot.startTime
+            });
     })
     .run(($rootScope: RootScope, $location: ng.ILocationService, $iot: typeof Iot) => {
         $rootScope.isAuthorize = false;
@@ -62,8 +67,9 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $rootScope.openAdsystem = $iot.advertisingMode;
 
         try {
-            $iot.connect()
-                .bindOpen(() => document.title = $iot.title + " - 连接服务器成功")
+            $iot
+                .connect()
+                .bindOpen(() => (document.title = $iot.title + " - 连接服务器成功"))
                 .bindClose(() => {
                     document.title = $iot.title + " - 与服务器断开连接";
                     alert("连接已断开，请重新登录！");
@@ -97,8 +103,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                     });
                 });
         } catch (err) {
-            if (typeof (err) === "string")
-                document.getElementById("message_output").innerHTML = err;
+            if (typeof err === "string") document.getElementById("message_output").innerHTML = err;
         }
     })
     .filter("roomName", ($iot: typeof Iot) => (input: Guid, data: CommunityX): string => {
@@ -109,7 +114,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         const x = $iot.communities.flatten(data.guid, input);
         return x.block.id + x.unit.id + x.flat.id;
     })
-    .filter("nricFilter", () => (nric: string) => nric.length > 18 ? "" : nric)
+    .filter("nricFilter", () => (nric: string) => (nric.length > 18 ? "" : nric))
     .filter("deviceAddress", () => Helper.deviceAddressToStr)
     .filter("nricToname", () => (id: string, people: Dict<Person>): string => {
         if (!id) {
@@ -137,8 +142,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         }
     })
     .filter("bindingroomToaddress", () => (room: string, list: CommunityX): string => {
-        if (!room || room.length !== 10)
-            return "";
+        if (!room || room.length !== 10) return "";
         const blockId = room.slice(0, 4);
         const block = list.items.$[blockId];
         const unitId = room.slice(4, 6);
@@ -146,7 +150,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         const roomId = room.slice(6);
         return block.name + unit.name + roomId;
     })
-    .filter("fingerFilter", () => (finger: number): string => finger ? Helper.fingerConstans[finger - 1].name : "")
+    .filter("fingerFilter", () => (finger: number): string => (finger ? Helper.fingerConstans[finger - 1].name : ""))
     .filter("Filter_level", () => (level: number): number => level & 63)
     .filter("fingerprintToName", ($filter: Filter) => (id: string, fingerprintList: Fingerprint[], personelList: Dict<Person>, fingers: FingerConstans[]): string => {
         for (let i = 0; i < fingerprintList.length; i++) {
@@ -160,11 +164,9 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         if (!filter) {
             return viewData.personnel.copy.$;
         }
-        const roomPredicate = (room: Guid) =>
-            ($filter("roomName")(room, viewData.address).indexOf(filter) !== -1) ||
-            ($filter("roomToAddressid")(room, viewData.address).indexOf(filter) !== -1);
+        const roomPredicate = (room: Guid) => $filter("roomName")(room, viewData.address).indexOf(filter) !== -1 || $filter("roomToAddressid")(room, viewData.address).indexOf(filter) !== -1;
         const predicate = (item: Person) => {
-            for (let prop in item) {
+            for (const prop in item) {
                 if (item.hasOwnProperty(prop)) {
                     if (prop === "rooms" && item[prop].some(roomPredicate)) {
                         return true;
@@ -174,7 +176,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 }
             }
             return false;
-        }
+        };
         return viewData.personnel.filter(predicate).$;
     })
     .filter("unAuthDevice_filter", () => (deviceList: Dict<Device>, str: string) => {
@@ -184,7 +186,6 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         }
         const zip = String(num);
         return deviceList.filter(item => item.address.toString().slice(0, zip.length) === zip).$;
-
     })
     .filter("dateFilter", () => (time: number): string => {
         const padding = (num: number) => `0${num}`.slice(-2);
@@ -197,8 +198,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         const second = padding(date.getSeconds());
         return `${year}/${month}/${day}  ${hour}:${minute}:${second}`;
     })
-    .factory("getTime", () => new TimeConvert())
-    .controller("mainCtrl", ($scope: Scope, $timeout: ng.ITimeoutService, $rootScope: RootScope, $location: ng.ILocationService, $filter: Filter, getTime, $fp: typeof FpService, $iot: typeof Iot) => {
+    .controller("mainCtrl", ($scope: Scope, $timeout: ng.ITimeoutService, $rootScope: RootScope, $location: ng.ILocationService, $filter: Filter, $fp: typeof FpService, $iot: typeof Iot) => {
         /*动态样式*/
         //主导航
         let urlChoose: 1 | 2;
@@ -206,18 +206,18 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             $rootScope.currentCommunity = num === 1;
             urlChoose = num;
         };
-        $scope.Urlstyle = num => num === urlChoose ? "active" : "";
+        $scope.Urlstyle = num => (num === urlChoose ? "active" : "");
         //侧边管理导航
         let sideUrlChoose: number;
-        $scope.entrancesidebarStyle = num => num === sideUrlChoose ? "active" : "";
+        $scope.entrancesidebarStyle = num => (num === sideUrlChoose ? "active" : "");
         //侧边查询导航
         let sideUrlChooseQuery: number;
-        $scope.querysidebarStyle = num => num === sideUrlChooseQuery ? "active" : "";
+        $scope.querysidebarStyle = num => (num === sideUrlChooseQuery ? "active" : "");
         //侧边广告导航
         let sideUrlChooseAdvertising: number;
-        $scope.advertisingsidebarStyle = num => num === sideUrlChooseAdvertising ? "active" : "";
+        $scope.advertisingsidebarStyle = num => (num === sideUrlChooseAdvertising ? "active" : "");
         //帐号管理路径导航
-        $scope.accountUrl = num => $scope.viewSwitch.mode === num ? "active" : "";
+        $scope.accountUrl = num => ($scope.viewSwitch.mode === num ? "active" : "");
         /*动态样式*/
         $scope.hideGuardSystem = false;
         $scope.hideAdSystem = false;
@@ -352,7 +352,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                             urlChoose = 2;
                         }
                     });
-                }).catch(() => {
+                })
+                .catch(() => {
                     $("#errorText").removeClass("hidden");
                     $timeout(() => {
                         $("#errorText").addClass("hidden");
@@ -451,21 +452,14 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
 
         /*进入账号管理时获取当前管理员管理的人员数据*/
         $scope.getAdminList = () => {
-            $iot.accounts
-                .getSubAdmins()
-                .then(data => {
-                    $timeout(() => {
-                        $scope.adminData.manager = data;
-                    });
+            $iot.accounts.getSubAdmins().then(data => {
+                $timeout(() => {
+                    $scope.adminData.manager = data;
                 });
+            });
         };
         /*管理界面视图切换开始*/
-        $scope.adminViewList = [
-            { control: 0, name: "小区列表" },
-            { control: 1, name: "管理员列表" },
-            { control: 2, name: "生成邀请码" },
-            { control: 3, name: "修改密码" }
-        ];
+        $scope.adminViewList = [{ control: 0, name: "小区列表" }, { control: 1, name: "管理员列表" }, { control: 2, name: "生成邀请码" }, { control: 3, name: "修改密码" }];
         $scope.viewSwitch = { mode: 0 };
         $scope.switchView = control => {
             $scope.viewSwitch.mode = control;
@@ -494,14 +488,16 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                             editCommunityData.remark = remark;
                         });
                     }
-                }).catch(err => {
+                })
+                .catch(err => {
                     console.log(err);
                 });
-
         };
 
         function mapToArray<T>(elements: JQuery<HTMLElement>, method: (x: HTMLInputElement) => T): T[] {
-            return Helper.getSeq(elements).map(method).toArray();
+            return Helper.getSeq(elements)
+                .map(method)
+                .toArray();
         }
         /*删除小区开始*/
         $scope.deleteCommunity = () => {
@@ -518,10 +514,10 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                         $scope.adminData.communities = $scope.adminData.communities.filter(item => deleteCommunityIdList.indexOf(item.id) === -1);
                     });
                     alert("删除成功！");
-                }).catch(err => {
+                })
+                .catch(err => {
                     console.log(err);
                 });
-
         };
         /*删除小区结束*/
 
@@ -542,7 +538,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                         $scope.adminData.communities.unshift(newCommunityObj);
                     });
                     alert("添加成功！");
-                }).catch(err => {
+                })
+                .catch(err => {
                     console.log(err);
                 });
         };
@@ -564,10 +561,10 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                         $scope.adminData.manager = $scope.adminData.manager.filter(item => deletaAdminOpenidList.indexOf(item.openid) === -1);
                     });
                     alert("删除成功！");
-                }).catch(err => {
+                })
+                .catch(err => {
                     console.log(err);
                 });
-
         };
         /*删除管理员结束*/
 
@@ -584,8 +581,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             if ($scope.editedAdminCommunities.length === 0) {
                 $scope.uneditedAdminCommunities = Helper.arrToDic<CommunityDetail>(manager.communities);
             } else {
-                $scope.uneditedAdminCommunities = Seq
-                    .ofArray($scope.adminData.communities)
+                $scope.uneditedAdminCommunities = Seq.ofArray($scope.adminData.communities)
                     .filter(x => !$scope.editedAdminCommunities.containKey(x.id))
                     .toDict(x => x.id);
             }
@@ -611,10 +607,10 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                         $scope.adminData.manager.$[editedManagerOpenid].communities = $scope.editedAdminCommunities.toArray();
                     });
                     alert("授权成功！");
-                }).catch(err => {
+                })
+                .catch(err => {
                     console.log(err);
                 });
-
         };
 
         //删除授权
@@ -639,10 +635,10 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                         $scope.adminData.manager.$[editedManagerOpenid].communities = $scope.editedAdminCommunities.toArray();
                     });
                     alert("删除成功！");
-                }).catch(err => {
+                })
+                .catch(err => {
                     console.log(err);
                 });
-
         };
 
         /*编辑管理员结束*/
@@ -669,13 +665,13 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                     $("#generate").val(data);
                     $timeout(() => {
                         $scope.adminData.manager.addOrUpdate({
+                            level,
                             openid: data,
-                            level: level,
-                            remark: remark
+                            remark
                         });
                     });
-
-                }).catch(err => {
+                })
+                .catch(err => {
                     console.log(err);
                 });
         };
@@ -692,7 +688,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 .changePassword(oldPwd, newPwd)
                 .then(data => {
                     alert("密码修改成功");
-                }).catch(err => {
+                })
+                .catch(err => {
                     console.log(err);
                 });
         };
@@ -768,102 +765,101 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             $rootScope.currentCommunity = true;
             //请求小区结构数据
             $scope.asideView = false;
-            $iot.communities
-                .loadArch(com.id)
-                .then(data => {
-                    $timeout(() => {
-                        $scope.communityData.address = data;
-                        $scope.addTree = true;
-                    });
-                    if (JSON.stringify(data) === "{}") {
-                        treeData = [{
+            $iot.communities.loadArch(com.id).then(data => {
+                $timeout(() => {
+                    $scope.communityData.address = data;
+                    $scope.addTree = true;
+                });
+                if (!data.guid) {
+                    treeData = [
+                        {
                             text: com.name,
                             id: "0",
                             guid: com.id,
                             nodes: []
-                        }];
-                        $("#tree").treeview({
-                            data: treeData, // 数据不是可选的
-                            levels: 2, //水平
-                            multiSelect: false //多
-                        });
-                        $("#tree").on("nodeSelected", (event, data: NodeItem) => {
-
-                            switch (data.id) {
-                                case "0":
-                                    $timeout(() => {
-                                        $scope.ComStrViewSwitch.mode = "0";
-                                    });
-                                    treeComData = data;
-                                    break;
-                                case "1":
-                                    $timeout(() => {
-                                        $scope.ComStrViewSwitch.mode = "1";
-                                    });
-                                    blockData = data;
-                                    break;
-                                case "2":
-                                    $timeout(() => {
-                                        $scope.ComStrViewSwitch.mode = "2";
-                                    });
-                                    unitData = data;
-                                    break;
-                                case "3":
-                                    $timeout(() => {
-                                        $scope.ComStrViewSwitch.mode = "3";
-                                    });
-                                    roomData = data;
-                                    break;
-                            }
-                            $scope.addTree = false;
-                        });
-                    } else {
-                        treeData = Helper.toTreeItem(data);
-                        $("#tree").treeview({
-                            data: treeData, // 数据不是可选的
-                            levels: 3, //水平
-                            multiSelect: false //多
-                        });
-                        $("#tree").on("nodeSelected", (event, data: TreeItem | BlockItem | UnitItem | FlatItem) => {
-                            switch (data.id) {
-                                case "0":
-                                    treeComData = data;
-                                    $timeout(() => {
-                                        $scope.ComStrViewSwitch.mode = "0";
-                                        $scope.ComStrViewSwitch.buildingID = "";
-                                        $scope.ComStrViewSwitch.buildingName = "";
-                                    });
-                                    break;
-                                case "1":
-                                    blockData = data;
-                                    $timeout(() => {
-                                        $scope.ComStrViewSwitch.editbuildingID = data.blockNumber;
-                                        $scope.ComStrViewSwitch.editbuildingName = data.blockName;
-                                        $scope.ComStrViewSwitch.unitID = "";
-                                        $scope.ComStrViewSwitch.unitName = "";
-                                        $scope.ComStrViewSwitch.mode = "1";
-                                    });
-                                    break;
-                                case "2":
-                                    unitData = data;
-                                    $timeout(() => {
-                                        $scope.ComStrViewSwitch.mode = "2";
-                                        $scope.ComStrViewSwitch.editunitID = data.unitNumber;
-                                        $scope.ComStrViewSwitch.editunitName = data.unitName;
-                                    });
-                                    break;
-                                case "3":
-                                    roomData = data;
-                                    $timeout(() => {
-                                        $scope.ComStrViewSwitch.mode = "3";
-                                        $scope.ComStrViewSwitch.editroomID = data.roomNumber;
-                                    });
-                                    break;
-                            }
-                            $scope.addTree = false;
-                        });
-                    }
-                });
+                        }
+                    ];
+                    $("#tree").treeview({
+                        data: treeData, // 数据不是可选的
+                        levels: 2, //水平
+                        multiSelect: false //多
+                    });
+                    $("#tree").on("nodeSelected", (event, data: NodeItem) => {
+                        switch (data.id) {
+                            case "0":
+                                $timeout(() => {
+                                    $scope.ComStrViewSwitch.mode = "0";
+                                });
+                                treeComData = data;
+                                break;
+                            case "1":
+                                $timeout(() => {
+                                    $scope.ComStrViewSwitch.mode = "1";
+                                });
+                                blockData = data;
+                                break;
+                            case "2":
+                                $timeout(() => {
+                                    $scope.ComStrViewSwitch.mode = "2";
+                                });
+                                unitData = data;
+                                break;
+                            case "3":
+                                $timeout(() => {
+                                    $scope.ComStrViewSwitch.mode = "3";
+                                });
+                                roomData = data;
+                                break;
+                        }
+                        $scope.addTree = false;
+                    });
+                } else {
+                    treeData = Helper.toTreeItem(data);
+                    $("#tree").treeview({
+                        data: treeData, // 数据不是可选的
+                        levels: 3, //水平
+                        multiSelect: false //多
+                    });
+                    $("#tree").on("nodeSelected", (event, data: TreeItem | BlockItem | UnitItem | FlatItem) => {
+                        switch (data.id) {
+                            case "0":
+                                treeComData = data;
+                                $timeout(() => {
+                                    $scope.ComStrViewSwitch.mode = "0";
+                                    $scope.ComStrViewSwitch.buildingID = "";
+                                    $scope.ComStrViewSwitch.buildingName = "";
+                                });
+                                break;
+                            case "1":
+                                blockData = data;
+                                $timeout(() => {
+                                    $scope.ComStrViewSwitch.editbuildingID = data.blockNumber;
+                                    $scope.ComStrViewSwitch.editbuildingName = data.blockName;
+                                    $scope.ComStrViewSwitch.unitID = "";
+                                    $scope.ComStrViewSwitch.unitName = "";
+                                    $scope.ComStrViewSwitch.mode = "1";
+                                });
+                                break;
+                            case "2":
+                                unitData = data;
+                                $timeout(() => {
+                                    $scope.ComStrViewSwitch.mode = "2";
+                                    $scope.ComStrViewSwitch.editunitID = data.unitNumber;
+                                    $scope.ComStrViewSwitch.editunitName = data.unitName;
+                                });
+                                break;
+                            case "3":
+                                roomData = data;
+                                $timeout(() => {
+                                    $scope.ComStrViewSwitch.mode = "3";
+                                    $scope.ComStrViewSwitch.editroomID = data.roomNumber;
+                                });
+                                break;
+                        }
+                        $scope.addTree = false;
+                    });
+                }
+            });
             //请求人员数据
             $iot.persons.sum(com.id).then(data => {
                 $timeout(() => {
@@ -1084,7 +1080,6 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                         break;
                 }
             });
-
         };
         //添加单元
         $scope.addunit = (unitid, unitname) => {
@@ -1227,7 +1222,11 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             });
         };
         $scope.deleteunit = () => {
-            if ($scope.communityData.devices.filter(t => Helper.deviceAddressToStr(t.address).slice(0, 4) === unitData.blockNumber).some(t => Helper.deviceAddressToStr(t.address).slice(4, 6) === unitData.unitNumber)) {
+            if (
+                $scope.communityData.devices
+                    .filter(t => Helper.deviceAddressToStr(t.address).slice(0, 4) === unitData.blockNumber)
+                    .some(t => Helper.deviceAddressToStr(t.address).slice(4, 6) === unitData.unitNumber)
+            ) {
                 alert("请先清除节点下的设备！");
                 return;
             }
@@ -1305,7 +1304,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             const resultroom: string[] = [];
             for (let fr = floorStart; fr <= floorEnd; fr++) {
                 for (let rn = roomStart; rn <= roomEnd; rn++) {
-                    const id = ((fr * 100 + rn) + 10000).toString().slice(-4);
+                    const id = (fr * 100 + rn + 10000).toString().slice(-4);
                     resultroom.push(id);
                 }
             }
@@ -1313,20 +1312,20 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             if (block) {
                 const unit = Helper.findInArray(block.nodes, x => x.unitNumber === unitData.unitNumber);
                 if (unit) {
-                    const addtion = resultroom
-                        .filter(t => !unit.nodes.some(x => x.roomNumber === t))
-                        .map(t => ({
-                            text: t,
-                            blockNumber: unitData.blockNumber,
-                            unitNumber: unitData.unitNumber,
-                            roomNumber: t,
-                            id: "3",
-                            guid: ""
-                        }) as FlatItem);
+                    const addtion = resultroom.filter(t => !unit.nodes.some(x => x.roomNumber === t)).map(
+                        t =>
+                            ({
+                                text: t,
+                                blockNumber: unitData.blockNumber,
+                                unitNumber: unitData.unitNumber,
+                                roomNumber: t,
+                                id: "3",
+                                guid: ""
+                            } as FlatItem)
+                    );
                     unit.nodes = Helper.sortedMerge(addtion, unit.nodes, 0, (a, b) => a.roomNumber.localeCompare(b.roomNumber));
                 }
             }
-
 
             $("#tree").treeview({
                 data: treeData, // 数据不是可选的
@@ -1370,7 +1369,6 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                         break;
                 }
             });
-
         };
         $scope.editroom = editroomId => {
             if (!editroomId) {
@@ -1539,61 +1537,63 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                     });
                 });
             });
-            $iot.communities.updateArch(submitData).then(_ => {
-                alert("提交成功");
-                $iot.communities.loadArch(treeData[0].guid).then(data => {
-                    $timeout(() => {
-                        $scope.communityData.address = data;
+            $iot.communities
+                .updateArch(submitData)
+                .then(_ => {
+                    alert("提交成功");
+                    $iot.communities.loadArch(treeData[0].guid).then(data => {
+                        $timeout(() => {
+                            $scope.communityData.address = data;
+                        });
+                        treeData = Helper.toTreeItem(data);
+                        $("#tree").treeview({
+                            data: treeData, // 数据不是可选的
+                            levels: 3, //水平
+                            multiSelect: false //多
+                        });
+                        $("#tree").on("nodeSelected", (event, data: TreeItem | BlockItem | UnitItem | FlatItem) => {
+                            switch (data.id) {
+                                case "0":
+                                    treeComData = data;
+                                    $timeout(() => {
+                                        $scope.ComStrViewSwitch.mode = "0";
+                                        $scope.ComStrViewSwitch.buildingID = "";
+                                        $scope.ComStrViewSwitch.buildingName = "";
+                                    });
+                                    break;
+                                case "1":
+                                    blockData = data;
+                                    $timeout(() => {
+                                        $scope.ComStrViewSwitch.editbuildingID = data.blockNumber;
+                                        $scope.ComStrViewSwitch.editbuildingName = data.blockName;
+                                        $scope.ComStrViewSwitch.unitID = "";
+                                        $scope.ComStrViewSwitch.unitName = "";
+                                        $scope.ComStrViewSwitch.mode = "1";
+                                    });
+                                    break;
+                                case "2":
+                                    unitData = data;
+                                    $timeout(() => {
+                                        $scope.ComStrViewSwitch.mode = "2";
+                                        $scope.ComStrViewSwitch.editunitID = data.unitNumber;
+                                        $scope.ComStrViewSwitch.editunitName = data.unitName;
+                                    });
+                                    break;
+                                case "3":
+                                    roomData = data;
+                                    $timeout(() => {
+                                        $scope.ComStrViewSwitch.mode = "3";
+                                        $scope.ComStrViewSwitch.editroomID = data.roomNumber;
+                                    });
+                                    break;
+                            }
+                            $scope.addTree = false;
+                        });
                     });
-                    treeData = Helper.toTreeItem(data);
-                    $("#tree").treeview({
-                        data: treeData, // 数据不是可选的
-                        levels: 3, //水平
-                        multiSelect: false //多
-                    });
-                    $("#tree").on("nodeSelected", (event, data: TreeItem | BlockItem | UnitItem | FlatItem) => {
-                        switch (data.id) {
-                            case "0":
-                                treeComData = data;
-                                $timeout(() => {
-                                    $scope.ComStrViewSwitch.mode = "0";
-                                    $scope.ComStrViewSwitch.buildingID = "";
-                                    $scope.ComStrViewSwitch.buildingName = "";
-                                });
-                                break;
-                            case "1":
-                                blockData = data;
-                                $timeout(() => {
-                                    $scope.ComStrViewSwitch.editbuildingID = data.blockNumber;
-                                    $scope.ComStrViewSwitch.editbuildingName = data.blockName;
-                                    $scope.ComStrViewSwitch.unitID = "";
-                                    $scope.ComStrViewSwitch.unitName = "";
-                                    $scope.ComStrViewSwitch.mode = "1";
-                                });
-                                break;
-                            case "2":
-                                unitData = data;
-                                $timeout(() => {
-                                    $scope.ComStrViewSwitch.mode = "2";
-                                    $scope.ComStrViewSwitch.editunitID = data.unitNumber;
-                                    $scope.ComStrViewSwitch.editunitName = data.unitName;
-                                });
-                                break;
-                            case "3":
-                                roomData = data;
-                                $timeout(() => {
-                                    $scope.ComStrViewSwitch.mode = "3";
-                                    $scope.ComStrViewSwitch.editroomID = data.roomNumber;
-                                });
-                                break;
-                        }
-                        $scope.addTree = false;
-                    });
+                })
+                .catch(err => {
+                    console.log(err);
                 });
-            }).catch(err => {
-                console.log(err);
-            });
-
         };
         /*小区结构结束*/
 
@@ -1613,8 +1613,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             }
             $scope.addAddressview = false;
             $scope.addAddressListView.push({
-                name: building.name + "-" + unit.name + "-" + room.id,
-                guid: room.guid
+                guid: room.guid,
+                name: building.name + "-" + unit.name + "-" + room.id
             });
             $scope.addAddressList.push(room.guid);
         };
@@ -1633,7 +1633,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             if (id.length !== 18) {
                 return;
             }
-            var validator = new IDValidator();
+            const validator = new IDValidator();
             if (!validator.isValid(id)) {
                 alert("身份证号码格式不正确！");
                 return;
@@ -1689,7 +1689,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 alert("请添加住址!");
                 return;
             }
-            var validator = new IDValidator();
+            const validator = new IDValidator();
             if (addId) {
                 if (!validator.isValid(addId)) {
                     alert("身份证号码格式不正确！");
@@ -1699,7 +1699,6 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                     alert("身份证号码重复，请查看是否重复添加！");
                     return;
                 }
-
             }
             const addData: Person = {
                 name: addName,
@@ -1724,17 +1723,15 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                             $scope.alertSuccess = false;
                         }, 2000);
                     });
-
-                }).catch(() => {
+                })
+                .catch(() => {
                     $timeout(() => {
                         $scope.alertFail = true;
                         $timeout(() => {
                             $scope.alertFail = false;
                         }, 2000);
                     });
-
                 });
-
         };
         //选定人员
         let deletechoosePersonId: string;
@@ -1754,7 +1751,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             $scope.editing = person.nric.length === 18;
         };
         //添加选定人员背景
-        $scope.chooseStyle = person => $scope.chooseBackColor === person.nric ? "success" : "";
+        $scope.chooseStyle = person => ($scope.chooseBackColor === person.nric ? "success" : "");
         //删除人员
         $scope.deletePersonnel = () => {
             if (!deletechoosePersonId) {
@@ -1772,7 +1769,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                         $scope.communityData.personnel.tryRemoveKey(deletechoosePersonId);
                     });
                     alert("删除成功！");
-                }).catch(err => {
+                })
+                .catch(err => {
                     console.log(err);
                 });
         };
@@ -1789,8 +1787,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         };
         $scope.editDeleteAddAddress = id => {
             const deleteIndex = $scope.choosePersonEditRooms.indexOf(id);
-            if (deleteIndex !== -1)
-                $scope.choosePersonEditRooms.splice(deleteIndex, 1);
+            if (deleteIndex !== -1) $scope.choosePersonEditRooms.splice(deleteIndex, 1);
         };
         $scope.editPerson = (choosePersonEditId, editName, editQQ, editPhone, editOccupation, editWechat, editPhoneMac, editRemark) => {
             const editData: Person = {
@@ -1850,7 +1847,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                             $scope.alertSuccess = false;
                         }, 2000);
                     });
-                }).catch(() => {
+                })
+                .catch(() => {
                     $timeout(() => {
                         $scope.alertFail = true;
                         $timeout(() => {
@@ -1898,7 +1896,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                         $scope.unalreadyAuthFingerprint.addOrUpdate(data);
                     });
                     alert("提交成功");
-                }).catch(err => {
+                })
+                .catch(err => {
                     console.log(err);
                 });
         };
@@ -1910,7 +1909,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             $scope.newRemark = device.remark;
         };
         //选定设备高亮
-        $scope.chooseDeviceStyle = device => device.address === choosedeviceId ? "success" : "";
+        $scope.chooseDeviceStyle = device => (device.address === choosedeviceId ? "success" : "");
         //删除设备
         $scope.deleteDevice = () => {
             if (!choosedeviceId) {
@@ -1930,7 +1929,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                         $scope.unalreadyAuthFingerprint.tryRemoveKey($scope.choosedeviceGuid);
                     });
                     alert("删除成功！");
-                }).catch(err => {
+                })
+                .catch(err => {
                     console.log(err);
                 });
         };
@@ -1964,7 +1964,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                     } else {
                         alert("修改失败");
                     }
-                }).catch(err => {
+                })
+                .catch(err => {
                     console.log(err);
                 });
         };
@@ -2000,18 +2001,22 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 const unit = first.slice(4);
                 const flats = $scope.communityData.address.items.$[block].items.$[unit].items;
                 return Helper.val(flats);
-            }
+            };
             getTheFlats()
                 .data(flats => {
                     $scope.chooseBinding = false; //启用绑定房复选框
                     if ($("#alreadyBindingAuth").is(":checked")) {
                         $scope.alreadyBinding = true; //启用选择绑定房号下拉框
                     }
-                    $scope.bindingRoom = flats.toArray(x => <BindingRoom>{
-                        room: x.id,
-                        id: authDeviceAddress[0].slice(0, 6) + x
-                    });
-                }).none(() => {
+                    $scope.bindingRoom = flats.toArray(
+                        x =>
+                            <BindingRoom>{
+                                room: x.id,
+                                id: authDeviceAddress[0].slice(0, 6) + x
+                            }
+                    );
+                })
+                .none(() => {
                     $scope.chooseBinding = true;
                     $scope.alreadyBinding = false;
                     $scope.bindingRoom = [];
@@ -2048,7 +2053,6 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $scope.openAddCard = () => {
             $scope.speedyAddCardSuccessList = [];
             $("#speedyAddCard_input").val("");
-
         };
         //添加卡方式
         $scope.showSpeedyAddCard = true;
@@ -2085,7 +2089,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 }
                 const addCardData: Card = {
                     communityId: $scope.communityData.address.guid,
-                    serial: cardNumber,
+                    serial: cardNumber
                 };
                 $iot.cards
                     .put(addCardData)
@@ -2107,10 +2111,10 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                                 $scope.card_viewData.unshift(data);
                             });
                         }
-                    }).catch(err => {
+                    })
+                    .catch(err => {
                         console.log(err);
                     });
-
             }
         };
         //正常添加卡
@@ -2155,10 +2159,10 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 $(".addCardPersonnels").text("请选择持卡人！");
                 return;
             }
-            var addCardData = {
+            const addCardData = {
                 communityId: $scope.communityData.address.guid,
-                serial: cardNumber,
                 nric: cardPersonnel,
+                serial: cardNumber
             };
             $iot.cards
                 .put(addCardData)
@@ -2180,7 +2184,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                     $timeout(() => {
                         $scope.addCardcomplete = true;
                     }, 3000);
-                }).catch(err => {
+                })
+                .catch(err => {
                     console.log(err);
                 });
         };
@@ -2195,29 +2200,44 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                     if (thisTimeCard > lastTimeCard) {
                         for (let i = lastTimeCard; i <= thisTimeCard; i++) {
                             $("#" + i).attr("checked", <any>true);
-                            $("#" + i).parent().parent().addClass("bg-success");
+                            $("#" + i)
+                                .parent()
+                                .parent()
+                                .addClass("bg-success");
                         }
                     } else {
                         for (let i = thisTimeCard; i <= lastTimeCard; i++) {
                             $("#" + i).attr("checked", <any>true);
-                            $("#" + i).parent().parent().addClass("bg-success");
+                            $("#" + i)
+                                .parent()
+                                .parent()
+                                .addClass("bg-success");
                         }
                     }
                     lastTimeCard = Number(index);
                     document.getSelection().empty();
                 } else {
                     $target.attr("checked", <any>true);
-                    $target.parent().parent().addClass("bg-success");
+                    $target
+                        .parent()
+                        .parent()
+                        .addClass("bg-success");
                     lastTimeCard = Number(index);
                 }
             } else {
                 if ($target.is(":checked")) {
                     $target.attr("checked", <any>false);
-                    $target.parent().parent().removeClass("bg-success");
+                    $target
+                        .parent()
+                        .parent()
+                        .removeClass("bg-success");
                     lastTimeCard = Number(index);
                 } else {
                     $target.attr("checked", <any>true);
-                    $target.parent().parent().addClass("bg-success");
+                    $target
+                        .parent()
+                        .parent()
+                        .addClass("bg-success");
                     lastTimeCard = Number(index);
                 }
             }
@@ -2242,7 +2262,10 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $scope.selectAllCard = () => {
             const cardAll = $("input:checkbox[name='chooseAuthCard']");
             cardAll.attr("checked", <any>true);
-            cardAll.parent().parent().addClass("bg-success");
+            cardAll
+                .parent()
+                .parent()
+                .addClass("bg-success");
             const selectCard = angular.element("input:checkbox[name='chooseAuthCard']:checked");
             const selectCardList: Card[] = mapToArray(selectCard, x => angular.fromJson(x.value)); //选择卡的列表
             if (selectCardList.every(value => value.auth.length === 0)) {
@@ -2259,7 +2282,10 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $scope.selectAllCard_not = () => {
             const cardAll = $("input:checkbox[name='chooseAuthCard']");
             cardAll.attr("checked", <any>false);
-            cardAll.parent().parent().removeClass("bg-success");
+            cardAll
+                .parent()
+                .parent()
+                .removeClass("bg-success");
             const selectCard = angular.element("input:checkbox[name='chooseAuthCard']:checked");
             const selectCardList: Authorizable[] = mapToArray(selectCard, x => angular.fromJson(x.value)); //选择卡的列表
             $scope.tobe_editCardList = [];
@@ -2290,7 +2316,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                         unit: flat.unit,
                         room: flat.flat,
                         nric: $scope.tobe_editCardList[0].nric
-                    }
+                    };
                     $scope.roomPersonnel($scope.editCard_address.room);
                 } else {
                     $scope.roomPersonnel();
@@ -2309,45 +2335,47 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             for (let i = 0; i < $scope.tobe_editCardList.length; i++) {
                 const editData = $scope.tobe_editCardList[i];
                 const cardData: Card = {
-                    id: editData.id,
-                    serial: editData.serial,
-                    nric: nric,
                     communityId: editData.communityId,
+                    id: editData.id,
+                    nric,
+                    serial: editData.serial,
                 };
-                $iot.cards.put(cardData).then(data => {
-                    if (!data.id) {
-                        $(".editCardcomplete").text(editData.serial + "编辑失败!");
-                        $timeout(() => {
-                            $scope.editCardcomplete = false;
-                        });
-                    } else {
-                        $(".editCardcomplete").text(data.serial + "提交成功");
-                        $timeout(() => {
-                            $scope.editCardcomplete = false;
-                            data.auth = [];
-                            const lengthCardCom = $scope.communityData.cards.length;
-                            const lengthCardView = $scope.card_viewData.length;
-                            for (let i = 0; i < lengthCardCom; i++) {
-                                if ($scope.communityData.cards[i].id === data.id) {
-                                    $scope.communityData.cards[i].nric = data.nric;
-                                    break;
+                $iot.cards
+                    .put(cardData)
+                    .then(data => {
+                        if (!data.id) {
+                            $(".editCardcomplete").text(editData.serial + "编辑失败!");
+                            $timeout(() => {
+                                $scope.editCardcomplete = false;
+                            });
+                        } else {
+                            $(".editCardcomplete").text(data.serial + "提交成功");
+                            $timeout(() => {
+                                $scope.editCardcomplete = false;
+                                data.auth = [];
+                                const lengthCardCom = $scope.communityData.cards.length;
+                                const lengthCardView = $scope.card_viewData.length;
+                                for (let i = 0; i < lengthCardCom; i++) {
+                                    if ($scope.communityData.cards[i].id === data.id) {
+                                        $scope.communityData.cards[i].nric = data.nric;
+                                        break;
+                                    }
                                 }
-                            }
-                            for (let i = 0; i < lengthCardView; i++) {
-                                if ($scope.card_viewData[i].id === data.id) {
-                                    $scope.card_viewData[i].nric = data.nric;
-                                    break;
+                                for (let i = 0; i < lengthCardView; i++) {
+                                    if ($scope.card_viewData[i].id === data.id) {
+                                        $scope.card_viewData[i].nric = data.nric;
+                                        break;
+                                    }
                                 }
-                            }
-                        });
-                    }
-                    $timeout(() => {
-                        $scope.editCardcomplete = true;
-                    },
-                        2000);
-                }).catch(err => {
-                    console.log(err);
-                });
+                            });
+                        }
+                        $timeout(() => {
+                            $scope.editCardcomplete = true;
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
             }
         };
         //删除卡
@@ -2357,7 +2385,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             if (selectCardList.length === 0) {
                 return;
             }
-            var sure = confirm("你确定删除这" + selectCardList.length + "张卡吗？");
+            let sure = confirm("你确定删除这" + selectCardList.length + "张卡吗？");
             if (!sure) {
                 return;
             }
@@ -2373,22 +2401,25 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             }
 
             function deleteCardGenerator(carddata: Card) {
-                $iot.cards.delete(carddata).then(() => {
-                    $timeout(() => {
-                        $scope.communityData.cards.forEach((item, index) => {
-                            if (item.id === carddata.id) {
-                                $scope.communityData.cards.splice(index, 1);
-                            }
+                $iot.cards
+                    .delete(carddata)
+                    .then(() => {
+                        $timeout(() => {
+                            $scope.communityData.cards.forEach((item, index) => {
+                                if (item.id === carddata.id) {
+                                    $scope.communityData.cards.splice(index, 1);
+                                }
+                            });
+                            $scope.card_viewData.forEach((item, index) => {
+                                if (item.id === carddata.id) {
+                                    $scope.card_viewData.splice(index, 1);
+                                }
+                            });
                         });
-                        $scope.card_viewData.forEach((item, index) => {
-                            if (item.id === carddata.id) {
-                                $scope.card_viewData.splice(index, 1);
-                            }
-                        });
+                    })
+                    .catch(err => {
+                        console.log(err);
                     });
-                }).catch(err => {
-                    console.log(err);
-                });
             }
         };
 
@@ -2409,7 +2440,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                     device: devices[deviceIdx],
                     success: [],
                     fail: secrets.slice(deviceIdx),
-                    message: message
+                    message
                 });
             } else {
                 $scope.authCompleteinfo[deviceIdx].fail.concat(secrets.slice(deviceIdx));
@@ -2423,7 +2454,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                     device: devices[deviceIdx],
                     success: [],
                     fail: [secrets[secretIdx]],
-                    message: message
+                    message
                 });
             } else {
                 $scope.authCompleteinfo[deviceIdx].fail.push(secrets[secretIdx]);
@@ -2440,40 +2471,43 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                     expire: $time,
                     binding: $binding
                 };
-                $iot.cards.issue(cardList[cardIdx], subData).then((data: Result) => {
-                    const value = data.errorCode === 70000003 || data.result;
-                    if (data.result) {
-                        $timeout(() => {
-                            $scope.communityData.cards.forEach(t => {
-                                if (t.id === cardList[cardIdx]) {
-                                    t.auth.push({
-                                        deviceId: deviceList[deviceIdx],
-                                        expire: $time,
-                                        binding: $binding
-                                    });
-                                }
-                            });
-                        });
-                    }
-                    if (value) {
-                        issueSuccess(deviceIdx, cardIdx, deviceList, cardList);
-                    } else {
-                        issueFail(deviceIdx, cardIdx, deviceList, cardList, data.message);
-                    }
-                    if (deviceIdx === deviceList.length - 1) {
-                        if (!value || cardIdx === cardList.length - 1) {
+                $iot.cards
+                    .issue(cardList[cardIdx], subData)
+                    .then((data: Result) => {
+                        const value = data.errorCode === 70000003 || data.result;
+                        if (data.result) {
                             $timeout(() => {
-                                const selectCard = angular.element("input:checkbox[name='chooseAuthCard']:checked");
-                                const selectCardList: Authorizable[] = mapToArray(selectCard, x => angular.fromJson(x.value)); //选择卡的列表
-                                $scope.ChooseauthDevice = Helper.complementOfIntersect(selectCardList, $scope.communityData.devices);
-                                $scope.alreadyAuth = Helper.unionAuths(selectCardList);
+                                $scope.communityData.cards.forEach(t => {
+                                    if (t.id === cardList[cardIdx]) {
+                                        t.auth.push({
+                                            deviceId: deviceList[deviceIdx],
+                                            expire: $time,
+                                            binding: $binding
+                                        });
+                                    }
+                                });
                             });
                         }
-                    }
-                    getNext(value, auth);
-                }).catch(err => {
-                    console.log(err);
-                });
+                        if (value) {
+                            issueSuccess(deviceIdx, cardIdx, deviceList, cardList);
+                        } else {
+                            issueFail(deviceIdx, cardIdx, deviceList, cardList, data.message);
+                        }
+                        if (deviceIdx === deviceList.length - 1) {
+                            if (!value || cardIdx === cardList.length - 1) {
+                                $timeout(() => {
+                                    const selectCard = angular.element("input:checkbox[name='chooseAuthCard']:checked");
+                                    const selectCardList: Authorizable[] = mapToArray(selectCard, x => angular.fromJson(x.value)); //选择卡的列表
+                                    $scope.ChooseauthDevice = Helper.complementOfIntersect(selectCardList, $scope.communityData.devices);
+                                    $scope.alreadyAuth = Helper.unionAuths(selectCardList);
+                                });
+                            }
+                        }
+                        getNext(value, auth);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
             }
             getNext(true, auth);
         }
@@ -2490,8 +2524,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $scope.alreadyBinding = false;
         $scope.authCardToDevice = () => {
             const selectCard = angular.element("input:checkbox[name='chooseAuthCard']:checked");
-            const authCardList: Guid[] = Helper
-                .getSeq(selectCard)
+            const authCardList: Guid[] = Helper.getSeq(selectCard)
                 .map<Card>(x => angular.fromJson(x.value))
                 .filter(x => !!x.nric)
                 .map(x => x.id)
@@ -2510,7 +2543,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             let $binding: string;
             if ($("#alreadyTimeAuth").is(":checked")) {
                 const val = $("#validityTime").val() as string;
-                $time = Math.floor((new Date(val).getTime()) / 1000);
+                $time = Math.floor(new Date(val).getTime() / 1000);
             } else {
                 $time = undefined;
             }
@@ -2540,39 +2573,42 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                     const subData: Auth = {
                         deviceId: deviceList[deviceIdx]
                     };
-                    $iot.cards.withdraw(cardList[cardIdx], subData).then(data => {
-                        if (data.result) {
-                            $timeout(() => {
-                                $scope.communityData.cards.forEach(t => {
-                                    if (t.id === cardList[cardIdx]) {
-                                        t.auth.forEach((t2, index) => {
-                                            if (t2.deviceId === deviceList[deviceIdx]) {
-                                                t.auth.splice(index, 1);
-                                            }
-                                        });
-                                    }
-                                });
-                            });
-                        }
-                        if (data.result) {
-                            issueSuccess(deviceIdx, cardIdx, deviceList, cardList);
-                        } else {
-                            issueFail(deviceIdx, cardIdx, deviceList, cardList, data.message);
-                        }
-                        if (deviceIdx === deviceList.length - 1) {
-                            if (!data.result || cardIdx === cardList.length - 1) {
+                    $iot.cards
+                        .withdraw(cardList[cardIdx], subData)
+                        .then(data => {
+                            if (data.result) {
                                 $timeout(() => {
-                                    //const selectCard = angular.element("input:checkbox[name='chooseAuthCard']:checked");
-                                    const selectCardList: Authorizable[] = mapToArray(selectCard, x => angular.fromJson(x.value)); //选择卡的列表
-                                    $scope.ChooseauthDevice = Helper.complementOfIntersect(selectCardList, $scope.communityData.devices);
-                                    $scope.alreadyAuth = Helper.unionAuths(selectCardList);
+                                    $scope.communityData.cards.forEach(t => {
+                                        if (t.id === cardList[cardIdx]) {
+                                            t.auth.forEach((t2, index) => {
+                                                if (t2.deviceId === deviceList[deviceIdx]) {
+                                                    t.auth.splice(index, 1);
+                                                }
+                                            });
+                                        }
+                                    });
                                 });
                             }
-                        }
-                        getNext(data.result, auth);
-                    }).catch(err => {
-                        console.log(err);
-                    });
+                            if (data.result) {
+                                issueSuccess(deviceIdx, cardIdx, deviceList, cardList);
+                            } else {
+                                issueFail(deviceIdx, cardIdx, deviceList, cardList, data.message);
+                            }
+                            if (deviceIdx === deviceList.length - 1) {
+                                if (!data.result || cardIdx === cardList.length - 1) {
+                                    $timeout(() => {
+                                        //const selectCard = angular.element("input:checkbox[name='chooseAuthCard']:checked");
+                                        const selectCardList: Authorizable[] = mapToArray(selectCard, x => angular.fromJson(x.value)); //选择卡的列表
+                                        $scope.ChooseauthDevice = Helper.complementOfIntersect(selectCardList, $scope.communityData.devices);
+                                        $scope.alreadyAuth = Helper.unionAuths(selectCardList);
+                                    });
+                                }
+                            }
+                            getNext(data.result, auth);
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
                 }
                 getNext(true, auth);
             }
@@ -2584,22 +2620,21 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             $scope.card_viewData = !str
                 ? $scope.communityData.cards.slice(0)
                 : $scope.communityData.cards.filter(item => {
-                    for (let prop in item) {
-                        if (item.hasOwnProperty(prop)) {
-                            if (prop === "serial") {
-                                if (item[prop].indexOf(str) !== -1) {
-                                    return true;
-                                }
-                            } else if (prop === "nric") {
-                                if (item[prop].indexOf(str) !== -1 ||
-                                    $filter("nricToname")(item[prop], $scope.communityData.personnel).indexOf(str) !== -1) {
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                    return false;
-                });
+                      for (const prop in item) {
+                          if (item.hasOwnProperty(prop)) {
+                              if (prop === "serial") {
+                                  if (item[prop].indexOf(str) !== -1) {
+                                      return true;
+                                  }
+                              } else if (prop === "nric") {
+                                  if (item[prop].indexOf(str) !== -1 || $filter("nricToname")(item[prop], $scope.communityData.personnel).indexOf(str) !== -1) {
+                                      return true;
+                                  }
+                              }
+                          }
+                      }
+                      return false;
+                  });
         };
         /*门禁卡管理结束*/
 
@@ -2623,28 +2658,43 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                         $("#fingerprint3").attr("src", image);
                         break;
                 }
-            }
+            };
             fp.onsuccess = () => {
-                $("#FingersInfo").text("采集成功，请保存！").removeClass("text-danger").addClass("text-success");
-            }
+                $("#FingersInfo")
+                    .text("采集成功，请保存！")
+                    .removeClass("text-danger")
+                    .addClass("text-success");
+            };
             fp.onfail = () => {
-                $("#FingersInfo").text("采集失败，请重新采集！").removeClass("text-success").addClass("text-danger");
+                $("#FingersInfo")
+                    .text("采集失败，请重新采集！")
+                    .removeClass("text-success")
+                    .addClass("text-danger");
                 $("#fingerprint1").attr("src", "images/scanfinger1.png");
                 $("#fingerprint2").attr("src", "images/scanfinger2.png");
                 $("#fingerprint3").attr("src", "images/scanfinger3.png");
-            }
+            };
             fp.onreset = () => {
                 if (!$scope.websocketIsready) {
-                    $("#FingersInfo").text("指纹服务连接成功!").removeClass("text-danger").addClass("text-success");
+                    $("#FingersInfo")
+                        .text("指纹服务连接成功!")
+                        .removeClass("text-danger")
+                        .addClass("text-success");
                 } else {
-                    $("#FingersInfo").text("指纹服务连接失败，请查看是否启动服务或重新打开模块！").removeClass("text-success").addClass("text-danger");
+                    $("#FingersInfo")
+                        .text("指纹服务连接失败，请查看是否启动服务或重新打开模块！")
+                        .removeClass("text-success")
+                        .addClass("text-danger");
                 }
-            }
+            };
             fp.onerror = () => {
                 $timeout(() => {
                     $scope.websocketIsready = true;
                 });
-                $("#FingersInfo").text("指纹服务连接失败，请查看是否启动服务或重新打开模块！").removeClass("text-success").addClass("text-danger");
+                $("#FingersInfo")
+                    .text("指纹服务连接失败，请查看是否启动服务或重新打开模块！")
+                    .removeClass("text-success")
+                    .addClass("text-danger");
                 $("#fingerprint1").attr("src", "images/scanfinger1.png");
                 $("#fingerprint2").attr("src", "images/scanfinger2.png");
                 $("#fingerprint3").attr("src", "images/scanfinger3.png");
@@ -2653,7 +2703,10 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 $timeout(() => {
                     $scope.websocketIsready = false;
                 });
-                $("#FingersInfo").text("指纹服务连接成功！").removeClass("text-danger").addClass("text-success");
+                $("#FingersInfo")
+                    .text("指纹服务连接成功！")
+                    .removeClass("text-danger")
+                    .addClass("text-success");
                 $("#fingerprint1").attr("src", "images/scanfinger1.png");
                 $("#fingerprint2").attr("src", "images/scanfinger2.png");
                 $("#fingerprint3").attr("src", "images/scanfinger3.png");
@@ -2662,7 +2715,10 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 $timeout(() => {
                     $scope.websocketIsready = true;
                 });
-                $("#FingersInfo").text("指纹服务连接失败，请查看是否启动服务或重新打开模块！").removeClass("text-success").addClass("text-danger");
+                $("#FingersInfo")
+                    .text("指纹服务连接失败，请查看是否启动服务或重新打开模块！")
+                    .removeClass("text-success")
+                    .addClass("text-danger");
             };
             return fp;
         }
@@ -2693,14 +2749,10 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 console.log(data);
                 console.log($scope.communityData.Fingerprints);
             });
-
         };
         //是否已经有指纹信息
         $scope.chooseFinger = finger => {
-            return !finger
-                ? <undefined>finger :
-                (fingeradded.some(t => t.finger === finger.id) ? "text-success" : "text-danger");
-
+            return !finger ? <undefined>finger : fingeradded.some(t => t.finger === finger.id) ? "text-success" : "text-danger";
         };
         //打开添加指纹
         $scope.openAddFinger = () => {
@@ -2741,34 +2793,45 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                         }
                     }
                     if ($scope.communityData.Fingerprints.some(t => t.id === subData.id)) {
-                        $("#FingersInfo").text("已经绑定该小区").removeClass("text-danger").addClass("text-success");
+                        $("#FingersInfo")
+                            .text("已经绑定该小区")
+                            .removeClass("text-danger")
+                            .addClass("text-success");
                         $timeout(() => {
                             $scope.resetFinger();
                         }, 1000);
                     } else {
-                        $iot.fingerprints.bind(subData).then(data => {
-                            if (data) {
-                                $("#FingersInfo").text("保存成功").removeClass("text-danger").addClass("text-success");
-                                const addData: Fingerprint = {
-                                    auth: [],
-                                    finger: Number(finger),
-                                    id: subData.id,
-                                    nric: JSON.parse(user).nric
-                                };
-                                $timeout(() => {
-                                    $scope.resetFinger();
-                                }, 1000);
-                                $timeout(() => {
-                                    $scope.communityData.Fingerprints.unshift(addData);
-                                    $scope.fingerprint_viewData.unshift(addData);
-                                });
-                            } else {
-                                $("#FingersInfo").text("保存失败").removeClass("text-success").addClass("text-danger");
-                            }
-
-                        }).catch(err => {
-                            console.log(err);
-                        });
+                        $iot.fingerprints
+                            .bind(subData)
+                            .then(data => {
+                                if (data) {
+                                    $("#FingersInfo")
+                                        .text("保存成功")
+                                        .removeClass("text-danger")
+                                        .addClass("text-success");
+                                    const addData: Fingerprint = {
+                                        auth: [],
+                                        finger: Number(finger),
+                                        id: subData.id,
+                                        nric: JSON.parse(user).nric
+                                    };
+                                    $timeout(() => {
+                                        $scope.resetFinger();
+                                    }, 1000);
+                                    $timeout(() => {
+                                        $scope.communityData.Fingerprints.unshift(addData);
+                                        $scope.fingerprint_viewData.unshift(addData);
+                                    });
+                                } else {
+                                    $("#FingersInfo")
+                                        .text("保存失败")
+                                        .removeClass("text-success")
+                                        .addClass("text-danger");
+                                }
+                            })
+                            .catch(err => {
+                                console.log(err);
+                            });
                     }
                 } else {
                     alert("请采集指纹");
@@ -2779,41 +2842,45 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 subData.communityId = $scope.communityData.address.guid;
                 subData.nric = JSON.parse(user).nric;
                 subData.finger = Number(finger);
-                $iot.fingerprints.put(subData).then(data => {
-                    $("#FingersInfo").text("保存成功").removeClass("text-danger").addClass("text-success");
-                    data.auth = [];
-                    $timeout(() => {
-                        $scope.resetFinger();
-                    }, 1000);
-                    const haveuser = $scope.communityData.Fingerprints.filter(item => item.nric === data.nric);
-                    if (haveuser.length === 0) {
+                $iot.fingerprints
+                    .put(subData)
+                    .then(data => {
+                        $("#FingersInfo")
+                            .text("保存成功")
+                            .removeClass("text-danger")
+                            .addClass("text-success");
+                        data.auth = [];
                         $timeout(() => {
-                            $scope.communityData.Fingerprints.unshift(data);
-                            $scope.fingerprint_viewData.unshift(data);
-                        });
-                    } else {
-                        const havefinger = haveuser.filter(item => item.finger === data.finger);
-                        if (havefinger.length === 0) {
+                            $scope.resetFinger();
+                        }, 1000);
+                        const haveuser = $scope.communityData.Fingerprints.filter(item => item.nric === data.nric);
+                        if (haveuser.length === 0) {
                             $timeout(() => {
-                                $scope.communityData.Fingerprints.push(data);
-                                $scope.fingerprint_viewData.push(data);
+                                $scope.communityData.Fingerprints.unshift(data);
+                                $scope.fingerprint_viewData.unshift(data);
                             });
                         } else {
-                            $timeout(() => {
-                                console.log($scope.communityData.Fingerprints);
-                                console.log($scope.fingerprint_viewData);
-                                havefinger[0].id = data.id;
-                                console.log($scope.communityData.Fingerprints);
-                                console.log($scope.fingerprint_viewData);
-                            });
+                            const havefinger = haveuser.filter(item => item.finger === data.finger);
+                            if (havefinger.length === 0) {
+                                $timeout(() => {
+                                    $scope.communityData.Fingerprints.push(data);
+                                    $scope.fingerprint_viewData.push(data);
+                                });
+                            } else {
+                                $timeout(() => {
+                                    console.log($scope.communityData.Fingerprints);
+                                    console.log($scope.fingerprint_viewData);
+                                    havefinger[0].id = data.id;
+                                    console.log($scope.communityData.Fingerprints);
+                                    console.log($scope.fingerprint_viewData);
+                                });
+                            }
                         }
-                    }
-                }).catch(err => {
-                    console.log(err);
-                });
-
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
             }
-
         };
         //选定指纹
         let thisTimeFinger: number;
@@ -2826,34 +2893,49 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                     if (thisTimeFinger > lastTimeFinger) {
                         for (let i = lastTimeFinger; i <= thisTimeFinger; i++) {
                             $("#" + i).attr("checked", <any>true);
-                            $("#" + i).parent().parent().addClass("bg-success");
+                            $("#" + i)
+                                .parent()
+                                .parent()
+                                .addClass("bg-success");
                         }
                     } else {
                         for (let i = thisTimeFinger; i <= lastTimeFinger; i++) {
                             $("#" + i).attr("checked", <any>true);
-                            $("#" + i).parent().parent().addClass("bg-success");
+                            $("#" + i)
+                                .parent()
+                                .parent()
+                                .addClass("bg-success");
                         }
                     }
                     lastTimeFinger = Number(index);
                     document.getSelection().empty();
                 } else {
                     $target.attr("checked", <any>true);
-                    $target.parent().parent().addClass("bg-success");
+                    $target
+                        .parent()
+                        .parent()
+                        .addClass("bg-success");
                     lastTimeFinger = Number(index);
                 }
             } else {
                 if ($target.is(":checked")) {
                     $target.attr("checked", <any>false);
-                    $target.parent().parent().removeClass("bg-success");
+                    $target
+                        .parent()
+                        .parent()
+                        .removeClass("bg-success");
                     lastTimeFinger = Number(index);
                 } else {
                     $target.attr("checked", <any>true);
-                    $target.parent().parent().addClass("bg-success");
+                    $target
+                        .parent()
+                        .parent()
+                        .addClass("bg-success");
                     lastTimeFinger = Number(index);
                 }
             }
             const selectfingerprint = angular.element("input:checkbox[name='chooseAuthFingerprint']:checked");
-            const selectfingerprintList: Authorizable[] = mapToArray(selectfingerprint, x => angular.fromJson(x.value)); //选择的列表 
+            const selectfingerprintList: Authorizable[] = mapToArray(selectfingerprint, x => angular.fromJson(x.value)); //选择的列表
             $scope.alreadyAuthFingerprint = Helper.unionAuths(selectfingerprintList);
             $scope.unalreadyAuthFingerprint = Helper.complementOfIntersect(selectfingerprintList, $scope.communityData.devices);
         };
@@ -2861,7 +2943,10 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $scope.selectAllFingerprint = () => {
             const cardAll = $("input:checkbox[name='chooseAuthFingerprint']");
             cardAll.attr("checked", <any>true);
-            cardAll.parent().parent().addClass("bg-success");
+            cardAll
+                .parent()
+                .parent()
+                .addClass("bg-success");
             const selectfingerprint = angular.element("input:checkbox[name='chooseAuthFingerprint']:checked");
             const selectfingerprintList: Authorizable[] = mapToArray(selectfingerprint, x => angular.fromJson(x.value)); //选择卡的列表
             $scope.alreadyAuthFingerprint = Helper.unionAuths(selectfingerprintList);
@@ -2871,7 +2956,10 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         $scope.selectAllfingerprint_not = () => {
             const cardAll = $("input:checkbox[name='chooseAuthFingerprint']");
             cardAll.attr("checked", <any>false);
-            cardAll.parent().parent().removeClass("bg-success");
+            cardAll
+                .parent()
+                .parent()
+                .removeClass("bg-success");
             const selectfingerprint = angular.element("input:checkbox[name='chooseAuthFingerprint']:checked");
             const selectfingerprintList: Authorizable[] = mapToArray(selectfingerprint, x => angular.fromJson(x.value)); //选择卡的列表
             $scope.alreadyAuthFingerprint = Helper.unionAuths(selectfingerprintList);
@@ -2903,24 +2991,27 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             function deleteFingerprintGenerator(fingerprintdata: Fingerprint) {
                 const deleteData: Fingerprint = {
                     communityId: $scope.communityData.address.guid,
-                    id: fingerprintdata.id,
+                    id: fingerprintdata.id
                 };
-                $iot.fingerprints.delete(deleteData).then(() => {
-                    $timeout(() => {
-                        $scope.communityData.Fingerprints.forEach((item, index) => {
-                            if (item.id === fingerprintdata.id) {
-                                $scope.communityData.Fingerprints.splice(index, 1);
-                            }
+                $iot.fingerprints
+                    .delete(deleteData)
+                    .then(() => {
+                        $timeout(() => {
+                            $scope.communityData.Fingerprints.forEach((item, index) => {
+                                if (item.id === fingerprintdata.id) {
+                                    $scope.communityData.Fingerprints.splice(index, 1);
+                                }
+                            });
+                            $scope.fingerprint_viewData.forEach((item, index) => {
+                                if (item.id === fingerprintdata.id) {
+                                    $scope.fingerprint_viewData.splice(index, 1);
+                                }
+                            });
                         });
-                        $scope.fingerprint_viewData.forEach((item, index) => {
-                            if (item.id === fingerprintdata.id) {
-                                $scope.fingerprint_viewData.splice(index, 1);
-                            }
-                        });
+                    })
+                    .catch(err => {
+                        console.log(err);
                     });
-                }).catch(err => {
-                    console.log(err);
-                });
             }
         };
 
@@ -2933,46 +3024,47 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                     expire: $time,
                     binding: $binding
                 };
-                $iot.fingerprints.issue(fingerprintList[fpIdx], subData).then(data => {
-                    const value = data.errorCode === 70000003 || data.errorCode === 24 || data.result;
-                    if (data.result) {
-                        $timeout(() => {
-                            $scope.communityData.Fingerprints.forEach(t => {
-                                if (t.id === fingerprintList[fpIdx]) {
-                                    t.auth.push({
-                                        deviceId: deviceList[deviceIdx],
-                                        expire: $time,
-                                        binding: $binding
-                                    });
-                                }
-                            });
-                        });
-                    }
-                    if (data.errorCode === 70000003 || data.result) {
-                        issueSuccess(deviceIdx, fpIdx, deviceList, fingerprintList);
-                    } else if (data.errorCode === 24) {
-                        issueIgnoreError(deviceIdx, fpIdx, deviceList, fingerprintList, data.message);
-                    } else {
-                        issueFail(deviceIdx, fpIdx, deviceList, fingerprintList, data.message);
-                    }
-
-
-                    if (deviceIdx === deviceList.length - 1) {
-                        if (!value || fpIdx === fingerprintList.length - 1) {
+                $iot.fingerprints
+                    .issue(fingerprintList[fpIdx], subData)
+                    .then(data => {
+                        const value = data.errorCode === 70000003 || data.errorCode === 24 || data.result;
+                        if (data.result) {
                             $timeout(() => {
-                                /*更新授权和未授权门口机列表*/
-                                const selectfingerprint = angular.element("input:checkbox[name='chooseAuthFingerprint']:checked");
-                                const selectfingerprintList: Authorizable[] = mapToArray(selectfingerprint, x => angular.fromJson(x.value)); //选择指纹的列表
-                                $scope.alreadyAuthFingerprint = Helper.unionAuths(selectfingerprintList);
-                                $scope.unalreadyAuthFingerprint =
-                                    Helper.complementOfIntersect(selectfingerprintList, $scope.communityData.devices);
+                                $scope.communityData.Fingerprints.forEach(t => {
+                                    if (t.id === fingerprintList[fpIdx]) {
+                                        t.auth.push({
+                                            deviceId: deviceList[deviceIdx],
+                                            expire: $time,
+                                            binding: $binding
+                                        });
+                                    }
+                                });
                             });
                         }
-                    }
-                    getNext(value, auth);
-                }).catch(err => {
-                    console.log(err);
-                });
+                        if (data.errorCode === 70000003 || data.result) {
+                            issueSuccess(deviceIdx, fpIdx, deviceList, fingerprintList);
+                        } else if (data.errorCode === 24) {
+                            issueIgnoreError(deviceIdx, fpIdx, deviceList, fingerprintList, data.message);
+                        } else {
+                            issueFail(deviceIdx, fpIdx, deviceList, fingerprintList, data.message);
+                        }
+
+                        if (deviceIdx === deviceList.length - 1) {
+                            if (!value || fpIdx === fingerprintList.length - 1) {
+                                $timeout(() => {
+                                    /*更新授权和未授权门口机列表*/
+                                    const selectfingerprint = angular.element("input:checkbox[name='chooseAuthFingerprint']:checked");
+                                    const selectfingerprintList: Authorizable[] = mapToArray(selectfingerprint, x => angular.fromJson(x.value)); //选择指纹的列表
+                                    $scope.alreadyAuthFingerprint = Helper.unionAuths(selectfingerprintList);
+                                    $scope.unalreadyAuthFingerprint = Helper.complementOfIntersect(selectfingerprintList, $scope.communityData.devices);
+                                });
+                            }
+                        }
+                        getNext(value, auth);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
             }
             getNext(true, auth);
         }
@@ -2984,7 +3076,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 alert("请选择授权指纹");
                 return;
             }
-            var selectDevice = angular.element("input:checkbox[name='chooseAuthDevice']:checked");
+            const selectDevice = angular.element("input:checkbox[name='chooseAuthDevice']:checked");
             const authDeviceList: Guid[] = mapToArray(selectDevice, x => (<Device>angular.fromJson(x.value)).id);
             if (authDeviceList.length === 0) {
                 alert("请选择设备");
@@ -2993,7 +3085,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             let $time: number;
             let $binding: string;
             if ($("#alreadyTimeAuth").is(":checked")) {
-                $time = (new Date(<string>($("#validityTime").val())).getTime()) / 1000;
+                $time = new Date(<string>$("#validityTime").val()).getTime() / 1000;
             } else {
                 $time = undefined;
             }
@@ -3022,41 +3114,44 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                     const subData: Auth = {
                         deviceId: deviceList[deviceIdx]
                     };
-                    $iot.fingerprints.withdraw(fingerprintList[fpIdx], subData).then(data => {
-                        const value = data.errorCode === 70000003 || data.result;
-                        if (data.result) {
-                            $timeout(() => {
-                                $scope.communityData.Fingerprints.forEach(t => {
-                                    if (t.id === fingerprintList[fpIdx]) {
-                                        t.auth.forEach((t2, index) => {
-                                            if (t2.deviceId === deviceList[deviceIdx]) {
-                                                t.auth.splice(index, 1);
-                                            }
-                                        });
-                                    }
-                                });
-                            });
-                        }
-                        if (value) {
-                            issueSuccess(deviceIdx, fpIdx, deviceList, fingerprintList);
-                        } else {
-                            issueFail(deviceIdx, fpIdx, deviceList, fingerprintList, data.message);
-                        }
-                        if (deviceIdx === deviceList.length - 1) {
-                            if (!data.result || fpIdx === fingerprintList.length - 1) {
+                    $iot.fingerprints
+                        .withdraw(fingerprintList[fpIdx], subData)
+                        .then(data => {
+                            const value = data.errorCode === 70000003 || data.result;
+                            if (data.result) {
                                 $timeout(() => {
-                                    /*更新授权和未授权门口机列表*/
-                                    const selectfingerprint = angular.element("input:checkbox[name='chooseAuthFingerprint']:checked");
-                                    const selectfingerprintList: Authorizable[] = mapToArray(selectfingerprint, x => angular.fromJson(x.value)); //选择指纹的列表
-                                    $scope.alreadyAuthFingerprint = Helper.unionAuths(selectfingerprintList);
-                                    $scope.unalreadyAuthFingerprint = Helper.complementOfIntersect(selectfingerprintList, $scope.communityData.devices);
+                                    $scope.communityData.Fingerprints.forEach(t => {
+                                        if (t.id === fingerprintList[fpIdx]) {
+                                            t.auth.forEach((t2, index) => {
+                                                if (t2.deviceId === deviceList[deviceIdx]) {
+                                                    t.auth.splice(index, 1);
+                                                }
+                                            });
+                                        }
+                                    });
                                 });
                             }
-                        }
-                        getNext(value, auth);
-                    }).catch(err => {
-                        console.log(err);
-                    });
+                            if (value) {
+                                issueSuccess(deviceIdx, fpIdx, deviceList, fingerprintList);
+                            } else {
+                                issueFail(deviceIdx, fpIdx, deviceList, fingerprintList, data.message);
+                            }
+                            if (deviceIdx === deviceList.length - 1) {
+                                if (!data.result || fpIdx === fingerprintList.length - 1) {
+                                    $timeout(() => {
+                                        /*更新授权和未授权门口机列表*/
+                                        const selectfingerprint = angular.element("input:checkbox[name='chooseAuthFingerprint']:checked");
+                                        const selectfingerprintList: Authorizable[] = mapToArray(selectfingerprint, x => angular.fromJson(x.value)); //选择指纹的列表
+                                        $scope.alreadyAuthFingerprint = Helper.unionAuths(selectfingerprintList);
+                                        $scope.unalreadyAuthFingerprint = Helper.complementOfIntersect(selectfingerprintList, $scope.communityData.devices);
+                                    });
+                                }
+                            }
+                            getNext(value, auth);
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
                 }
                 getNext(true, auth);
             }
@@ -3071,7 +3166,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             }
             const filterData: Fingerprint[] = [];
             $scope.communityData.Fingerprints.forEach(item => {
-                for (let prop in item) {
+                for (const prop in item) {
                     if (item.hasOwnProperty(prop)) {
                         if (prop === "nric") {
                             if (item[prop].indexOf(str) !== -1) {
@@ -3090,7 +3185,6 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             $scope.fingerprint_viewData = filterData;
         };
         /*指纹管理结束*/
-
 
         /*广告投放开始*/
 
@@ -3164,14 +3258,12 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             }
             $iot.advertising.files.post(formData).then(id => {
                 $timeout(() => {
-                    $scope.adminData.Advertising.push(
-                        {
-                            title: String(formData.get("Title")),
-                            id: id,
-                            remark: String(formData.get("Remark")),
-                            communities: formData.getAll("Communities").map(String)
-                        }
-                    );
+                    $scope.adminData.Advertising.push({
+                        title: String(formData.get("Title")),
+                        id: id,
+                        remark: String(formData.get("Remark")),
+                        communities: formData.getAll("Communities").map(String)
+                    });
                 });
             });
         };
@@ -3191,8 +3283,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 communities: formData.getAll("Communities") as Guid[]
             };
             console.log(reqData);
-            $iot.advertising.files.put(reqData).then(() => { });
-
+            $iot.advertising.files.put(reqData).then(() => {});
         };
         //获取小区播放计划
         $scope.getComPlans = com => {
@@ -3224,35 +3315,37 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         };
         //添加时段form
         $scope.addPlayTimeForm = () => {
-            $("#addplayTime").append("<form class=\"form-inline addplayform\">\n" +
-                "                            <div class=\"form-group form-group-sm\">\n" +
-                "                                <label>播放区间：</label>\n" +
-                "                                <input type=\"time\" name=\"StartTime\" class=\"form-control\">--\n" +
-                "                                <input type=\"time\" name=\"EndTime\" class=\"form-control\">\n" +
-                "                            </div>\n" +
-                "                            <div class=\"form-group form-group-sm\">\n" +
-                "                                <label>星期：</label>\n" +
-                "                                <select class=\"form-control playWeek\" multiple=\"multiple\" name=\"WeekDays\">\n" +
-                "                                    <option value=\"0\">星期日</option>\n" +
-                "                                    <option value=\"1\">星期一</option>\n" +
-                "                                    <option value=\"2\">星期二</option>\n" +
-                "                                    <option value=\"3\">星期三</option>\n" +
-                "                                    <option value=\"4\">星期四</option>\n" +
-                "                                    <option value=\"5\">星期五</option>\n" +
-                "                                    <option value=\"6\">星期六</option>\n" +
-                "                                </select>\n" +
-                "                            </div>\n" +
-                "                            <div class=\"form-group form-group-sm\">\n" +
-                "                                <label>循环：</label>\n" +
-                "                                <label class=\"radio-inline\">\n" +
-                "                                    <input type=\"radio\" name=\"Loop\" value=\"true\" checked> 是\n" +
-                "                                </label>\n" +
-                "                                <label class=\"radio-inline\">\n" +
-                "                                    <input type=\"radio\" name=\"Loop\" value=\"false\"> 否\n" +
-                "                                </label>\n" +
-                "                            </div>\n" +
-                "                            <button type=\"button\" class=\"btn btn-default btn-sm\" onclick='removeSelf(event)'>删除</button>\n" +
-                "                        </form>");
+            $("#addplayTime").append(
+                '<form class="form-inline addplayform">\n' +
+                    '                            <div class="form-group form-group-sm">\n' +
+                    "                                <label>播放区间：</label>\n" +
+                    '                                <input type="time" name="StartTime" class="form-control">--\n' +
+                    '                                <input type="time" name="EndTime" class="form-control">\n' +
+                    "                            </div>\n" +
+                    '                            <div class="form-group form-group-sm">\n' +
+                    "                                <label>星期：</label>\n" +
+                    '                                <select class="form-control playWeek" multiple="multiple" name="WeekDays">\n' +
+                    '                                    <option value="0">星期日</option>\n' +
+                    '                                    <option value="1">星期一</option>\n' +
+                    '                                    <option value="2">星期二</option>\n' +
+                    '                                    <option value="3">星期三</option>\n' +
+                    '                                    <option value="4">星期四</option>\n' +
+                    '                                    <option value="5">星期五</option>\n' +
+                    '                                    <option value="6">星期六</option>\n' +
+                    "                                </select>\n" +
+                    "                            </div>\n" +
+                    '                            <div class="form-group form-group-sm">\n' +
+                    "                                <label>循环：</label>\n" +
+                    '                                <label class="radio-inline">\n' +
+                    '                                    <input type="radio" name="Loop" value="true" checked> 是\n' +
+                    "                                </label>\n" +
+                    '                                <label class="radio-inline">\n' +
+                    '                                    <input type="radio" name="Loop" value="false"> 否\n' +
+                    "                                </label>\n" +
+                    "                            </div>\n" +
+                    '                            <button type="button" class="btn btn-default btn-sm" onclick=\'removeSelf(event)\'>删除</button>\n' +
+                    "                        </form>"
+            );
             $(".playWeek").multiselect({
                 buttonContainer: '<div class="btn-group btn-group-sm" />'
             });
@@ -3261,7 +3354,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         function removeSelf(event: MouseEvent) {
             const parent = document.getElementById("addplayTime");
             parent.removeChild(event.srcElement.parentElement);
-        };
+        }
         //时间转换成秒数
         function timeToSeconds(time: FormDataEntryValue) {
             const timeStr = String(time);
@@ -3272,10 +3365,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
         //秒数转化成时间
         $scope.secondsTotime = secondStr => {
             const second = Number(secondStr);
-            const hour = `0${second / 3600 | 0}`
-                .slice(-2);
-            const minute = `0${second % 3600 / 60 | 0}`
-                .slice(-2);
+            const hour = `0${(second / 3600) | 0}`.slice(-2);
+            const minute = `0${((second % 3600) / 60) | 0}`.slice(-2);
             return hour + ":" + minute;
         };
         //星期过滤器
@@ -3320,7 +3411,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 alert("请添加时段");
                 return;
             }
-            for (var i = 0; i < playForms.length; i++) {
+            for (let i = 0; i < playForms.length; i++) {
                 const formData = new FormData(playForms[i] as any);
                 if (!formData.get("StartTime")) {
                     alert("有时段开始时间没有正确填写！");
@@ -3356,17 +3447,20 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             }
             playbackPlanData.term = termTimestamp;
             playbackPlanData.remark = playbackPlanFormData.get("Remark") as string;
-            $iot.advertising.plans.post(chooseComAdvertising, playbackPlanData).then(() => {
-                alert("上传成功！");
-                $iot.advertising.plans.get(chooseComAdvertising).then(data => {
-                    $timeout(() => {
-                        console.log(data);
-                        $scope.communityData.AdvertisingPlans = data;
+            $iot.advertising.plans
+                .post(chooseComAdvertising, playbackPlanData)
+                .then(() => {
+                    alert("上传成功！");
+                    $iot.advertising.plans.get(chooseComAdvertising).then(data => {
+                        $timeout(() => {
+                            console.log(data);
+                            $scope.communityData.AdvertisingPlans = data;
+                        });
                     });
+                })
+                .catch(err => {
+                    console.log(err);
                 });
-            }).catch(err => {
-                console.log(err);
-            });
         };
         //删除计划
         let selectedPlan: Guid;
@@ -3375,21 +3469,24 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 return;
             }
             console.log(selectedPlan);
-            $iot.advertising.plans.delete(selectedPlan).then(x => {
-                console.log(x);
-                if (x.result) {
-                    $iot.advertising.plans.get(chooseComAdvertising).then(data => {
-                        $timeout(() => {
-                            console.log(data);
-                            $scope.communityData.AdvertisingPlans = data;
+            $iot.advertising.plans
+                .delete(selectedPlan)
+                .then(x => {
+                    console.log(x);
+                    if (x.result) {
+                        $iot.advertising.plans.get(chooseComAdvertising).then(data => {
+                            $timeout(() => {
+                                console.log(data);
+                                $scope.communityData.AdvertisingPlans = data;
+                            });
                         });
-                    });
-                } else {
-                    alert("删除失败！" + x.message);
-                }
-            }).catch(err => {
-                console.log(err);
-            });
+                    } else {
+                        alert("删除失败！" + x.message);
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                });
         };
         //选择播放计划
         $scope.choosePlan = plan => {
@@ -3403,7 +3500,7 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             });
         };
         //选择播放计划样式
-        $scope.choosePlanStyle = item => item.id === selectedPlan ? "success" : "";
+        $scope.choosePlanStyle = item => (item.id === selectedPlan ? "success" : "");
         //授权播放计划
         $scope.authAdPlayToDevice = () => {
             $scope.authADCompleteinfo = [];
@@ -3413,26 +3510,29 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 return;
             }
             for (let i = 0; i < selectDeviceList.length; i++) {
-                ((i => {
+                (i => {
                     const issue: Adissue = {
                         deviceId: selectDeviceList[i],
                         planId: selectedPlan
                     };
-                    $iot.advertising.issue.post(issue).then((data: IssueResult) => {
-                        $timeout(() => {
-                            if (data.result) {
-                                const successDevice = $scope.communityData.ADunAuthDevice.$[selectDeviceList[i]];
-                                $scope.alreadyAuth_AD.addOrUpdate(successDevice);
-                                $scope.ChooseauthDevice_AD = $scope.ChooseauthDevice_AD.filter(item => item.id !== selectDeviceList[i]);
-                            }
-                            data.device = selectDeviceList[i];
-                            $scope.authADCompleteinfo.push(data);
+                    $iot.advertising.issue
+                        .post(issue)
+                        .then((data: IssueResult) => {
+                            $timeout(() => {
+                                if (data.result) {
+                                    const successDevice = $scope.communityData.ADunAuthDevice.$[selectDeviceList[i]];
+                                    $scope.alreadyAuth_AD.addOrUpdate(successDevice);
+                                    $scope.ChooseauthDevice_AD = $scope.ChooseauthDevice_AD.filter(item => item.id !== selectDeviceList[i]);
+                                }
+                                data.device = selectDeviceList[i];
+                                $scope.authADCompleteinfo.push(data);
+                            });
+                            console.log(data);
+                        })
+                        .catch(err => {
+                            console.log(err);
                         });
-                        console.log(data);
-                    }).catch(err => {
-                        console.log(err);
-                    });
-                })(i));
+                })(i);
             }
         };
         //取消授权播放计划
@@ -3444,26 +3544,29 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 return;
             }
             for (let i = 0; i < selectDeviceList.length; i++) {
-                ((i => {
+                (i => {
                     const issue: Adissue = {
                         deviceId: selectDeviceList[i],
                         planId: selectedPlan
                     };
-                    $iot.advertising.issue.post(issue).then(data => {
-                        $timeout(() => {
-                            if (data.result) {
-                                const successDevice = $scope.communityData.ADunAuthDevice.$[selectDeviceList[i]];
-                                $scope.ChooseauthDevice_AD.addOrUpdate(successDevice);
-                                $scope.alreadyAuth_AD = $scope.alreadyAuth_AD.filter(item => item.id !== selectDeviceList[i]);
-                            }
-                            data.device = selectDeviceList[i];
-                            $scope.authADCompleteinfo.push(data);
+                    $iot.advertising.issue
+                        .post(issue)
+                        .then(data => {
+                            $timeout(() => {
+                                if (data.result) {
+                                    const successDevice = $scope.communityData.ADunAuthDevice.$[selectDeviceList[i]];
+                                    $scope.ChooseauthDevice_AD.addOrUpdate(successDevice);
+                                    $scope.alreadyAuth_AD = $scope.alreadyAuth_AD.filter(item => item.id !== selectDeviceList[i]);
+                                }
+                                data.device = selectDeviceList[i];
+                                $scope.authADCompleteinfo.push(data);
+                            });
+                            console.log(data);
+                        })
+                        .catch(err => {
+                            console.log(err);
                         });
-                        console.log(data);
-                    }).catch(err => {
-                        console.log(err);
-                    });
-                })(i));
+                })(i);
             }
         };
         /*广告投放结束*/
@@ -3554,8 +3657,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             //获取查询时间范围
             const startTimeStr = (<HTMLInputElement>document.getElementById("startTime")).value;
             const endTimeStr = (<HTMLInputElement>document.getElementById("endTime")).value;
-            const beginTime = getTime.getTimestamp(startTimeStr);
-            const endTime = getTime.getTimestamp(endTimeStr);
+            const beginTime = TimeConvert.getTimestamp(startTimeStr);
+            const endTime = TimeConvert.getTimestamp(endTimeStr);
             const requestData: QueryEvents = {
                 beginTime: beginTime,
                 endTime: endTime,
@@ -3576,11 +3679,12 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 requestData.address = addressBuilding.id + addressUnit.id + addressRoom.id;
             }
             console.log(JSON.parse(JSON.stringify(requestData)));
-            $iot.ranger.events.query(requestData).then(() => {
-
-            }).catch(err => {
-                console.log(err);
-            });
+            $iot.ranger.events
+                .query(requestData)
+                .then(() => {})
+                .catch(err => {
+                    console.log(err);
+                });
         };
         $scope.detail = (id, eventType) => {
             $scope.Imgbase = `Ranger/EventImage/${id}/${eventType}`;
@@ -3607,8 +3711,8 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
             //获取查询时间范围
             const startTimeStr = (<HTMLInputElement>document.getElementById("startTime")).value;
             const endTimeStr = (<HTMLInputElement>document.getElementById("endTime")).value;
-            const beginTime = getTime.getTimestamp(startTimeStr);
-            const endTime = getTime.getTimestamp(endTimeStr);
+            const beginTime = TimeConvert.getTimestamp(startTimeStr);
+            const endTime = TimeConvert.getTimestamp(endTimeStr);
             const requestData: QueryLogs = {
                 beginTime: beginTime,
                 endTime: endTime,
@@ -3617,10 +3721,11 @@ var srAngularApp = angular.module("srAngular", ["ngRoute"])
                 status: statusid
             };
             console.log(requestData);
-            $iot.ranger.logs.query(requestData).then(() => {
-
-            }).catch(err => {
-                console.log(err);
-            });
-        }
+            $iot.ranger.logs
+                .query(requestData)
+                .then(() => {})
+                .catch(err => {
+                    console.log(err);
+                });
+        };
     });

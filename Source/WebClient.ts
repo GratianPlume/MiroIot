@@ -65,7 +65,6 @@
         return this;
     }
 
-
     private constructor(ws: WebSocket) {
         this._ws = ws;
         const timeout = 10000;

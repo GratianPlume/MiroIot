@@ -67,9 +67,9 @@ class Iot {
 
         register(user: string, password: string, inviteCode: string): Promise<ReasonResults> {
             const reqData = {
-                "userName": user,
-                "password": password,
-                "inviteCode": inviteCode
+                userName: user,
+                password: password,
+                inviteCode: inviteCode
             };
             return $.ajax({
                 type: "POST",
@@ -124,7 +124,7 @@ class Iot {
                 data: JSON.stringify(reqData)
             });
         }
-    }
+    };
 
     static communities = {
         modify(id: Guid, name: string, remark: string): Promise<boolean> {
@@ -152,9 +152,9 @@ class Iot {
 
         create(area: number, name: string, remark: string): Promise<Guid> {
             const newCommunityData = {
-                "area": area,
-                "name": name,
-                "remark": remark
+                area: area,
+                name: name,
+                remark: remark
             };
             return $.ajax({
                 type: "POST",
@@ -184,7 +184,7 @@ class Iot {
         flatten(communityId: Guid, room: Guid) {
             return Iot.comms.$[communityId].arch.flatTable[room];
         }
-    }
+    };
     /**
      * 管理自己的账户
      */
@@ -201,7 +201,7 @@ class Iot {
                 data: JSON.stringify(reqData)
             });
         }
-    }
+    };
 
     static persons = {
         sum(communityId: Guid): Promise<Dict<Person>> {
@@ -231,7 +231,7 @@ class Iot {
         get(id: Nric): Promise<Person> {
             return $.get(`Citizen/${id}`);
         }
-    }
+    };
 
     static devices = {
         items(communityId: Guid, callbackfn: (x: Dict<Device>) => void) {
@@ -263,7 +263,7 @@ class Iot {
                 contentType: "application/json; charset=utf-8"
             });
         }
-    }
+    };
 
     static cards = {
         sum(communityId: Guid): Promise<Card[]> {
@@ -301,7 +301,7 @@ class Iot {
                 data: JSON.stringify(value)
             });
         }
-    }
+    };
 
     static fingerprints = {
         sum(communityId: Guid): Promise<Fingerprint[]> {
@@ -350,7 +350,7 @@ class Iot {
                 data: JSON.stringify(value)
             });
         }
-    }
+    };
 
     static advertising = {
         files: {
@@ -406,7 +406,7 @@ class Iot {
                 });
             }
         }
-    }
+    };
 
     static ranger = {
         devices: {
@@ -434,5 +434,5 @@ class Iot {
                 });
             }
         }
-    }
+    };
 }

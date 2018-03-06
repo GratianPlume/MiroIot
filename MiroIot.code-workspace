@@ -7,5 +7,7 @@
 			"path": "wwwroot"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"tslint.configFile": "tslintconfig.json"
+	}
 }

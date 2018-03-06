@@ -22,7 +22,7 @@ class Seq<T> {
                 if (predicate(x))
                     cont(x);
             });
-        }
+        };
         return new Seq<T>(this._iter, combo);
     }
     toDict(keySelector: KeySelector<T>) {
@@ -41,14 +41,14 @@ class Seq<T> {
         this._iter(this._state(method));
     }
     reduce(reduction: (a: T, b: T) => T) {
-        let r: T = undefined;
-        const cont: (x: T) => void = x => { r = r === undefined ? x : reduction(r, x) };
+        let r: T;
+        const cont: (x: T) => void = x => (r = r === undefined ? x : reduction(r, x) );
         this._iter(this._state(cont));
         return r;
     }
     fold<S>(state: S, folder: (state: S, x: T) => S) {
         let r = state;
-        const cont: (x: T) => void = x => { r = folder(r, x) };
+        const cont: (x: T) => void = x =>  r = folder(r, x);
         this._iter(this._state(cont));
         return r;
     }
@@ -59,7 +59,6 @@ class Seq<T> {
         return new Seq<T>(iter, f => f);
     }
 }
-
 
 //function DeferArray(arr, calc) {
 //    this.filter = function (predicate) {

@@ -60,7 +60,7 @@ class FpService {
                     this.onfail(imgObj.errcode);
                 }
             }
-        }
+        };
     }
 
     get item(): MergeImage {
@@ -71,7 +71,7 @@ class FpService {
             image: this._captures[0].data.image,
             width: this._captures[0].data.width,
             height: this._captures[0].data.height,
-        }
+        };
     }
 
     reset() {
@@ -96,11 +96,3 @@ class FpService {
         return new FpService();
     }
 }
-
-
-
-
-
-
-
-
