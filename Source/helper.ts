@@ -264,6 +264,18 @@ class Dict<TValue> {
             return x;
         }
     }
+    private static comparefn<T>(sortKeySelector: KeySelector<T>) {
+        return (a, b) => {
+            const av = sortKeySelector(a);
+            const bv = sortKeySelector(b);
+            return av > bv ? 1 : (av === bv ? 0 : -1);
+        }
+    }
+    toSortedArray(sortKeySelector: KeySelector<TValue>): TValue[];
+    toSortedArray<T>(sortKeySelector: KeySelector<T>,mapping: (source: TValue) => T): T[];
+    toSortedArray<T>(sortKeySelector: KeySelector<T>, mapping?: (source: TValue) => T): Array<T | TValue> {
+        return this.toArray(mapping).sort(Dict.comparefn(sortKeySelector));
+    }
     some(predicate: (value: TValue) => boolean) {
         const item = this._item;
         for (const key in item) {
@@ -424,18 +436,18 @@ class Helper {
             text: data.name,
             id: "0",
             guid: data.guid,
-            nodes: data.items.toArray(block => <BlockItem>{
+            nodes: data.items.toSortedArray(x => x.blockNumber, block => <BlockItem>{
                 text: block.id + "--" + block.name,
                 id: "1",
                 blockNumber: block.id,
                 blockName: block.name,
-                nodes: block.items.toArray((unit: UnitX) => <UnitItem>{
+                nodes: block.items.toSortedArray(x => x.unitNumber, (unit: UnitX) => <UnitItem>{
                     text: unit.id + "--" + unit.name,
                     id: "2",
                     blockNumber: block.id,
                     unitNumber: unit.id,
                     unitName: unit.name,
-                    nodes: unit.items.toArray((flat: FlatData) => <FlatItem>{
+                    nodes: unit.items.toSortedArray(x => x.roomNumber, (flat: FlatData) => <FlatItem>{
                         text: flat.id,
                         blockNumber: block.id,
                         unitNumber: unit.id,
