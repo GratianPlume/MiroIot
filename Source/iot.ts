@@ -1,13 +1,11 @@
 ﻿/// <reference path="./node_modules/@types/jquery/index.d.ts" />
 
 class Community {
-    readonly id: Guid;
     arch: ArchService;
     devices: Dict<Device>;
     cards: Dict<Card>;
     fingerprints: Dict<Fingerprint>;
-    constructor(id: Guid) {
-        this.id = id;
+    constructor(public readonly id: Guid) {
     }
 }
 
@@ -17,6 +15,7 @@ class Iot {
     static title: string;
     static advertisingMode: boolean;
     static comms = Dict.zero<Community>(x => x.id);
+    static current: Community;
 
     static connect() {
         console.log("iot.connect");
@@ -164,12 +163,13 @@ class Iot {
             });
         },
         
-        loadArch(id: Guid): Promise<CommunityX> {
+        loadArch(id: Guid): Promise<CommunityData> {
             return ($.get(`Communities/LoadArch/${id}`) as Promise<CommunityData>)
                 .then(x => {
                     const arch = ArchService.ofDoc(x);
-                    Iot.getCommunity(id).arch = arch;
-                    return arch.communityX;
+                    Iot.current = Iot.getCommunity(id);
+                    Iot.current.arch = arch;
+                    return x;
                 });
         },
 

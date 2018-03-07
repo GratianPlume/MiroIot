@@ -21,13 +21,13 @@
     </div>
     <div class="form-section-row"  ng-show="openMore">
         <span>住址：</span>
-        <select class="userAddress inputList" ng-model="addressBuilding" ng-options="item.name for item in communityData.queryAddress.items.$">
+        <select class="userAddress inputList" ng-model="addressBuilding" ng-options="item.name for item in communityData.queryAddress.buildings">
             <option value="">全部</option>
         </select>
-        <select class="userAddress inputList" ng-model="addressUnit" ng-options="item.name for item in addressBuilding.items.$">
+        <select class="userAddress inputList" ng-model="addressUnit" ng-options="item.name for item in addressBuilding.units">
             <option value="">全部</option>
         </select>
-        <select class="userAddress inputList" ng-model="addressRoom" ng-options="item.id for item in addressUnit.items.$">
+        <select class="userAddress inputList" ng-model="addressRoom" ng-options="item.id for item in addressUnit.apartments | orderBy:'id'">
             <option value="">全部</option>
         </select>
     </div>

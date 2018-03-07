@@ -39,8 +39,8 @@
                 </div>
                 <div class="input-group mySet-input-group">
                     <span class="input-group-addon">设备 ID</span>
-                    <select class="form-control" style="width: 115px;padding-left: 5px" ng-model="addressBuilding" ng-options="item.name for item in communityData.address.items.$"></select>
-                    <select class="form-control" style="width: 105px;padding-left: 5px"ng-model="addressUnit" ng-options="item.name for item in addressBuilding.items.$"></select>
+                    <select class="form-control" style="width: 115px;padding-left: 5px" ng-model="addressBuilding" ng-options="item.name for item in communityData.address.buildings"></select>
+                    <select class="form-control" style="width: 105px;padding-left: 5px"ng-model="addressUnit" ng-options="item.name for item in addressBuilding.units"></select>
                     <select class="form-control" style="width: 72px;padding-left: 5px"ng-model="deviceNumber">
                         <option ng-repeat="item in [0,1,2,3,4,5,6,7,8,9]">{{item}}</option>
                     </select>

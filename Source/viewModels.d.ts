@@ -279,8 +279,8 @@ interface AddressView {
 }
 
 interface Filter extends angular.IFilterService {
-    (name: "roomName"): (guid: Guid, data: CommunityX) => string;
-    (name: "roomToAddressid"): (guid: Guid, data: CommunityX) => string;
+    (name: "roomName"): (guid: Guid) => string;
+    (name: "roomToAddressid"): (guid: Guid) => string;
     (name: "nricTorooms"): (id: string, people: Dict<Person>) => string[];
     (name: "nricToname"): (id: string, people: Dict<Person>) => string;
     (name: "fingerFilter"): (finger: number) => string;

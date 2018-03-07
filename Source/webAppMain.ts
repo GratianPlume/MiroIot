@@ -106,12 +106,14 @@ const srAngularApp = angular
             if (typeof err === "string") document.getElementById("message_output").innerHTML = err;
         }
     })
-    .filter("roomName", ($iot: typeof Iot) => (input: Guid, data: CommunityX): string => {
-        const x = $iot.communities.flatten(data.guid, input);
+    .filter("roomName", ($iot: typeof Iot) => (input: Guid): string => {
+        const id = $iot.current.id;
+        const x = $iot.communities.flatten(id, input);
         return !x ? input : x.block.name + x.unit.name + x.flat.id;
     })
-    .filter("roomToAddressid", ($iot: typeof Iot) => (input: Guid, data: CommunityX): string => {
-        const x = $iot.communities.flatten(data.guid, input);
+    .filter("roomToAddressid", ($iot: typeof Iot) => (input: Guid): string => {
+        const id = $iot.current.id;
+        const x = $iot.communities.flatten(id, input);
         return x.block.id + x.unit.id + x.flat.id;
     })
     .filter("nricFilter", () => (nric: string) => (nric.length > 18 ? "" : nric))
@@ -141,10 +143,10 @@ const srAngularApp = angular
             }
         }
     })
-    .filter("bindingroomToaddress", () => (room: string, list: CommunityX): string => {
+    .filter("bindingroomToaddress", ($iot: typeof Iot) => (room: string): string => {
         if (!room || room.length !== 10) return "";
         const blockId = room.slice(0, 4);
-        const block = list.items.$[blockId];
+        const block = $iot.current.arch.communityX.items.$[blockId];
         const unitId = room.slice(4, 6);
         const unit = block.items.$[unitId];
         const roomId = room.slice(6);
@@ -164,7 +166,7 @@ const srAngularApp = angular
         if (!filter) {
             return viewData.personnel.copy.$;
         }
-        const roomPredicate = (room: Guid) => $filter("roomName")(room, viewData.address).indexOf(filter) !== -1 || $filter("roomToAddressid")(room, viewData.address).indexOf(filter) !== -1;
+        const roomPredicate = (room: Guid) => $filter("roomName")(room).indexOf(filter) !== -1 || $filter("roomToAddressid")(room).indexOf(filter) !== -1;
         const predicate = (item: Person) => {
             for (const prop in item) {
                 if (item.hasOwnProperty(prop)) {
@@ -1999,7 +2001,7 @@ const srAngularApp = angular
                 }
                 const block = first.slice(0, 4);
                 const unit = first.slice(4);
-                const flats = $scope.communityData.address.items.$[block].items.$[unit].items;
+                const flats = $iot.current.arch.communityX.items.$[block].items.$[unit].items;
                 return Helper.val(flats);
             };
             getTheFlats()

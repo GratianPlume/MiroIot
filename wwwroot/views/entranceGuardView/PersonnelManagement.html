@@ -33,7 +33,7 @@
                 <td>
                     <table>
                         <tr ng-repeat="room in item.rooms">
-                            <td>{{room | roomName:communityData.address}}</td>
+                            <td>{{room | roomName}}</td>
                         </tr>
                     </table>
                 </td>
@@ -62,9 +62,9 @@
                 </div>
                 <div class="input-group mySet-input-group" style="margin-bottom: 10px">
                     <span class="input-group-addon" id="address">住址</span>
-                    <select class="form-control" style="width: 115px;padding-left: 5px" ng-model="addressBuilding" ng-options="item.name for item in communityData.address.items.$"></select>
-                    <select class="form-control" style="width: 105px;padding-left: 5px"ng-model="addressUnit" ng-options="item.name for item in addressBuilding.items.$"></select>
-                    <select class="form-control" style="width: 72px;padding-left: 5px"ng-model="addressRoom" ng-options="item.id for item in addressUnit.items.$" ng-change="refreshAddAddressList()"></select>
+                    <select class="form-control" style="width: 115px;padding-left: 5px" ng-model="addressBuilding" ng-options="item.name for item in communityData.address.buildings"></select>
+                    <select class="form-control" style="width: 105px;padding-left: 5px"ng-model="addressUnit" ng-options="item.name for item in addressBuilding.units"></select>
+                    <select class="form-control" style="width: 72px;padding-left: 5px"ng-model="addressRoom" ng-options="item.id for item in addressUnit.apartments | orderBy:'id'" ng-change="refreshAddAddressList()"></select>
                     <span class="input-group-addon btn btn-default" ng-click="addAddress(addressBuilding,addressUnit,addressRoom)">添加</span>
                 </div>
                 <div class="input-group mySet-input-group" style="margin-bottom: 10px" ng-hide="addAddressview">
@@ -127,11 +127,11 @@
                 </div>
                 <div class="input-group mySet-input-group" style="margin-bottom: 10px">
                     <span class="input-group-addon">住址</span>
-                    <select class="form-control" style="width: 115px;padding-left: 5px" ng-model="addressBuilding" ng-options="item.name for item in communityData.address.items.$"></select>
-                    <select class="form-control" style="width: 105px;padding-left: 5px"ng-model="addressUnit" ng-options="item.name for item in addressBuilding.items.$"></select>
+                    <select class="form-control" style="width: 115px;padding-left: 5px" ng-model="addressBuilding" ng-options="item.name for item in communityData.address.buildings"></select>
+                    <select class="form-control" style="width: 105px;padding-left: 5px"ng-model="addressUnit" ng-options="item.name for item in addressBuilding.units"></select>
                     <select class="form-control" style="width: 72px;padding-left: 5px"
                             ng-model="addressRoom"
-                            ng-options="item.id for item in addressUnit.items.$">
+                            ng-options="item.id for item in addressUnit.apartments | orderBy:'id'">
                     </select>
                     <span class="input-group-addon btn btn-default" ng-click="editAddAddress(addressBuilding,addressUnit,addressRoom)">添加</span>
                 </div>
@@ -139,7 +139,7 @@
                     <div style="margin-left: 140px">
                         <table class="table table-hover table-condensed" style="margin-bottom: 0">
                             <tr ng-repeat="item in choosePersonEditRooms">
-                                <td>{{item | roomName:communityData.address}}</td>
+                                <td>{{item | roomName}}</td>
                                 <td><button class="btn btn-warning btn-xs" ng-click="editDeleteAddAddress(item)">删除</button></td>
                             </tr>
                         </table>

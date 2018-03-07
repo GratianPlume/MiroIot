@@ -9,7 +9,7 @@ type Key = string | number;
 class MainView {
     chooseCommunity: CommunityDetail | {} = {};
     personnel: Dict<Person>;
-    address: CommunityX = {};
+    address: CommunityData = {};
     devices: Dict<Device>;
     cards: Card[] = [];
     Fingerprints: Fingerprint[] = [];
@@ -17,7 +17,7 @@ class MainView {
     AdFiles: Adfile[] = [];
     AdchooseCom: CommunityDetail | {} = {};
     ADunAuthDevice: Dict<Device>;
-    queryAddress: CommunityX = {};
+    queryAddress: CommunityData = {};
 }
 
 class AdminView {
@@ -264,17 +264,10 @@ class Dict<TValue> {
             return x;
         }
     }
-    private static comparefn<T>(sortKeySelector: KeySelector<T>) {
-        return (a, b) => {
-            const av = sortKeySelector(a);
-            const bv = sortKeySelector(b);
-            return av > bv ? 1 : (av === bv ? 0 : -1);
-        }
-    }
     toSortedArray(sortKeySelector: KeySelector<TValue>): TValue[];
     toSortedArray<T>(sortKeySelector: KeySelector<T>,mapping: (source: TValue) => T): T[];
     toSortedArray<T>(sortKeySelector: KeySelector<T>, mapping?: (source: TValue) => T): Array<T | TValue> {
-        return this.toArray(mapping).sort(Dict.comparefn(sortKeySelector));
+        return this.toArray(mapping).sort(Helper.comparefn(sortKeySelector));
     }
     some(predicate: (value: TValue) => boolean) {
         const item = this._item;
@@ -374,6 +367,7 @@ class Helper {
     static arrToDic<T extends Identifiable, R>(arr: T[], mapping?: (source: T) => R): Dict<T | R> {
         return Dict.ofArray<T, R>(x => x.id, arr, mapping);
     }
+    
     /**
      * 把设备码从数字转换为7位字符串
      * @param value
@@ -431,23 +425,23 @@ class Helper {
         { id: 3, name: "IC卡开锁" },
         { id: 3, name: "监视" }];
 
-    static toTreeItem(data: CommunityX): TreeItem[] {
+    static toTreeItem(data: CommunityData): TreeItem[] {
         return [{
             text: data.name,
             id: "0",
             guid: data.guid,
-            nodes: data.items.toSortedArray(x => x.blockNumber, block => <BlockItem>{
+            nodes: data.buildings.map(block => <BlockItem>{
                 text: block.id + "--" + block.name,
                 id: "1",
                 blockNumber: block.id,
                 blockName: block.name,
-                nodes: block.items.toSortedArray(x => x.unitNumber, (unit: UnitX) => <UnitItem>{
+                nodes: block.units.map(unit => <UnitItem>{
                     text: unit.id + "--" + unit.name,
                     id: "2",
                     blockNumber: block.id,
                     unitNumber: unit.id,
                     unitName: unit.name,
-                    nodes: unit.items.toSortedArray(x => x.roomNumber, (flat: FlatData) => <FlatItem>{
+                    nodes: unit.apartments.map((flat: FlatData) => <FlatItem>{
                         text: flat.id,
                         blockNumber: block.id,
                         unitNumber: unit.id,
@@ -593,5 +587,12 @@ class Helper {
             idx1++;
             idx2++;
         }
+    }
+    static comparefn<T>(sortKeySelector: KeySelector<T>) {
+        return (a, b) => {
+            const av = sortKeySelector(a);
+            const bv = sortKeySelector(b);
+            return av > bv ? 1 : (av === bv ? 0 : -1);
+        };
     }
 }
