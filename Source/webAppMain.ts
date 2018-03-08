@@ -431,7 +431,7 @@ const srAngularApp = angular
                 case 3:
                     $("#addFinger").modal({
                         keyboard: false,
-                        backdrop: false,
+                        backdrop: "static",
                         show: false
                     });
                     return "views/entranceGuardView/fingerprintManagement.html?" + $iot.startTime;
