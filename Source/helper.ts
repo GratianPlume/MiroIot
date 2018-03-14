@@ -265,7 +265,7 @@ class Dict<TValue> {
         }
     }
     toSortedArray(sortKeySelector: KeySelector<TValue>): TValue[];
-    toSortedArray<T>(sortKeySelector: KeySelector<T>,mapping: (source: TValue) => T): T[];
+    toSortedArray<T>(sortKeySelector: KeySelector<T>, mapping: (source: TValue) => T): T[];
     toSortedArray<T>(sortKeySelector: KeySelector<T>, mapping?: (source: TValue) => T): Array<T | TValue> {
         return this.toArray(mapping).sort(Helper.comparefn(sortKeySelector));
     }
@@ -367,7 +367,7 @@ class Helper {
     static arrToDic<T extends Identifiable, R>(arr: T[], mapping?: (source: T) => R): Dict<T | R> {
         return Dict.ofArray<T, R>(x => x.id, arr, mapping);
     }
-    
+
     /**
      * 把设备码从数字转换为7位字符串
      * @param value
@@ -423,7 +423,8 @@ class Helper {
         { id: 1, name: "呼叫" },
         { id: 2, name: "QQ开锁" },
         { id: 3, name: "IC卡开锁" },
-        { id: 3, name: "监视" }];
+        { id: 4, name: "监视" },
+        { id: 5, name: "人脸识别" }];
 
     static toTreeItem(data: CommunityData): TreeItem[] {
         return [{

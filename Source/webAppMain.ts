@@ -3600,12 +3600,12 @@ const srAngularApp = angular
         $scope.functionalQueryView = () => {
             switch ($scope.selectedView) {
                 case 1:
-                    return "views/QueryView/record.html";
+                    return "views/QueryView/record.html?" + $iot.startTime;
                 case 2:
-                    return "views/QueryView/DeviceStatus.html";
+                    return "views/QueryView/DeviceStatus.html?" + $iot.startTime;
                 default:
                     sideUrlChooseQuery = 1;
-                    return "views/QueryView/record.html";
+                    return "views/QueryView/record.html?" + $iot.startTime;
             }
         };
         //缓存查询字段
@@ -3642,6 +3642,7 @@ const srAngularApp = angular
         $rootScope.recordBarData = false;
         $rootScope.listQuery = false;
         $scope.QueryRecord = (com, gate, event, name, nric, phone, addressBuilding, addressUnit, addressRoom) => {
+            if (!com || com.length === 0) return;
             if (nric) {
                 const validator = new IDValidator();
                 if (!validator.isValid(nric)) {
@@ -3703,6 +3704,7 @@ const srAngularApp = angular
         $scope.StatusIds = Helper.statusConstans;
         $scope.StatusId = undefined;
         $scope.QueryStatus = (com, gate, statusid) => {
+            if (!com || com.length === 0) return;
             //查询的小区
             for (let i = 0; i < $scope.adminData.communities.length; i++) {
                 if ($scope.adminData.communities[i].id === com) {
