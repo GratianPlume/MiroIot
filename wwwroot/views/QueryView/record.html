@@ -55,7 +55,7 @@
                 <th style="text-align:center">用户姓名</th>
                 <th style="text-align:center">动作类型</th>
                 <th style="text-align:center">时间</th>
-                <th style="text-align:center">QQ/ID</th>
+                <th style="text-align:center">QQ/用户ID</th>
                 <th style="text-align:center">身份证</th>
             </tr>
             </thead>
@@ -65,7 +65,7 @@
                     <td style="text-align:center">{{comName}}</td>
                     <td style="text-align:center">{{X.address | deviceAddress}}</td>
                     <td style="text-align:center">{{X.name}}</td>
-                    <td style="text-align:center">{{["指纹开锁","呼叫","QQ开锁","IC卡开锁","监视"][X.eventType]}}</td>
+                    <td style="text-align:center">{{["指纹开锁","呼叫","QQ开锁","IC卡开锁","监视","人脸识别"][X.eventType]}}</td>
                     <td style="text-align:center">{{X.timestamp | dateFilter}}</td>
                     <td style="text-align:center">{{X.qq}}</td>
                     <td style="text-align:center">{{X.nric}}</td>
