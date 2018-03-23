@@ -7,7 +7,7 @@
         "curly": false,
         "interface-name": [true, "never-prefix"],
         "max-classes-per-file": [true, 10],
-        "max-line-length": [true, 200],
+        "max-line-length": [false],
         "member-access": [true, "no-public"],
         "member-ordering": false,
         "no-angle-bracket-type-assertion": false,

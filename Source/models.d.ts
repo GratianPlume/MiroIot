@@ -87,6 +87,20 @@ interface CommunityX {
     items?: Dict<BlockX>;
 }
 
+interface RoomBinding {
+    id: Guid,
+    /** 是否居住*/
+    living?: Boolean,
+    /** 与户主关系*/
+    relative?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14,
+    /** 开始租住时间*/
+    rentalStart?: number,
+    /** 终止租住时间*/
+    rentalEnd?: number,
+    /** 人户一致*/
+    uniform?: Boolean,
+}
+
 interface Person {
     name: string;
     phone: string;
@@ -97,9 +111,43 @@ interface Person {
     remark: string;
     occupation: string;
     phoneMac: string;
-    rooms?: Guid[];
+    rooms?: RoomBinding[];
     deleteRooms?: string[];
     newNric?: string;
+    /** 居民类型*/ 
+    kind?: 1 | 2;
+    /** 性别*/ 
+    sex?: 1 | 2;
+    /** 签发机关*/
+    author?: string;
+    /** 身份证地址*/ 
+    address?: string;
+    /** 民族*/ 
+    nation?: string;
+    /** 出生日期*/
+    birthDay?: number;
+    /** 证件有效期开始时间*/
+    validFrom?: number;
+    /** 证件有效期结束*/
+    validTo?: number;
+    /** 永久有效*/
+    permanent?: boolean;
+    /** 头像*/
+    head?: string;
+    /** 头像类别*/
+    headType?: "png" | "jpg";
+    /** 户籍流动性*/
+    fluidity?: 1 | 2;
+    /** 户籍省份*/
+    province?: string;
+    /** 户籍市*/
+    city?: string;
+    /** 户籍区/县*/
+    district?: string;
+    /** 户籍地址*/
+    domicile?: string;
+    /** 户籍号*/
+    regCode?: string;
 }
 
 

@@ -13,6 +13,18 @@ type AdminConstans = StConstans;
 
 type EventConstans = StConstans;
 
+interface PcaCodeConstans {
+    readonly code: string;
+    readonly name: string;
+    readonly children: ReadonlyArray<{
+        readonly code: string;
+        readonly name: string;
+        readonly children: ReadonlyArray<{
+            readonly code: string;
+            readonly name: string;
+        }>
+    }>
+}
 interface RootScope extends ng.IRootScopeService {
     $apply(): any;
     $apply(exp: string): any;
@@ -66,7 +78,18 @@ interface Scope extends angular.IScope {
     choosedeviceGuid: string;
     newDevicepwd: string;
     newRemark: string;
+    relativeList:ReadonlyArray<StConstans>;
+    relative:number;
+    rentalStart:string;
+    rentalEnd:string;
     addName: string;
+    addID:string;
+    addIDAddress:string;
+    addBirthday:string;
+    IDValidBegin:string;
+    IDValidEnd:string;
+    sex:number;
+    nation:string;
     addNumber: string;
     addQQ: string;
     addWeChat: string;
@@ -111,9 +134,15 @@ interface Scope extends angular.IScope {
     unalreadyAuthFingerprint: Dict<Device>;
     card_viewData: Card[];
     fingerprint_viewData: Fingerprint[];
-    addAddressListView: { name: string; guid: string }[];
-    addAddressList: string[];
-    choosePersonEditRooms: string[];
+    addAddressListView: { name: string; guid: string; living?: Boolean; 
+        relative?:string;
+        rentalStart?: string;
+        rentalEnd?: string;
+        uniform?: Boolean}[];
+    addAddressList: RoomBinding[];
+    nationList: ReadonlyArray<StConstans>;
+    pac:ReadonlyArray<PcaCodeConstans>;
+    choosePersonEditRooms: RoomBinding[];
     cardPersonnels: Dict<Person>;
     speedyAddCardSuccessList: string[];
     tobe_editCardList: Card[];
@@ -187,7 +216,7 @@ interface Scope extends angular.IScope {
     changepwd(oldPwd: string, newPwd: string): void;
     chooseDevice(device: Device): void;
     chooseDeviceStyle(device: Device): string;
-    addAddress(building: BlockData, unit: UnitData, room: FlatData): void;
+    addAddress(building: BlockData, unit: UnitData, room: FlatData,live:boolean,relative:1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14,uniform:boolean,rentalStart?:Date,rentalEnd?:Date): void;
     deleteAddAddress(id: string): void;
     queryPersonnerl(id: string): void;
     refreshAddAddressList(): void;

@@ -130,7 +130,7 @@ const srAngularApp = angular
             return [];
         }
         const x = people.$[id];
-        return x ? x.rooms : [];
+        return x ? x.rooms.map(y=>y.id) : [];
     })
     .filter("deviceToAddress", () => (device: string, deviceList: Dict<Device>): number => {
         const item = deviceList.$[device];
@@ -166,7 +166,7 @@ const srAngularApp = angular
         if (!filter) {
             return viewData.personnel.copy.$;
         }
-        const roomPredicate = (room: Guid) => $filter("roomName")(room).indexOf(filter) !== -1 || $filter("roomToAddressid")(room).indexOf(filter) !== -1;
+        const roomPredicate = (room: RoomBinding) => $filter("roomName")(room.id).indexOf(filter) !== -1 || $filter("roomToAddressid")(room.id).indexOf(filter) !== -1;
         const predicate = (item: Person) => {
             for (const prop in item) {
                 if (item.hasOwnProperty(prop)) {
@@ -1604,21 +1604,64 @@ const srAngularApp = angular
         $scope.addAddressview = true;
         $scope.addAddressListView = [];
         $scope.addAddressList = [];
+        $scope.nationList = Helper.nationList;
+        $scope.pac = Helper.pacCode;
+        $scope.relativeList = Helper.relativeConstans;
         let refreshOrNo = true;
-        $scope.addAddress = (building, unit, room) => {
+        $scope.addAddress = (building,unit,room,live,relative,uniform,rentalStart,rentalEnd) => {
+            console.log(live);
+            console.log(relative);
+            console.log(uniform);
+            console.log(rentalStart.getTime());
+            console.log(rentalEnd.getTime());
             if (!building || !unit || !room) {
                 alert("请选择完整地址");
                 return;
             }
-            if ($scope.addAddressList.some((item, index) => item === room.guid)) {
+            if ($scope.addAddressList.some((item, index) => item.id === room.guid)) {
                 return;
             }
+            if(relative === 10) {
+                if(!rentalStart || !rentalEnd) {
+                    alert("请选择租赁区间");
+                    return;
+                }
+                const rentalStartstr = rentalStart.getFullYear +"/"+rentalStart.getMonth+"/"+rentalStart.getDate;
+                const rentalEndstr = rentalEnd.getFullYear +"/"+rentalEnd.getMonth+"/"+rentalEnd.getDate;           
+                $scope.addAddressListView.push({
+                    guid: room.guid,
+                    name: building.name + "-" + unit.name + "-" + room.id,
+                    living:live,
+                    relative:$scope.relativeList[relative].name,
+                    rentalStart:rentalStartstr,
+                    rentalEnd:rentalEndstr,
+                    uniform:uniform
+                });
+                $scope.addAddressList.push({
+                    id: room.guid,
+                    living: live,
+                    relative: relative,
+                    rentalStart: rentalStart.getTime()/1000,
+                    rentalEnd: rentalEnd.getTime()/1000,
+                    uniform: uniform,
+                });
+            } else {          
+                $scope.addAddressListView.push({
+                    guid: room.guid,
+                    name: building.name + "-" + unit.name + "-" + room.id,
+                    living:live,
+                    relative:$scope.relativeList[relative].name,
+                    uniform:uniform
+                });
+                $scope.addAddressList.push({
+                    id: room.guid,
+                    living: live,
+                    relative: relative,
+                    uniform: uniform,
+                });
+            }
             $scope.addAddressview = false;
-            $scope.addAddressListView.push({
-                guid: room.guid,
-                name: building.name + "-" + unit.name + "-" + room.id
-            });
-            $scope.addAddressList.push(room.guid);
+            
         };
         $scope.deleteAddAddress = id => {
             let deleteIndex: number;
@@ -1713,27 +1756,28 @@ const srAngularApp = angular
                 phoneMac: addphoneMac,
                 rooms: $scope.addAddressList.slice(0)
             };
-            $iot.persons
-                .put(addData)
-                .then((data: Nric) => {
-                    addData.nric = data;
-                    $timeout(() => {
-                        refreshOrNo = true;
-                        $scope.communityData.personnel.addOrUpdate(addData);
-                        $scope.alertSuccess = true;
-                        $timeout(() => {
-                            $scope.alertSuccess = false;
-                        }, 2000);
-                    });
-                })
-                .catch(() => {
-                    $timeout(() => {
-                        $scope.alertFail = true;
-                        $timeout(() => {
-                            $scope.alertFail = false;
-                        }, 2000);
-                    });
-                });
+            console.log(addData);
+            // $iot.persons
+            //     .put(addData)
+            //     .then((data: Nric) => {
+            //         addData.nric = data;
+            //         $timeout(() => {
+            //             refreshOrNo = true;
+            //             $scope.communityData.personnel.addOrUpdate(addData);
+            //             $scope.alertSuccess = true;
+            //             $timeout(() => {
+            //                 $scope.alertSuccess = false;
+            //             }, 2000);
+            //         });
+            //     })
+            //     .catch(() => {
+            //         $timeout(() => {
+            //             $scope.alertFail = true;
+            //             $timeout(() => {
+            //                 $scope.alertFail = false;
+            //             }, 2000);
+            //         });
+            //     });
         };
         //选定人员
         let deletechoosePersonId: string;
@@ -1782,7 +1826,7 @@ const srAngularApp = angular
                 alert("请选择完整地址");
                 return;
             }
-            if ($scope.choosePersonEditRooms.some((item, index) => item === room.guid)) {
+            if ($scope.choosePersonEditRooms.some((item, index) => item.id === room.guid)) {
                 return;
             }
             $scope.choosePersonEditRooms.push(room.guid);
