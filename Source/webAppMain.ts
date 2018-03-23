@@ -1,5 +1,6 @@
 ﻿/// <reference path="./node_modules/@types/bootstrap/index.d.ts" />
 /// <reference path="./node_modules/@types/bootstrap-treeview/index.d.ts" />
+/// <reference path="./node_modules/@types/angular-route/index.d.ts" />
 /// <reference path="./local.d.ts" />
 const srAngularApp = angular
     .module("srAngular", ["ngRoute"])
