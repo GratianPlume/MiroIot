@@ -1,5 +1,6 @@
 ﻿/// <reference path="./node_modules/@types/bootstrap/index.d.ts" />
 /// <reference path="./node_modules/@types/bootstrap-treeview/index.d.ts" />
+/// <reference path="./node_modules/@types/angular-route/index.d.ts" />
 /// <reference path="./local.d.ts" />
 const srAngularApp = angular
     .module("srAngular", ["ngRoute"])
@@ -130,7 +131,7 @@ const srAngularApp = angular
             return [];
         }
         const x = people.$[id];
-        return x ? x.rooms.map(y=>y.id) : [];
+        return x ? x.rooms.map(y => y.id) : [];
     })
     .filter("deviceToAddress", () => (device: string, deviceList: Dict<Device>): number => {
         const item = deviceList.$[device];
@@ -1608,7 +1609,7 @@ const srAngularApp = angular
         $scope.pac = Helper.pacCode;
         $scope.relativeList = Helper.relativeConstans;
         let refreshOrNo = true;
-        $scope.addAddress = (building,unit,room,live,relative,uniform,rentalStart,rentalEnd) => {
+        $scope.addAddress = (building, unit, room, live, relative, uniform, rentalStart, rentalEnd) => {
             console.log(live);
             console.log(relative);
             console.log(uniform);
@@ -1621,37 +1622,37 @@ const srAngularApp = angular
             if ($scope.addAddressList.some((item, index) => item.id === room.guid)) {
                 return;
             }
-            if(relative === 10) {
-                if(!rentalStart || !rentalEnd) {
+            if (relative === 10) {
+                if (!rentalStart || !rentalEnd) {
                     alert("请选择租赁区间");
                     return;
                 }
-                const rentalStartstr = rentalStart.getFullYear +"/"+rentalStart.getMonth+"/"+rentalStart.getDate;
-                const rentalEndstr = rentalEnd.getFullYear +"/"+rentalEnd.getMonth+"/"+rentalEnd.getDate;           
+                const rentalStartstr = rentalStart.getFullYear + "/" + rentalStart.getMonth + "/" + rentalStart.getDate;
+                const rentalEndstr = rentalEnd.getFullYear + "/" + rentalEnd.getMonth + "/" + rentalEnd.getDate;
                 $scope.addAddressListView.push({
                     guid: room.guid,
                     name: building.name + "-" + unit.name + "-" + room.id,
-                    living:live,
-                    relative:$scope.relativeList[relative].name,
-                    rentalStart:rentalStartstr,
-                    rentalEnd:rentalEndstr,
-                    uniform:uniform
+                    living: live,
+                    relative: $scope.relativeList[relative].name,
+                    rentalStart: rentalStartstr,
+                    rentalEnd: rentalEndstr,
+                    uniform: uniform
                 });
                 $scope.addAddressList.push({
                     id: room.guid,
                     living: live,
                     relative: relative,
-                    rentalStart: rentalStart.getTime()/1000,
-                    rentalEnd: rentalEnd.getTime()/1000,
+                    rentalStart: rentalStart.getTime() / 1000,
+                    rentalEnd: rentalEnd.getTime() / 1000,
                     uniform: uniform,
                 });
-            } else {          
+            } else {
                 $scope.addAddressListView.push({
                     guid: room.guid,
                     name: building.name + "-" + unit.name + "-" + room.id,
-                    living:live,
-                    relative:$scope.relativeList[relative].name,
-                    uniform:uniform
+                    living: live,
+                    relative: $scope.relativeList[relative].name,
+                    uniform: uniform
                 });
                 $scope.addAddressList.push({
                     id: room.guid,
@@ -1661,7 +1662,7 @@ const srAngularApp = angular
                 });
             }
             $scope.addAddressview = false;
-            
+
         };
         $scope.deleteAddAddress = id => {
             let deleteIndex: number;
@@ -1832,8 +1833,7 @@ const srAngularApp = angular
             $scope.choosePersonEditRooms.push(room.guid);
         };
         $scope.editDeleteAddAddress = id => {
-            const deleteIndex = $scope.choosePersonEditRooms.indexOf(id);
-            if (deleteIndex !== -1) $scope.choosePersonEditRooms.splice(deleteIndex, 1);
+            $scope.choosePersonEditRooms = $scope.choosePersonEditRooms.filter(x => x.id !== id);
         };
         $scope.editPerson = (choosePersonEditId, editName, editQQ, editPhone, editOccupation, editWechat, editPhoneMac, editRemark) => {
             const editData: Person = {
@@ -1868,7 +1868,9 @@ const srAngularApp = angular
                     editData.newNric = choosePersonEditId;
                 }
             }
-            const deleteRooms = $scope.choosePersonEdit.rooms.filter(item => $scope.choosePersonEditRooms.indexOf(item) === -1);
+            const deleteRooms = $scope.choosePersonEdit.rooms
+                .filter(item => $scope.choosePersonEditRooms.some(x => x.id === item.id))
+                .map(x => x.id);
             const addRooms = $scope.choosePersonEditRooms.filter(item => $scope.choosePersonEdit.rooms.indexOf(item) === -1);
             editData.deleteRooms = deleteRooms;
             editData.rooms = addRooms;
@@ -2089,7 +2091,7 @@ const srAngularApp = angular
                 $scope.cardPersonnel = {};
                 return;
             }
-            const predicate = (item: Person) => item.rooms.some(x => x === roomId.guid);
+            const predicate = (item: Person) => item.rooms.some(x => x.id === roomId.guid);
             $scope.cardPersonnels = $scope.communityData.personnel.filter(predicate);
             if ($scope.cardPersonnels.length !== 0) {
                 $scope.cardPersonnel.x = $scope.cardPersonnels.first.nric;
@@ -2666,21 +2668,21 @@ const srAngularApp = angular
             $scope.card_viewData = !str
                 ? $scope.communityData.cards.slice(0)
                 : $scope.communityData.cards.filter(item => {
-                      for (const prop in item) {
-                          if (item.hasOwnProperty(prop)) {
-                              if (prop === "serial") {
-                                  if (item[prop].indexOf(str) !== -1) {
-                                      return true;
-                                  }
-                              } else if (prop === "nric") {
-                                  if (item[prop].indexOf(str) !== -1 || $filter("nricToname")(item[prop], $scope.communityData.personnel).indexOf(str) !== -1) {
-                                      return true;
-                                  }
-                              }
-                          }
-                      }
-                      return false;
-                  });
+                    for (const prop in item) {
+                        if (item.hasOwnProperty(prop)) {
+                            if (prop === "serial") {
+                                if (item[prop].indexOf(str) !== -1) {
+                                    return true;
+                                }
+                            } else if (prop === "nric") {
+                                if (item[prop].indexOf(str) !== -1 || $filter("nricToname")(item[prop], $scope.communityData.personnel).indexOf(str) !== -1) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                    return false;
+                });
         };
         /*门禁卡管理结束*/
 
@@ -3329,7 +3331,7 @@ const srAngularApp = angular
                 communities: formData.getAll("Communities") as Guid[]
             };
             console.log(reqData);
-            $iot.advertising.files.put(reqData).then(() => {});
+            $iot.advertising.files.put(reqData).then(() => { });
         };
         //获取小区播放计划
         $scope.getComPlans = com => {
@@ -3363,34 +3365,34 @@ const srAngularApp = angular
         $scope.addPlayTimeForm = () => {
             $("#addplayTime").append(
                 '<form class="form-inline addplayform">\n' +
-                    '                            <div class="form-group form-group-sm">\n' +
-                    "                                <label>播放区间：</label>\n" +
-                    '                                <input type="time" name="StartTime" class="form-control">--\n' +
-                    '                                <input type="time" name="EndTime" class="form-control">\n' +
-                    "                            </div>\n" +
-                    '                            <div class="form-group form-group-sm">\n' +
-                    "                                <label>星期：</label>\n" +
-                    '                                <select class="form-control playWeek" multiple="multiple" name="WeekDays">\n' +
-                    '                                    <option value="0">星期日</option>\n' +
-                    '                                    <option value="1">星期一</option>\n' +
-                    '                                    <option value="2">星期二</option>\n' +
-                    '                                    <option value="3">星期三</option>\n' +
-                    '                                    <option value="4">星期四</option>\n' +
-                    '                                    <option value="5">星期五</option>\n' +
-                    '                                    <option value="6">星期六</option>\n' +
-                    "                                </select>\n" +
-                    "                            </div>\n" +
-                    '                            <div class="form-group form-group-sm">\n' +
-                    "                                <label>循环：</label>\n" +
-                    '                                <label class="radio-inline">\n' +
-                    '                                    <input type="radio" name="Loop" value="true" checked> 是\n' +
-                    "                                </label>\n" +
-                    '                                <label class="radio-inline">\n' +
-                    '                                    <input type="radio" name="Loop" value="false"> 否\n' +
-                    "                                </label>\n" +
-                    "                            </div>\n" +
-                    '                            <button type="button" class="btn btn-default btn-sm" onclick=\'removeSelf(event)\'>删除</button>\n' +
-                    "                        </form>"
+                '                            <div class="form-group form-group-sm">\n' +
+                "                                <label>播放区间：</label>\n" +
+                '                                <input type="time" name="StartTime" class="form-control">--\n' +
+                '                                <input type="time" name="EndTime" class="form-control">\n' +
+                "                            </div>\n" +
+                '                            <div class="form-group form-group-sm">\n' +
+                "                                <label>星期：</label>\n" +
+                '                                <select class="form-control playWeek" multiple="multiple" name="WeekDays">\n' +
+                '                                    <option value="0">星期日</option>\n' +
+                '                                    <option value="1">星期一</option>\n' +
+                '                                    <option value="2">星期二</option>\n' +
+                '                                    <option value="3">星期三</option>\n' +
+                '                                    <option value="4">星期四</option>\n' +
+                '                                    <option value="5">星期五</option>\n' +
+                '                                    <option value="6">星期六</option>\n' +
+                "                                </select>\n" +
+                "                            </div>\n" +
+                '                            <div class="form-group form-group-sm">\n' +
+                "                                <label>循环：</label>\n" +
+                '                                <label class="radio-inline">\n' +
+                '                                    <input type="radio" name="Loop" value="true" checked> 是\n' +
+                "                                </label>\n" +
+                '                                <label class="radio-inline">\n' +
+                '                                    <input type="radio" name="Loop" value="false"> 否\n' +
+                "                                </label>\n" +
+                "                            </div>\n" +
+                '                            <button type="button" class="btn btn-default btn-sm" onclick=\'removeSelf(event)\'>删除</button>\n' +
+                "                        </form>"
             );
             $(".playWeek").multiselect({
                 buttonContainer: '<div class="btn-group btn-group-sm" />'
@@ -3728,7 +3730,7 @@ const srAngularApp = angular
             console.log(JSON.parse(JSON.stringify(requestData)));
             $iot.ranger.events
                 .query(requestData)
-                .then(() => {})
+                .then(() => { })
                 .catch(err => {
                     console.log(err);
                 });
@@ -3771,7 +3773,7 @@ const srAngularApp = angular
             console.log(requestData);
             $iot.ranger.logs
                 .query(requestData)
-                .then(() => {})
+                .then(() => { })
                 .catch(err => {
                     console.log(err);
                 });
