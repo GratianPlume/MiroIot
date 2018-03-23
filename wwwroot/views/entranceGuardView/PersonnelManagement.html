@@ -33,7 +33,7 @@
                 <td>
                     <table>
                         <tr ng-repeat="room in item.rooms">
-                            <td>{{room | roomName}}</td>
+                            <td>{{room.id | roomName}}</td>
                         </tr>
                     </table>
                 </td>
@@ -300,71 +300,254 @@
     </div>
 </div>
 
-<div class="modal PersonnelEdit" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
-    <div class="modal-dialog modal-sm myModalSize" role="document">
+<div class="modal fade PersonnelEdit">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            <form class="form-horizontal" style="margin: 20px auto"
-                  ng-submit="editPerson(choosePersonEditID,editName,editQQ,editPhone,editOccupation,editWechat,editPhoneMac,editRemark)">
-                <div class="input-group mySet-input-group"  style="margin-bottom: 10px">
-                    <span class="input-group-addon">身份证</span>
-                    <input type="text" class="form-control" ng-model="choosePersonEditID" ng-disabled="editing">
-                </div>
-                <div class="input-group mySet-input-group"  style="margin-bottom: 10px">
-                    <span class="input-group-addon">姓名</span>
-                    <input type="text" class="form-control" ng-model="editName">
-                </div>
-                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
-                    <span class="input-group-addon">住址</span>
-                    <select class="form-control" style="width: 115px;padding-left: 5px" ng-model="addressBuilding" ng-options="item.name for item in communityData.address.buildings"></select>
-                    <select class="form-control" style="width: 105px;padding-left: 5px"ng-model="addressUnit" ng-options="item.name for item in addressBuilding.units"></select>
-                    <select class="form-control" style="width: 72px;padding-left: 5px"
-                            ng-model="addressRoom"
-                            ng-options="item.id for item in addressUnit.apartments | orderBy:'id'">
-                    </select>
-                    <span class="input-group-addon btn btn-default" ng-click="editAddAddress(addressBuilding,addressUnit,addressRoom)">添加</span>
-                </div>
-                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
-                    <div style="margin-left: 140px">
-                        <table class="table table-hover table-condensed" style="margin-bottom: 0">
-                            <tr ng-repeat="item in choosePersonEditRooms">
-                                <td>{{item | roomName}}</td>
-                                <td><button class="btn btn-warning btn-xs" ng-click="editDeleteAddAddress(item)">删除</button></td>
-                            </tr>
-                        </table>
+            <div class="modal-header bg-primary" style="padding: 5px 15px;">
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <h5 class="modal-title">添加人员信息</h5>
+            </div>
+            <div class="modal-body clearfix" style="padding: 10px">
+                <div class="clearfix" style="border: dashed 1px red;padding: 4px">
+                    <div class="row">
+                        <div class="form-horizontal col-xs-3">
+                            <div class="form-group">
+                                <label class="col-xs-3 control-label" style="padding: 7px 0">姓名:</label>
+                                <div class="col-xs-9" style="padding: 0 0 0 10px;">
+                                    <input type="text" class="form-control input-sm" ng-model="editName">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-xs-3 control-label" style="padding: 7px 0">性别:</label>
+                                <div class="col-xs-9" style="padding: 0 0 0 10px;">
+                                    <label class="radio-inline">
+                                        <input type="radio" name="sex" ng-value=1 ng-model="editSex"> 男
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="sex" ng-value=2 ng-model="editSex"> 女
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-xs-3 control-label" style="padding: 7px 0">民族:</label>
+                                <div class="col-xs-9" style="padding: 0 0 0 10px;">
+                                    <select type="text" class="form-control input-sm" ng-model="editNation" ng-options="item.name for item in nationList"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-horizontal col-xs-7">
+                            <div class="form-group">
+                                <label class="col-xs-3 control-label" style="padding: 7px 0">身份证号码:</label>
+                                <div class="col-xs-9" style="padding: 0 0 0 10px;">
+                                    <input type="text" class="form-control input-sm" style="max-width: 100%" ng-model="choosePersonEditID" ng-disabled="editing">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-xs-3 control-label" style="padding: 7px 0">身份证地址:</label>
+                                <div class="col-xs-9" style="padding: 0 0 0 10px;">
+                                    <input type="text" class="form-control input-sm" style="max-width: 100%" ng-model="editIDAddress">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-xs-3 control-label" style="padding: 7px 0">出生日期:</label>
+                                <div class="col-xs-9" style="padding: 0 0 0 10px;">
+                                    <input type="date" class="form-control input-sm" style="max-width: 100%" ng-model="editBirthday">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-horizontal col-xs-2">
+                            <!--<input type="file" name="HeadImage" id="HeadImage" onchange="changepic(this)" style="display: none" />-->
+                            <img src=""  alt="" class="img-thumbnail"
+                                 style="position: absolute;top: 10px;height: 110px">
+                            <!--<label for="HeadImage" style="width: 100%;height: 126px;opacity: 0;"></label>-->
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-horizontal col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-3 control-label" style="padding: 7px 0">手机号码:</label>
+                                <div class="col-xs-9" style="padding: 0 0 0 10px;">
+                                    <input type="text" class="form-control input-sm" ng-model="editPhone">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-horizontal col-xs-8">
+                            <div class="form-group">
+                                <label class="col-xs-3 control-label" style="padding: 7px 0">身份证有效期:</label>
+                                <div class="col-xs-3" style="padding: 0 0 0 10px;">
+                                    <input type="date" class="form-control input-sm" ng-model="editIDValidBegin">
+                                </div>
+                                <div style="float: left">
+                                    <span class="glyphicon glyphicon-resize-horizontal"
+                                          style="display: inline-block;height: 30px;line-height: 30px"></span>
+                                </div>
+                                <div class="col-xs-3" style="padding: 0;">
+                                    <input type="date" class="form-control input-sm" ng-model="editIDValidEnd" ng-disabled="editPermanent">
+                                </div>
+                                <div class="col-xs-2" style="padding: 0 0 0 10px;">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" ng-model="editPermanent">
+                                            永久
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-default btn-sm" type="button" data-toggle="collapse" data-target="#editHouseInfo"
+                            aria-expanded="false" aria-controls="editHouseInfo">
+                        添加房屋信息
+                    </button>
+                    <div class="collapse" id="editHouseInfo">
+                        <div class="well well-lg clearfix" style="padding: 15px 10px;margin-bottom: 5px">
+                            <div class="form-inline">
+                                <div class="form-group">
+                                    <label>楼号:</label>
+                                    <select class="form-control input-sm" ng-model="addressBuilding" ng-options="item.name for item in communityData.address.buildings"></select>
+                                </div>
+                                <div class="form-group">
+                                    <label>单元:</label>
+                                    <select class="form-control input-sm" ng-model="addressUnit" ng-options="item.name for item in addressBuilding.units"></select>
+                                </div>
+                                <div class="form-group">
+                                    <label>房号:</label>
+                                    <select class="form-control input-sm" ng-model="addressRoom" ng-options="item.id for item in addressUnit.apartments | orderBy:'id'" ng-change="refreshAddAddressList()"></select>
+                                </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" ng-model="live">是否居住
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label>与户主关系:</label>
+                                    <select class="form-control input-sm" ng-model="relative"
+                                            ng-options="item.id as item.name for item in relativeList"></select>
+                                </div>
+                                <div class="form-group" ng-show="relative===10">
+                                    <label>租赁区间:</label>
+                                    <input type="date" class="form-control input-sm" ng-model="rentalStart">--<input type="date" class="form-control input-sm" ng-model="rentalEnd">
+                                </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" ng-model="uniform">人户是否一致
+                                    </label>
+                                </div>
+                                <button type="button" class="btn btn-default btn-sm" ng-click="editAddAddress(addressBuilding,addressUnit,addressRoom,live,relative,uniform,rentalStart,rentalEnd)">添加</button>
+                            </div>
+                        </div>
+                    </div>
+                    <table class="table table-hover table-condensed" ng-hide="addAddressview">
+                        <tr ng-repeat="item in choosePersonEditRooms">
+                            <td>{{item.name}}</td>
+                            <td>{{item.living ? "是否居住：是" : "是否居住：否"}}</td>
+                            <td>{{"与户主关系：" + item.relative}}</td>
+                            <td ng-show="item.rentalStart">{{"租赁区间："+item.rentalStart+"-"+item.rentalEnd}}</td>
+                            <td>{{item.uniform ? "人户是否一致：是" : "人户是否一致：否"}}</td>
+                            <td><button class="btn btn-warning btn-xs" ng-click="editDeleteAddAddress(item)">删除</button></td>
+                        </tr>
+                    </table>
+                    <div class="row">
+                        <div class="form-horizontal col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-3 control-label" style="padding: 7px 0">居民类型:</label>
+                                <div class="col-xs-9" style="padding: 0 0 0 10px;">
+                                    <label class="radio-inline">
+                                        <input type="radio" name="residentType" ng-value=1 ng-model="editResidentType"> 本地居民
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="residentType" ng-value=2 ng-model="editResidentType"> 常来往人员
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-horizontal col-xs-4">
+                            <div class="form-group">
+                                <label class="col-xs-3 control-label" style="padding: 7px 0">户籍:</label>
+                                <div class="col-xs-9" style="padding: 0 0 0 10px;">
+                                    <label class="radio-inline">
+                                        <input type="radio" name="householdType" ng-value=1 ng-model="editHouseholdType"> 常住人口
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="householdType" ng-value=2 ng-model="editHouseholdType"> 流动人口
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-horizontal col-xs-3">
+                            <div class="form-group">
+                                <label class="col-xs-5 control-label" style="padding: 7px 0">户籍省份:</label>
+                                <div class="col-xs-6" style="padding: 0 0 0 10px;">
+                                    <select class="form-control input-sm" ng-model="editProvince" ng-options="item.name for item in pac"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-horizontal col-xs-3">
+                            <div class="form-group">
+                                <label class="col-xs-5 control-label" style="padding: 7px 0">户籍市:</label>
+                                <div class="col-xs-6" style="padding: 0 0 0 10px;">
+                                    <select class="form-control input-sm" ng-model="editCity" ng-options="item.name for item in editProvince.children"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-horizontal col-xs-3">
+                            <div class="form-group">
+                                <label class="col-xs-5 control-label" style="padding: 7px 0">户籍区/县:</label>
+                                <div class="col-xs-6" style="padding: 0 0 0 10px;">
+                                    <select class="form-control input-sm" ng-model="editCounty" ng-options="item.name for item in editCity.children"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-horizontal col-xs-7">
+                            <div class="form-group">
+                                <label class="col-xs-2 control-label" style="padding: 7px 0">户籍地址:</label>
+                                <div class="col-xs-10" style="padding: 0 0 0 10px;">
+                                    <input class="form-control input-sm" style="max-width: 100%" ng-model="editPermanentAddress">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-horizontal col-xs-3">
+                            <div class="form-group">
+                                <label class="col-xs-5 control-label" style="padding: 7px 0">户籍号:</label>
+                                <div class="col-xs-6" style="padding: 0 0 0 10px;">
+                                    <input class="form-control input-sm" ng-model="editPermanentNumber">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
-                    <span class="input-group-addon">QQ</span>
-                    <input type="text" class="form-control" ng-model="editQQ">
+                <div class="form-inline" style="padding: 20px 0">
+                    <div class="form-group">
+                        <label>QQ:</label>
+                        <input class="form-control input-sm" style="max-width: 100px" ng-model="editQQ">
+                    </div>
+                    <div class="form-group">
+                        <label>微信:</label>
+                        <input class="form-control input-sm" style="max-width: 100px" ng-model="editWechat">
+                    </div>
+                    <div class="form-group">
+                        <label>职业:</label>
+                        <input class="form-control input-sm" style="max-width: 100px" ng-model="editWorkUnit">
+                    </div>
+                    <div class="form-group">
+                        <label>手机MAC:</label>
+                        <input class="form-control input-sm" style="max-width: 150px" ng-model="editPhoneMac">
+                    </div>
+                    <div class="form-group">
+                        <label>备注:</label>
+                        <input class="form-control input-sm" ng-model="editRemark">
+                    </div>
                 </div>
-                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
-                    <span class="input-group-addon">电话号码：</span>
-                    <input type="text" class="form-control" ng-model="editPhone">
+                <div class="row text-center">
+                    <button class=" btn btn-primary btn-lg" ng-click="editPerson(choosePersonEditID,editName,editQQ,editPhone,editWorkUnit,editWechat,editPhoneMac,editRemark)">提 交</button>
+                    <span class="text-success" ng-show="alertSuccess">添加成功</span>
+                    <span class="text-danger" ng-show="alertFail">添加失败</span>
                 </div>
-                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
-                    <span class="input-group-addon">职业</span>
-                    <input type="text" class="form-control" ng-model="editOccupation">
-                </div>
-                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
-                    <span class="input-group-addon">微信</span>
-                    <input type="text" class="form-control" ng-model="editWechat">
-                </div>
-                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
-                    <span class="input-group-addon">手机Mac</span>
-                    <input type="text" class="form-control" ng-model="editPhoneMac">
-                </div>
-                <div class="input-group mySet-input-group" style="margin-bottom: 10px">
-                    <span class="input-group-addon">备注</span>
-                    <input type="text" class="form-control" ng-model="editRemark">
-                </div>
-                <div class="input-group mySet-input-group" style="margin-bottom: 10px" ng-show="alertSuccess">
-                    <span class="text-success">修改成功</span>
-                </div>
-                <div class="input-group mySet-input-group" style="margin-bottom: 10px" ng-show="alertFail">
-                    <span class="text-danger">修改失败</span>
-                </div>
-                <button type="submit" class="btn btn-default">提交</button>
-            </form>
+            </div>
         </div>
     </div>
 </div>
