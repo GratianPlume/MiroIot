@@ -1610,11 +1610,6 @@ const srAngularApp = angular
         $scope.relativeList = Helper.relativeConstans;
         let refreshOrNo = true;
         $scope.addAddress = (building, unit, room, live, relative, uniform, rentalStart, rentalEnd) => {
-            console.log(live);
-            console.log(relative);
-            console.log(uniform);
-            console.log(rentalStart.getTime());
-            console.log(rentalEnd.getTime());
             if (!building || !unit || !room) {
                 alert("请选择完整地址");
                 return;
@@ -1627,13 +1622,13 @@ const srAngularApp = angular
                     alert("请选择租赁区间");
                     return;
                 }
-                const rentalStartstr = rentalStart.getFullYear + "/" + rentalStart.getMonth + "/" + rentalStart.getDate;
-                const rentalEndstr = rentalEnd.getFullYear + "/" + rentalEnd.getMonth + "/" + rentalEnd.getDate;
+                const rentalStartstr = rentalStart.getFullYear() + "/" + rentalStart.getMonth() + "/" + rentalStart.getDate();
+                const rentalEndstr = rentalEnd.getFullYear() + "/" + rentalEnd.getMonth() + "/" + rentalEnd.getDate();
                 $scope.addAddressListView.push({
                     guid: room.guid,
                     name: building.name + "-" + unit.name + "-" + room.id,
                     living: live,
-                    relative: $scope.relativeList[relative].name,
+                    relative: $scope.relativeList[relative-1].name,
                     rentalStart: rentalStartstr,
                     rentalEnd: rentalEndstr,
                     uniform: uniform
@@ -1651,7 +1646,7 @@ const srAngularApp = angular
                     guid: room.guid,
                     name: building.name + "-" + unit.name + "-" + room.id,
                     living: live,
-                    relative: $scope.relativeList[relative].name,
+                    relative: $scope.relativeList[relative-1].name,
                     uniform: uniform
                 });
                 $scope.addAddressList.push({
@@ -1662,7 +1657,6 @@ const srAngularApp = angular
                 });
             }
             $scope.addAddressview = false;
-
         };
         $scope.deleteAddAddress = id => {
             let deleteIndex: number;
@@ -1822,7 +1816,7 @@ const srAngularApp = angular
                 });
         };
         //修改人员
-        $scope.editAddAddress = (building: BlockData, unit: UnitData, room: FlatData) => {
+        $scope.editAddAddress = (building, unit, room,live, relative, uniform, rentalStart, rentalEnd) => {
             if (!building || !unit || !room) {
                 alert("请选择完整地址");
                 return;
@@ -1830,7 +1824,28 @@ const srAngularApp = angular
             if ($scope.choosePersonEditRooms.some((item, index) => item.id === room.guid)) {
                 return;
             }
-            $scope.choosePersonEditRooms.push(room.guid);
+            if (relative === 10) {
+                if (!rentalStart || !rentalEnd) {
+                    alert("请选择租赁区间");
+                    return;
+                }
+                $scope.choosePersonEditRooms.push({
+                    id: room.guid,
+                    living: live,
+                    relative: relative,
+                    rentalStart: rentalStart.getTime() / 1000,
+                    rentalEnd: rentalEnd.getTime() / 1000,
+                    uniform: uniform
+                });
+            } else {
+                $scope.choosePersonEditRooms.push({
+                    id: room.guid,
+                    living: live,
+                    relative: relative,
+                    uniform: uniform
+                });
+            
+            }
         };
         $scope.editDeleteAddAddress = id => {
             $scope.choosePersonEditRooms = $scope.choosePersonEditRooms.filter(x => x.id !== id);

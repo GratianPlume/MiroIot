@@ -224,7 +224,7 @@ interface Scope extends angular.IScope {
     choosePersonnel(person): void;
     chooseStyle(person): string;
     deletePersonnel(): void;
-    editAddAddress(building: BlockData, unit: UnitData, room: FlatData): void;
+    editAddAddress(building: BlockData, unit: UnitData, room: FlatData,live:boolean,relative:1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14,uniform:boolean,rentalStart?:Date,rentalEnd?:Date): void;
     editDeleteAddAddress(id: string): void;
     editPerson(choosePersonEditId: string, editName: string, editQQ: string, editPhone: string, editOccupation: string, editWechat: string, editPhoneMac: string, editRemark: string): void;
     personPredicate(val: Person): boolean;
