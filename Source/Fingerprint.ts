@@ -33,7 +33,7 @@ interface NricInfo {
     baseInfo: {
         name: string;
         sex: 1 | 2;
-        /** 民族*/
+        /** 民族 */
         ethnic: number;
         birthDay: string;
         address: string;
