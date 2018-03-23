@@ -1,10 +1,11 @@
 ﻿interface Command {
-    command: string;
-    datatype: string;
+    command: "ack_upload";
+    datatype: "fpcapture" | "fpmerge" | "nricRoc";
     msgid: string;
 }
 
 interface Capture extends Command {
+    datatype: "fpcapture";
     index: number;
     data: {
         image: string;
@@ -14,6 +15,7 @@ interface Capture extends Command {
 }
 
 interface Merge extends Command {
+    datatype: "fpmerge";
     errcode: number;
     data?: {
         feature: string;
@@ -27,10 +29,34 @@ interface MergeImage {
     height: number;
 }
 
+interface NricInfo {
+    baseInfo: {
+        name: string;
+        sex: 1 | 2;
+        /** 民族*/
+        ethnic: number;
+        birthDay: string;
+        address: string;
+        /** 身份证号码 */
+        id: string;
+        authorizer: string;
+        termStart: string;
+        termEnd: string;
+    };
+    attachText: string;
+    picture: string;
+}
+
+interface NricRoc extends Command {
+    datatype: "nricRoc";
+    msgid: string;
+    data: NricInfo;
+}
+
 class FpService {
     private _captures: Capture[];
     private _merge: Merge;
-    fingerSocket = new WebSocket("ws://localhost:5018/");
+    assister = new WebSocket("ws://localhost:5018/");
     onerror: (this: WebSocket, ev: Event) => void;
     onclose: (this: WebSocket, ev: CloseEvent) => void;
     onreset: () => void;
@@ -38,11 +64,12 @@ class FpService {
     onImage: (index: number, image: string) => void;
     onsuccess: () => void;
     onfail: (err: number) => void;
+    onNricRoc: (data: NricInfo) => void;
     constructor() {
-        this.fingerSocket.onerror = this.onerror;
-        this.fingerSocket.onclose = this.onclose;
-        this.fingerSocket.onopen = () => this.reset();
-        this.fingerSocket.onmessage = event => {
+        this.assister.onerror = this.onerror;
+        this.assister.onclose = this.onclose;
+        this.assister.onopen = () => this.reset();
+        this.assister.onmessage = event => {
             const imgObj: Command = JSON.parse(event.data);
             if (this._merge) {
                 console.log("请按重新采集");
@@ -59,6 +86,8 @@ class FpService {
                     this.reset();
                     this.onfail(imgObj.errcode);
                 }
+            } else if (FpService.isNricRoc(imgObj)) {
+                this.onNricRoc(imgObj.data);
             }
         };
     }
@@ -75,7 +104,7 @@ class FpService {
     }
 
     reset() {
-        this.fingerSocket.send(JSON.stringify({
+        this.assister.send(JSON.stringify({
             command: "reset"
         }));
         this._captures = [];
@@ -83,7 +112,7 @@ class FpService {
         this.onreset();
     }
     close() {
-        this.fingerSocket.close();
+        this.assister.close();
     }
     static isCapture(msg: Command): msg is Capture {
         return msg.datatype === "fpcapture";
@@ -92,6 +121,11 @@ class FpService {
     static isMerge(msg: Command): msg is Merge {
         return msg.datatype === "fpmerge";
     }
+
+    static isNricRoc(msg: Command): msg is NricRoc {
+        return msg.datatype === "nricRoc";
+    }
+
     static create() {
         return new FpService();
     }
