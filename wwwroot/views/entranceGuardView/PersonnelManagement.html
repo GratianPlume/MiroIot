@@ -79,7 +79,7 @@
                             <div class="form-group">
                                 <label class="col-xs-3 control-label" style="padding: 7px 0">民族:</label>
                                 <div class="col-xs-9" style="padding: 0 0 0 10px;">
-                                    <select type="text" class="form-control input-sm" ng-model="newPerson.nation" ng-options="item.name for item in nationList"></select>
+                                    <select type="text" class="form-control input-sm" ng-model="newPerson.nation" ng-options="item.name as item.name for item in nationList"></select>
                                 </div>
                             </div>
                         </div>
@@ -330,7 +330,7 @@
                             <div class="form-group">
                                 <label class="col-xs-3 control-label" style="padding: 7px 0">民族:</label>
                                 <div class="col-xs-9" style="padding: 0 0 0 10px;">
-                                    <select type="text" class="form-control input-sm" ng-model="curPerson.nation" ng-options="item.name for item in nationList"></select>
+                                    <select type="text" class="form-control input-sm" ng-model="curPerson.nation" ng-options="item.name as item.name for item in nationList"></select>
                                 </div>
                             </div>
                         </div>
