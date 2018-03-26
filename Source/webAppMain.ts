@@ -1960,11 +1960,11 @@ const srAngularApp = angular
                 }
             }
             const deleteRooms = $scope.choosePersonEdit.rooms
-                .filter(item => !$scope.curPerson.rooms.some(x => x.id === item.id))
+                .filter(item => !$scope.curPerson.rooms.some(x => angular.equals(item, x)))
                 .map(x => x.id);
             const addRooms = $scope.curPerson.rooms
-                .map(roomFromView);
-                // .filter(item => !$scope.choosePersonEdit.rooms.some(x => x.id === item.id));
+                .map(roomFromView)
+                .filter(item => !$scope.choosePersonEdit.rooms.some(x => angular.equals(item, x)));
             editData.deleteRooms = deleteRooms;
             editData.rooms = addRooms;
             console.log("提交数据：");
