@@ -1,2 +1,5 @@
 **/Release/
 **/node_modules/
+**/gulpout/
+**/gulpfile.js
+**/package-lock.json

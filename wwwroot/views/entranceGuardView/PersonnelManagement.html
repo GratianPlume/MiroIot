@@ -187,6 +187,7 @@
                     </div>
                     <table class="table table-hover table-condensed" ng-hide="addAddressview">
                         <tr ng-repeat="item in newPerson.rooms">
+                            <td>{{item.name}}</td>
                             <td>{{item.living ? "居住" : "不居住"}}</td>
                             <td><span ng-hide="item.uniform===undefined">人户一致：{{item.uniform ? "是" : "否"}}</span></td>
                             <td>与户主关系：{{item.relative | relativeText}}</td>

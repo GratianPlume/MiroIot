@@ -1809,8 +1809,6 @@ const srAngularApp = angular
         //选定人员
         let deletechoosePersonId: string;
         $scope.choosePersonnel = person => {
-            console.log("当前选择人员：");
-            console.log(person);
             $scope.chooseBackColor = person.nric;
             deletechoosePersonId = person.nric;
             $scope.choosePersonEdit = person;
@@ -1848,9 +1846,9 @@ const srAngularApp = angular
                 domicile: person.domicile,
                 fluidity: person.fluidity,
                 idAddress: person.address,
-                idValidBegin: new Date(person.validFrom),
-                idValidEnd: new Date(person.validTo),
-                birthday: new Date(person.birthDay),
+                idValidBegin: new Date(person.validFrom*1000),
+                idValidEnd: new Date(person.validTo*1000),
+                birthday: new Date(person.birthDay*1000),
                 kind: person.kind,
                 mac: person.phoneMac,
                 tel: person.phone,
@@ -1945,7 +1943,7 @@ const srAngularApp = angular
                 validFrom: Helper.getUnixTimeSeconds(person.idValidBegin),
                 validTo: Helper.getUnixTimeSeconds(person.idValidEnd),
                 birthDay: Helper.getUnixTimeSeconds(person.birthday),
-                rooms: $scope.addAddressList.slice(0),
+                // rooms: $scope.addAddressList.slice(0),
                 newNric: $scope.editing ? undefined : (person.id || undefined)
             };
             const validatoredit = new IDValidator();
@@ -1965,8 +1963,8 @@ const srAngularApp = angular
                 .filter(item => !$scope.curPerson.rooms.some(x => x.id === item.id))
                 .map(x => x.id);
             const addRooms = $scope.curPerson.rooms
-                .map(roomFromView)
-                .filter(item => !$scope.choosePersonEdit.rooms.some(x => x.id === item.id));
+                .map(roomFromView);
+                // .filter(item => !$scope.choosePersonEdit.rooms.some(x => x.id === item.id));
             editData.deleteRooms = deleteRooms;
             editData.rooms = addRooms;
             console.log("提交数据：");
