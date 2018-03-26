@@ -1624,7 +1624,7 @@ const srAngularApp = angular
                 rentalStart: value.rentalStart ? new Date(value.rentalStart * 1000) : undefined,
                 rentalEnd: value.rentalEnd ? new Date(value.rentalEnd * 1000) : undefined,
                 uniform: value.uniform
-            }
+            };
         }
         function roomFromView(value: RoomView): RoomBinding {
             return {
@@ -1634,7 +1634,7 @@ const srAngularApp = angular
                 rentalStart: Helper.getUnixTimeSeconds(value.rentalStart),
                 rentalEnd: Helper.getUnixTimeSeconds(value.rentalEnd),
                 uniform: value.uniform,
-            }
+            };
 
         }
         function cleanRoomView(room: RoomView) {
@@ -1669,7 +1669,7 @@ const srAngularApp = angular
             const roomView = cleanRoomView($scope.roomSample);
             if (!roomView) return;
 
-            var roomBinding = roomFromView(roomView);
+            const roomBinding = roomFromView(roomView);
             $scope.newPerson.rooms.push(roomView);
             $scope.addAddressList.push(roomBinding);
             $scope.addAddressview = false;
@@ -1721,7 +1721,7 @@ const srAngularApp = angular
                         permanent: data.permanent,
                         kind: data.kind,
                         fluidity: data.fluidity,
-                    }
+                    };
                 });
             });
         };
@@ -1865,7 +1865,7 @@ const srAngularApp = angular
                     const name = $filter("roomName")(x.id);
                     return roomToView(name, x);
                 })
-            }
+            };
 
         };
         //添加选定人员背景
