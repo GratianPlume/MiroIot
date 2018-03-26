@@ -13,17 +13,12 @@ type AdminConstans = StConstans;
 
 type EventConstans = StConstans;
 
+type Relative = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14;
+
 interface PcaCodeConstans {
     readonly code: string;
     readonly name: string;
-    readonly children: ReadonlyArray<{
-        readonly code: string;
-        readonly name: string;
-        readonly children: ReadonlyArray<{
-            readonly code: string;
-            readonly name: string;
-        }>
-    }>
+    readonly children?: ReadonlyArray<PcaCodeConstans>;
 }
 interface RootScope extends ng.IRootScopeService {
     $apply(): any;
@@ -41,6 +36,48 @@ interface RootScope extends ng.IRootScopeService {
     Status: LogItem[];
 }
 
+interface RoomView {
+    name: string;
+    id: string;
+    living?: Boolean;
+    relative?: Relative;
+    rentalStart?: Date;
+    rentalEnd?: Date;
+    uniform?: Boolean;
+}
+
+interface PersonView {
+    id: string;
+    name: string;
+    sex: 1 | 2;
+    idAddress: string;
+    birthday: Date;
+    idValidBegin: Date;
+    idValidEnd: Date;
+    nation: string;
+    tel: string;
+    qq: string;
+    wechat: string;
+    remark: string;
+    workUnit: string;
+    mac: string;
+    permanent: boolean;
+    kind: 1 | 2;
+    fluidity: 1 | 2;
+    /** 户籍省份*/
+    province?: PcaCodeConstans;
+    /** 户籍市*/
+    city?: PcaCodeConstans;
+    /** 户籍区/县*/
+    district?: PcaCodeConstans;
+    /** 户籍地址*/
+    domicile?: string;
+    /** 户籍号*/
+    regCode?: string;
+    head?: string;
+    rooms?: RoomView[];
+}
+
 interface Scope extends angular.IScope {
     asideView: boolean;
     addTree: boolean;
@@ -53,6 +90,7 @@ interface Scope extends angular.IScope {
     chooseAdPower_1: boolean;
     chooseAdPower_2: boolean;
     authList: boolean;
+    /** 是否有身份证号码 */
     editing: boolean;
     addAddressview: boolean;
     alertSuccess: boolean;
@@ -78,24 +116,13 @@ interface Scope extends angular.IScope {
     choosedeviceGuid: string;
     newDevicepwd: string;
     newRemark: string;
-    relativeList:ReadonlyArray<StConstans>;
-    relative:number;
-    rentalStart:string;
-    rentalEnd:string;
-    addName: string;
-    addID:string;
-    addIDAddress:string;
-    addBirthday:string;
-    IDValidBegin:string;
-    IDValidEnd:string;
-    sex:number;
-    nation:string;
-    addNumber: string;
-    addQQ: string;
-    addWeChat: string;
-    addRemark: string;
-    addWorkUnit: string;
-    addphoneMac: string;
+    relativeList: ReadonlyArray<StConstans>;
+    relative: number;
+    rentalStart: string;
+    rentalEnd: string;
+    newPerson: PersonView;
+    curPerson: PersonView;
+    roomSample: RoomView;
     chooseBackColor: string;
     moreQuery: string;
     comName: string;
@@ -109,14 +136,12 @@ interface Scope extends angular.IScope {
     alreadyAuth: Dict<Auth>;
     editCard_address: AddressView;
     bindingRoom: BindingRoom[];
-    editName: string;
     editQQ: string;
     editPhone: string;
     editOccupation: string;
     editWechat: string;
     editPhoneMac: string;
     editRemark: string;
-    choosePersonEditID: string;
     event: number;
     Imgbase: string;
     StatusIds: ReadonlyArray<StatusConstans>;
@@ -134,15 +159,9 @@ interface Scope extends angular.IScope {
     unalreadyAuthFingerprint: Dict<Device>;
     card_viewData: Card[];
     fingerprint_viewData: Fingerprint[];
-    addAddressListView: { name: string; guid: string; living?: Boolean; 
-        relative?:string;
-        rentalStart?: string;
-        rentalEnd?: string;
-        uniform?: Boolean}[];
     addAddressList: RoomBinding[];
     nationList: ReadonlyArray<StConstans>;
-    pac:ReadonlyArray<PcaCodeConstans>;
-    choosePersonEditRooms: RoomBinding[];
+    pac: ReadonlyArray<PcaCodeConstans>;
     cardPersonnels: Dict<Person>;
     speedyAddCardSuccessList: string[];
     tobe_editCardList: Card[];
@@ -216,17 +235,17 @@ interface Scope extends angular.IScope {
     changepwd(oldPwd: string, newPwd: string): void;
     chooseDevice(device: Device): void;
     chooseDeviceStyle(device: Device): string;
-    addAddress(building: BlockData, unit: UnitData, room: FlatData,live:boolean,relative:1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14,uniform:boolean,rentalStart?:Date,rentalEnd?:Date): void;
+    addAddress(building: BlockData, unit: UnitData, room: FlatData): void;
     deleteAddAddress(id: string): void;
     queryPersonnerl(id: string): void;
     refreshAddAddressList(): void;
-    addPersonnel(addName: string, addId: string, addNumber: string, addWorkUnit: string, addQQ: string, addWeChat: string, addphoneMac: string, addRemark: string): void;
-    choosePersonnel(person): void;
+    addPersonnel(person: PersonView): void;
+    choosePersonnel(person: Person): void;
     chooseStyle(person): string;
     deletePersonnel(): void;
-    editAddAddress(building: BlockData, unit: UnitData, room: FlatData,live:boolean,relative:1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14,uniform:boolean,rentalStart?:Date,rentalEnd?:Date): void;
+    editAddAddress(building: BlockData, unit: UnitData, room: FlatData): void;
     editDeleteAddAddress(id: string): void;
-    editPerson(choosePersonEditId: string, editName: string, editQQ: string, editPhone: string, editOccupation: string, editWechat: string, editPhoneMac: string, editRemark: string): void;
+    editPerson(person: PersonView): void;
     personPredicate(val: Person): boolean;
     addDevice(addressBuilding: BlockData, addressUnit: UnitData, deviceNumber: string, devicePwd: string, deviceRemark: string): void;
     deleteDevice(): void;

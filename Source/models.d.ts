@@ -92,7 +92,7 @@ interface RoomBinding {
     /** 是否居住*/
     living?: Boolean,
     /** 与户主关系*/
-    relative?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14,
+    relative?: Relative,
     /** 开始租住时间*/
     rentalStart?: number,
     /** 终止租住时间*/
@@ -148,6 +148,7 @@ interface Person {
     domicile?: string;
     /** 户籍号*/
     regCode?: string;
+    pcaCode?: number;
 }
 
 

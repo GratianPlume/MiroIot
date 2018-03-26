@@ -14,7 +14,7 @@ class Iot {
     static startTime: string;
     static title: string;
     static advertisingMode: boolean;
-    static comms = Dict.zero<Community>(x => x.id);
+    static comms = Dict.zero<Community>();
     static current: Community;
 
     static connect() {
@@ -42,7 +42,7 @@ class Iot {
         if (x)
             return x;
         const y = new Community(id);
-        Iot.comms.addOrUpdate(y);
+        Iot.comms.addOrUpdate(y.id, y);
         return y;
     }
     static accounts = {

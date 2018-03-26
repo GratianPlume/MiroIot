@@ -107,6 +107,9 @@ const srAngularApp = angular
             if (typeof err === "string") document.getElementById("message_output").innerHTML = err;
         }
     })
+    .filter("relativeText", () => (value: Relative): string => 
+        value ? Helper.relativeConstans[value - 1].name : ""
+    )
     .filter("roomName", ($iot: typeof Iot) => (input: Guid): string => {
         const id = $iot.current.id;
         const x = $iot.communities.flatten(id, input);
@@ -428,6 +431,7 @@ const srAngularApp = angular
                 case 1:
                     return "views/entranceGuardView/deviceManagement.html?" + $iot.startTime;
                 case 2:
+                    console.log("PersonnelManagement");
                     return "views/entranceGuardView/PersonnelManagement.html?" + $iot.startTime;
                 case 3:
                     $("#addFinger").modal({
@@ -586,7 +590,7 @@ const srAngularApp = angular
             } else {
                 $scope.uneditedAdminCommunities = Seq.ofArray($scope.adminData.communities)
                     .filter(x => !$scope.editedAdminCommunities.containKey(x.id))
-                    .toDict(x => x.id);
+                    .toDict();
             }
         };
         //授权小区
@@ -606,7 +610,7 @@ const srAngularApp = angular
                 .then(() => {
                     $timeout(() => {
                         const addition = authCommunityIdList.map($scope.uneditedAdminCommunities.tryRemoveKey).filter(x => !!x);
-                        $scope.editedAdminCommunities.tryAddHead(addition);
+                        $scope.editedAdminCommunities.tryAddHead(x=>x.id, addition);
                         $scope.adminData.manager.$[editedManagerOpenid].communities = $scope.editedAdminCommunities.toArray();
                     });
                     alert("授权成功！");
@@ -634,7 +638,7 @@ const srAngularApp = angular
                 .then(() => {
                     $timeout(() => {
                         const addtion = unauthCommunityIdList.map($scope.editedAdminCommunities.tryRemoveKey).filter(x => !!x);
-                        $scope.uneditedAdminCommunities.tryAddHead(addtion);
+                        $scope.uneditedAdminCommunities.tryAddHead(x => x.id, addtion);
                         $scope.adminData.manager.$[editedManagerOpenid].communities = $scope.editedAdminCommunities.toArray();
                     });
                     alert("删除成功！");
@@ -667,7 +671,7 @@ const srAngularApp = angular
                 .then(data => {
                     $("#generate").val(data);
                     $timeout(() => {
-                        $scope.adminData.manager.addOrUpdate({
+                        $scope.adminData.manager.addOrUpdate(data, {
                             level,
                             openid: data,
                             remark
@@ -1603,13 +1607,56 @@ const srAngularApp = angular
         /*人员管理开始*/
         $scope.editing = true;
         $scope.addAddressview = true;
-        $scope.addAddressListView = [];
         $scope.addAddressList = [];
         $scope.nationList = Helper.nationList;
-        $scope.pac = Helper.pacCode;
+        $scope.pac = Helper.pcaCode;
         $scope.relativeList = Helper.relativeConstans;
+        $scope.newPerson = { rooms: [] } as any;
+        $scope.roomSample = {} as any;
         let refreshOrNo = true;
-        $scope.addAddress = (building, unit, room, live, relative, uniform, rentalStart, rentalEnd) => {
+
+        function roomToView(name: string, value: RoomBinding): RoomView {
+            return {
+                id: value.id,
+                name: name,
+                living: value.living,
+                relative: value.relative,
+                rentalStart: value.rentalStart ? new Date(value.rentalStart * 1000) : undefined,
+                rentalEnd: value.rentalEnd ? new Date(value.rentalEnd * 1000) : undefined,
+                uniform: value.uniform
+            }
+        }
+        function roomFromView(value: RoomView): RoomBinding {
+            return {
+                id: value.id,
+                living: value.living,
+                relative: value.relative,
+                rentalStart: Helper.getUnixTimeSeconds(value.rentalStart),
+                rentalEnd: Helper.getUnixTimeSeconds(value.rentalEnd),
+                uniform: value.uniform,
+            }
+
+        }
+        function cleanRoomView(room: RoomView) {
+            if (room.relative === 10) {
+                if (room.rentalStart && room.rentalEnd) {
+                    return angular.copy(room);
+                } else {
+                    alert("请选择租赁区间");
+                    return undefined;
+                }
+            } else {
+                return {
+                    id: room.id,
+                    name: room.name,
+                    living: room.living,
+                    relative: room.relative,
+                    uniform: room.uniform
+                };
+            }
+        }
+
+        $scope.addAddress = (building, unit, room) => {
             if (!building || !unit || !room) {
                 alert("请选择完整地址");
                 return;
@@ -1617,55 +1664,24 @@ const srAngularApp = angular
             if ($scope.addAddressList.some((item, index) => item.id === room.guid)) {
                 return;
             }
-            if (relative === 10) {
-                if (!rentalStart || !rentalEnd) {
-                    alert("请选择租赁区间");
-                    return;
-                }
-                const rentalStartstr = rentalStart.getFullYear() + "/" + rentalStart.getMonth() + "/" + rentalStart.getDate();
-                const rentalEndstr = rentalEnd.getFullYear() + "/" + rentalEnd.getMonth() + "/" + rentalEnd.getDate();
-                $scope.addAddressListView.push({
-                    guid: room.guid,
-                    name: building.name + "-" + unit.name + "-" + room.id,
-                    living: live,
-                    relative: $scope.relativeList[relative-1].name,
-                    rentalStart: rentalStartstr,
-                    rentalEnd: rentalEndstr,
-                    uniform: uniform
-                });
-                $scope.addAddressList.push({
-                    id: room.guid,
-                    living: live,
-                    relative: relative,
-                    rentalStart: rentalStart.getTime() / 1000,
-                    rentalEnd: rentalEnd.getTime() / 1000,
-                    uniform: uniform,
-                });
-            } else {
-                $scope.addAddressListView.push({
-                    guid: room.guid,
-                    name: building.name + "-" + unit.name + "-" + room.id,
-                    living: live,
-                    relative: $scope.relativeList[relative-1].name,
-                    uniform: uniform
-                });
-                $scope.addAddressList.push({
-                    id: room.guid,
-                    living: live,
-                    relative: relative,
-                    uniform: uniform,
-                });
-            }
+            $scope.roomSample.name = building.name + unit.name + room.id;
+            $scope.roomSample.id = room.guid;
+            const roomView = cleanRoomView($scope.roomSample);
+            if (!roomView) return;
+
+            var roomBinding = roomFromView(roomView);
+            $scope.newPerson.rooms.push(roomView);
+            $scope.addAddressList.push(roomBinding);
             $scope.addAddressview = false;
         };
         $scope.deleteAddAddress = id => {
             let deleteIndex: number;
-            $scope.addAddressListView.map((item, index) => {
-                if (item.guid === id) {
+            $scope.newPerson.rooms.map((item, index) => {
+                if (item.id === id) {
                     deleteIndex = index;
                 }
             });
-            $scope.addAddressListView.splice(deleteIndex, 1);
+            $scope.newPerson.rooms.splice(deleteIndex, 1);
             $scope.addAddressList.splice(deleteIndex, 1);
         };
         //根据身份证查询人员
@@ -1687,26 +1703,24 @@ const srAngularApp = angular
                     return;
                 }
                 $timeout(() => {
-                    if (data.name) {
-                        $scope.addName = data.name;
-                    }
-                    if (data.phone) {
-                        $scope.addNumber = data.phone;
-                    }
-                    if (data.QQ) {
-                        $scope.addQQ = data.QQ;
-                    }
-                    if (data.wechat) {
-                        $scope.addWeChat = data.wechat;
-                    }
-                    if (data.remark) {
-                        $scope.addRemark = data.remark;
-                    }
-                    if (data.occupation) {
-                        $scope.addWorkUnit = data.occupation;
-                    }
-                    if (data.phoneMac) {
-                        $scope.addphoneMac = data.phoneMac;
+                    $scope.newPerson = {
+                        id: id,
+                        name: data.name,
+                        idAddress: data.address,
+                        birthday: new Date(data.birthDay),
+                        idValidBegin: new Date(data.validFrom),
+                        idValidEnd: new Date(data.validTo),
+                        mac: data.phoneMac,
+                        nation: data.nation,
+                        qq: data.QQ,
+                        remark: data.remark,
+                        sex: data.sex,
+                        tel: data.phone,
+                        wechat: data.wechat,
+                        workUnit: data.wechat,
+                        permanent: data.permanent,
+                        kind: data.kind,
+                        fluidity: data.fluidity,
                     }
                 });
             });
@@ -1715,13 +1729,13 @@ const srAngularApp = angular
         $scope.refreshAddAddressList = () => {
             if (refreshOrNo) {
                 $scope.addAddressList = [];
-                $scope.addAddressListView = [];
+                $scope.newPerson.rooms = [];
                 refreshOrNo = false;
             }
         };
         //添加人员
-        $scope.addPersonnel = (addName, addId, addNumber, addWorkUnit, addQQ, addWeChat, addphoneMac, addRemark) => {
-            if (!addName) {
+        $scope.addPersonnel = person => {
+            if (!person.name) {
                 alert("请填写姓名!");
                 return;
             }
@@ -1730,66 +1744,129 @@ const srAngularApp = angular
                 return;
             }
             const validator = new IDValidator();
-            if (addId) {
-                if (!validator.isValid(addId)) {
+            if (person.id) {
+                if (!validator.isValid(person.id)) {
                     alert("身份证号码格式不正确！");
                     return;
                 }
-                if ($scope.communityData.personnel.containKey(addId)) {
+                if ($scope.communityData.personnel.containKey(person.id)) {
                     alert("身份证号码重复，请查看是否重复添加！");
                     return;
                 }
             }
+
             const addData: Person = {
-                name: addName,
-                phone: addNumber,
-                nric: addId,
-                QQ: addQQ,
-                wechat: addWeChat,
-                remark: addRemark,
-                occupation: addWorkUnit,
-                phoneMac: addphoneMac,
+                name: person.name,
+                phone: person.tel,
+                nric: person.id,
+                QQ: person.qq,
+                wechat: person.wechat,
+                remark: person.remark,
+                occupation: person.workUnit,
+                phoneMac: person.mac,
+                address: person.idAddress,
+                province: person.province.name,
+                city: person.city.name,
+                district: person.district.name,
+                pcaCode: Number(person.district ? person.district.code : person.city ? person.city.code : person.province ? person.province.code : undefined),
+                domicile: person.domicile,
+                fluidity: person.fluidity,
+                head: (person.head || "").substring(22),
+                headType: "png",
+                kind: person.kind,
+                nation: person.nation,
+                permanent: person.permanent,
+                regCode: person.regCode,
+                sex: person.sex,
+                validFrom: Helper.getUnixTimeSeconds(person.idValidBegin),
+                validTo: Helper.getUnixTimeSeconds(person.idValidEnd),
+                birthDay: Helper.getUnixTimeSeconds(person.birthday),
                 rooms: $scope.addAddressList.slice(0)
             };
             console.log(addData);
-            // $iot.persons
-            //     .put(addData)
-            //     .then((data: Nric) => {
-            //         addData.nric = data;
-            //         $timeout(() => {
-            //             refreshOrNo = true;
-            //             $scope.communityData.personnel.addOrUpdate(addData);
-            //             $scope.alertSuccess = true;
-            //             $timeout(() => {
-            //                 $scope.alertSuccess = false;
-            //             }, 2000);
-            //         });
-            //     })
-            //     .catch(() => {
-            //         $timeout(() => {
-            //             $scope.alertFail = true;
-            //             $timeout(() => {
-            //                 $scope.alertFail = false;
-            //             }, 2000);
-            //         });
-            //     });
+            $iot.persons
+                .put(addData)
+                .then((data: Nric) => {
+                    addData.nric = data;
+                    $timeout(() => {
+                        refreshOrNo = true;
+                        $scope.communityData.personnel.addOrUpdate(data, addData);
+                        $scope.alertSuccess = true;
+                        $timeout(() => {
+                            $scope.alertSuccess = false;
+                        }, 2000);
+                    });
+                })
+                .catch(() => {
+                    $timeout(() => {
+                        $scope.alertFail = true;
+                        $timeout(() => {
+                            $scope.alertFail = false;
+                        }, 2000);
+                    });
+                });
         };
         //选定人员
         let deletechoosePersonId: string;
-        $scope.choosePersonnel = (person: Person) => {
-            $scope.choosePersonEditRooms = person.rooms.slice(0);
+        $scope.choosePersonnel = person => {
+            console.log("当前选择人员：");
+            console.log(person);
             $scope.chooseBackColor = person.nric;
             deletechoosePersonId = person.nric;
             $scope.choosePersonEdit = person;
-            $scope.editName = person.name;
-            $scope.editQQ = person.QQ;
-            $scope.editPhone = person.phone;
-            $scope.editOccupation = person.occupation;
-            $scope.editWechat = person.wechat;
-            $scope.editPhoneMac = person.phoneMac;
-            $scope.editRemark = person.remark;
-            $scope.choosePersonEditID = person.nric.length === 18 ? person.nric : "";
             $scope.editing = person.nric.length === 18;
+            console.log(Helper.pacCodeDict);
+            function getpcas() {
+                if (person.pcaCode) {
+                    const pcaCode = person.pcaCode.toString();
+                    if (pcaCode.length >= 2) {
+                        const province = Helper.pacCodeDict.$[pcaCode.substr(0, 2)];
+                        if (pcaCode.length >= 4) {
+                            const city = province.$[pcaCode.substr(0, 4)];
+                            if (pcaCode.length === 6) {
+                                const district = city.$[pcaCode];
+                                return [province.value, city.value, district];
+                            }
+                            return [province.value, city.value];
+                        }
+                        return [province.value];
+                    }
+                }
+                return[];
+            }
+
+            const pcas = getpcas();
+
+            $scope.curPerson = {
+                id: $scope.editing ? person.nric : undefined,
+                name: person.name,
+                sex: person.sex,
+                head: person.head ? `data:image/png;base64,${person.head}` : "",
+                province: pcas[0],
+                city: pcas[1],
+                district: pcas[2],
+                domicile: person.domicile,
+                fluidity: person.fluidity,
+                idAddress: person.address,
+                idValidBegin: new Date(person.validFrom),
+                idValidEnd: new Date(person.validTo),
+                birthday: new Date(person.birthDay),
+                kind: person.kind,
+                mac: person.phoneMac,
+                tel: person.phone,
+                nation: person.nation,
+                qq: person.QQ,
+                wechat: person.wechat,
+                permanent: person.permanent,
+                regCode: person.regCode,
+                remark: person.remark,
+                workUnit: person.occupation,
+                rooms: person.rooms.map(x => {
+                    const name = $filter("roomName")(x.id);
+                    return roomToView(name, x);
+                })
+            }
+
         };
         //添加选定人员背景
         $scope.chooseStyle = person => ($scope.chooseBackColor === person.nric ? "success" : "");
@@ -1816,94 +1893,93 @@ const srAngularApp = angular
                 });
         };
         //修改人员
-        $scope.editAddAddress = (building, unit, room,live, relative, uniform, rentalStart, rentalEnd) => {
+        $scope.editAddAddress = (building, unit, room) => {
             if (!building || !unit || !room) {
                 alert("请选择完整地址");
                 return;
             }
-            if ($scope.choosePersonEditRooms.some((item, index) => item.id === room.guid)) {
+            if ($scope.curPerson.rooms.some((item, index) => item.id === room.guid)) {
                 return;
             }
-            if (relative === 10) {
-                if (!rentalStart || !rentalEnd) {
-                    alert("请选择租赁区间");
-                    return;
-                }
-                $scope.choosePersonEditRooms.push({
-                    id: room.guid,
-                    living: live,
-                    relative: relative,
-                    rentalStart: rentalStart.getTime() / 1000,
-                    rentalEnd: rentalEnd.getTime() / 1000,
-                    uniform: uniform
-                });
-            } else {
-                $scope.choosePersonEditRooms.push({
-                    id: room.guid,
-                    living: live,
-                    relative: relative,
-                    uniform: uniform
-                });
-            
-            }
+            $scope.roomSample.name = building.name + unit.name + room.id;
+            $scope.roomSample.id = room.guid;
+            const roomView = cleanRoomView($scope.roomSample);
+            if (!roomView) return;
+            $scope.curPerson.rooms.push(roomView);
         };
         $scope.editDeleteAddAddress = id => {
-            $scope.choosePersonEditRooms = $scope.choosePersonEditRooms.filter(x => x.id !== id);
+            $scope.curPerson.rooms = $scope.curPerson.rooms.filter(x => x.id !== id);
         };
-        $scope.editPerson = (choosePersonEditId, editName, editQQ, editPhone, editOccupation, editWechat, editPhoneMac, editRemark) => {
-            const editData: Person = {
-                name: editName,
-                phone: editPhone,
-                nric: $scope.choosePersonEdit.nric,
-                QQ: editQQ,
-                wechat: editWechat,
-                remark: editRemark,
-                occupation: editOccupation,
-                phoneMac: editPhoneMac
-            };
-            if (!editName) {
+        $scope.editPerson = person => {
+            if (!person.name) {
                 alert("请填写姓名!");
                 return;
             }
-            if ($scope.choosePersonEditRooms.length === 0) {
+            if ($scope.curPerson.rooms.length === 0) {
                 alert("请添加住址!");
                 return;
             }
+            const editData: Person = {
+                name: person.name,
+                phone: person.tel,
+                nric: $scope.choosePersonEdit.nric,
+                QQ: person.qq,
+                wechat: person.wechat,
+                remark: person.remark,
+                occupation: person.workUnit,
+                phoneMac: person.mac,
+                address: person.idAddress,
+                province: person.province.name,
+                city: person.city.name,
+                district: person.district.name,
+                pcaCode: Number(person.district ? person.district.code : person.city ? person.city.code : person.province ? person.province.code : undefined),
+                domicile: person.domicile,
+                fluidity: person.fluidity,
+                head: (person.head || "").substring(22) || undefined,
+                headType: "png",
+                kind: person.kind,
+                nation: person.nation,
+                permanent: person.permanent,
+                regCode: person.regCode,
+                sex: person.sex,
+                validFrom: Helper.getUnixTimeSeconds(person.idValidBegin),
+                validTo: Helper.getUnixTimeSeconds(person.idValidEnd),
+                birthDay: Helper.getUnixTimeSeconds(person.birthday),
+                rooms: $scope.addAddressList.slice(0),
+                newNric: $scope.editing ? undefined : (person.id || undefined)
+            };
             const validatoredit = new IDValidator();
             if (!$scope.editing) {
-                if (choosePersonEditId) {
-                    if (!validatoredit.isValid(choosePersonEditId)) {
+                if (person.id) {
+                    if (!validatoredit.isValid(person.id)) {
                         alert("身份证号码格式不正确！");
                         return;
                     }
-                    if ($scope.communityData.personnel.containKey(choosePersonEditId)) {
+                    if ($scope.communityData.personnel.containKey(person.id)) {
                         alert("身份证号码重复，请查看是否重复添加！");
                         return;
                     }
-                    editData.newNric = choosePersonEditId;
                 }
             }
             const deleteRooms = $scope.choosePersonEdit.rooms
-                .filter(item => $scope.choosePersonEditRooms.some(x => x.id === item.id))
+                .filter(item => !$scope.curPerson.rooms.some(x => x.id === item.id))
                 .map(x => x.id);
-            const addRooms = $scope.choosePersonEditRooms.filter(item => $scope.choosePersonEdit.rooms.indexOf(item) === -1);
+            const addRooms = $scope.curPerson.rooms
+                .map(roomFromView)
+                .filter(item => !$scope.choosePersonEdit.rooms.some(x => x.id === item.id));
             editData.deleteRooms = deleteRooms;
             editData.rooms = addRooms;
+            console.log("提交数据：");
+            console.log(editData);
             $iot.persons
                 .put(editData)
                 .then(nric => {
                     $timeout(() => {
-                        const x = $scope.communityData.personnel.$[nric];
+                        const x = $scope.communityData.personnel.import(nric, editData);
                         if (x) {
                             x.nric = nric;
-                            x.name = editData.name;
-                            x.phone = editData.phone;
-                            x.QQ = editData.QQ;
-                            x.wechat = editData.wechat;
-                            x.remark = editData.remark;
-                            x.occupation = editData.occupation;
-                            x.phoneMac = editData.phoneMac;
-                            x.rooms = $scope.choosePersonEditRooms;
+                            x.rooms = $scope.curPerson.rooms.map(roomFromView);
+                            delete x.deleteRooms;
                         }
                         $scope.alertSuccess = true;
                         $timeout(() => {
@@ -1954,9 +2030,9 @@ const srAngularApp = angular
                 .put(addDeviceData)
                 .then(data => {
                     $timeout(() => {
-                        $scope.communityData.devices.addOrUpdate(data);
-                        $scope.ChooseauthDevice.addOrUpdate(data);
-                        $scope.unalreadyAuthFingerprint.addOrUpdate(data);
+                        $scope.communityData.devices.addOrUpdate(data.id, data);
+                        $scope.ChooseauthDevice.addOrUpdate(data.id, data);
+                        $scope.unalreadyAuthFingerprint.addOrUpdate(data.id, data);
                     });
                     alert("提交成功");
                 })
@@ -2819,7 +2895,7 @@ const srAngularApp = angular
         };
         //打开添加指纹
         $scope.openAddFinger = () => {
-            fpService = createFingerprint();
+            fpService = fpService || createFingerprint();
             $("#addFinger").modal("show");
         };
         //重置指纹读取
@@ -2833,6 +2909,7 @@ const srAngularApp = angular
         $scope.closeAddFinger = () => {
             $("#addFinger").modal("hide");
             fpService.close();
+            fpService = undefined;
         };
         //添加指纹
         $scope.addFinger = (finger, user) => {
@@ -3361,8 +3438,8 @@ const srAngularApp = angular
             $iot.devices.items(com, data => {
                 $timeout(() => {
                     $scope.communityData.ADunAuthDevice = data.copy;
-                    $scope.ChooseauthDevice_AD = Dict.zero<Device>(t => t.id);
-                    $scope.alreadyAuth_AD = Dict.zero<Device>(t => t.id);
+                    $scope.ChooseauthDevice_AD = Dict.zero<Device>();
+                    $scope.alreadyAuth_AD = Dict.zero<Device>();
                 });
             });
         };
@@ -3584,7 +3661,7 @@ const srAngularApp = angular
                             $timeout(() => {
                                 if (data.result) {
                                     const successDevice = $scope.communityData.ADunAuthDevice.$[selectDeviceList[i]];
-                                    $scope.alreadyAuth_AD.addOrUpdate(successDevice);
+                                    $scope.alreadyAuth_AD.addOrUpdate(successDevice.id, successDevice);
                                     $scope.ChooseauthDevice_AD = $scope.ChooseauthDevice_AD.filter(item => item.id !== selectDeviceList[i]);
                                 }
                                 data.device = selectDeviceList[i];
@@ -3618,7 +3695,7 @@ const srAngularApp = angular
                             $timeout(() => {
                                 if (data.result) {
                                     const successDevice = $scope.communityData.ADunAuthDevice.$[selectDeviceList[i]];
-                                    $scope.ChooseauthDevice_AD.addOrUpdate(successDevice);
+                                    $scope.ChooseauthDevice_AD.addOrUpdate(successDevice.id, successDevice);
                                     $scope.alreadyAuth_AD = $scope.alreadyAuth_AD.filter(item => item.id !== selectDeviceList[i]);
                                 }
                                 data.device = selectDeviceList[i];
