@@ -444,7 +444,7 @@
                             <td>人户一致：{{item.uniform ? "是" : "否"}}</td>
                             <td>与户主关系：{{item.relative | relativeText}}</td>
                             <td ng-show="item.rentalStart">租赁期从 {{item.rentalStart | date:'yyyy年MM月dd日'}} 到 {{item.rentalEnd | date:'yyyy年MM月dd日'}}</td>
-                            <td><button class="btn btn-warning btn-xs" ng-click="editDeleteAddAddress(item)">删除</button></td>
+                            <td><button class="btn btn-warning btn-xs" ng-click="editDeleteAddAddress(item.id)">删除</button></td>
                         </tr>
                     </table>
                     <div class="row">
