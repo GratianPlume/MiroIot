@@ -1634,7 +1634,6 @@ const srAngularApp = angular
 
         /*人员管理开始*/
         $scope.editing = true;
-        $scope.addAddressview = true;
         $scope.addAddressList = [];
         $scope.nationList = Helper.nationList;
         $scope.pac = Helper.pcaCode;
@@ -1700,7 +1699,6 @@ const srAngularApp = angular
             const roomBinding = roomFromView(roomView);
             $scope.newPerson.rooms.push(roomView);
             $scope.addAddressList.push(roomBinding);
-            $scope.addAddressview = false;
         };
         $scope.deleteAddAddress = id => {
             let deleteIndex: number;

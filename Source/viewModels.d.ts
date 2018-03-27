@@ -92,7 +92,6 @@ interface Scope extends angular.IScope {
     authList: boolean;
     /** 是否有身份证号码 */
     editing: boolean;
-    addAddressview: boolean;
     alertSuccess: boolean;
     alertFail: boolean;
     chooseBinding: boolean;

@@ -144,10 +144,6 @@
                         </div>
                     </div>
                     <label for="addHouseInfo">添加房屋信息:</label>
-                    <button class="btn btn-default btn-sm" type="button" data-toggle="collapse" data-target="#addHouseInfo"
-                            aria-expanded="false" aria-controls="addHouseInfo">
-                        添加房屋信息
-                    </button>
                     <div class="collapse" id="addHouseInfo">
                         <div class="well well-lg clearfix" style="padding: 15px 10px;margin-bottom: 5px">
                             <div class="form-inline bg-danger">
@@ -186,24 +182,23 @@
                             </div>
                         </div>
                     </div>
-                    <table class="table table-hover table-condensed well" ng-hide="addAddressview">
+                    <table class="table col-lg-12 table-hover table-condensed well" ng-hide="addAddressview">
                         <colgroup>
                             <col>
                             <col>
                             <col>
                             <col>
-                            <col text-center col-lg-3>
-                            <col col-xs-1>
+                            <col class="text-center col-lg-3">
+                            <col class="col-xs-1 text-right">
                         </colgroup>
                         <thead>
-
                             <tr class="bg-danger">
                                 <th>地址</th>
                                 <th>居住</th>
                                 <th>人户一致</th>
                                 <th>与户主关系</th>
                                 <th>租赁期起始结束时间</th>
-                                <th><button class="btn btn-success btn-xs glyphicon glyphicon-plus"></button></th>
+                                <th><button class="btn btn-success btn-xs glyphicon glyphicon-plus" ng-click="addAddress(addressBuilding,addressUnit,addressRoom)"></button></th>
                             </tr>
                         </thead>
                         <tr ng-repeat="item in newPerson.rooms">
