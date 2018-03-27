@@ -481,7 +481,21 @@ const srAngularApp = angular
         };
         $scope.asideView = true;
         /*门禁模块视图切换结束*/
-
+        //视图加载初始化
+        $scope.initNew = ()=> {
+            if(sideUrlChoose === 5) {
+                $scope.drawTree();
+            }
+            if(sideUrlChoose === 2) {
+                $(".addPersonnel").on("show.bs.modal", ()=> {
+                    console.log("show");
+                });
+                $(".addPersonnel").on("hide.bs.modal", ()=> {
+                    console.log("hide");
+                });
+                
+            }
+        };
         /*账号管理数据*/
         $scope.adminData = new AdminView();
 
@@ -1682,7 +1696,6 @@ const srAngularApp = angular
                 };
             }
         }
-
         $scope.addAddress = (building, unit, room) => {
             if (!building || !unit || !room) {
                 alert("请选择完整地址");

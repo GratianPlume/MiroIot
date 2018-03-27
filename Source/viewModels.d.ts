@@ -235,6 +235,7 @@ interface Scope extends angular.IScope {
     chooseDevice(device: Device): void;
     chooseDeviceStyle(device: Device): string;
     addAddress(building: BlockData, unit: UnitData, room: FlatData): void;
+    initNew(): void;
     deleteAddAddress(id: string): void;
     queryPersonnerl(id: string): void;
     refreshAddAddressList(): void;
