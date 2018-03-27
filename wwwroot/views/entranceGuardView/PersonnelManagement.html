@@ -55,8 +55,8 @@
                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 <h5 class="modal-title">添加人员信息</h5>
             </div>
-            <div class="modal-body clearfix" style="padding: 10px">
-                <div class="clearfix" style="border: dashed 1px red;padding: 4px">
+            <div class="modal-body clearfix" style="padding: 2px 4px">
+                <div class="clearfix bg-info" style="padding: 4px">
                     <div class="row">
                         <div class="form-horizontal col-xs-3">
                             <div class="form-group">
@@ -143,13 +143,14 @@
                             </div>
                         </div>
                     </div>
+                    <label for="addHouseInfo">添加房屋信息:</label>
                     <button class="btn btn-default btn-sm" type="button" data-toggle="collapse" data-target="#addHouseInfo"
                             aria-expanded="false" aria-controls="addHouseInfo">
                         添加房屋信息
                     </button>
                     <div class="collapse" id="addHouseInfo">
                         <div class="well well-lg clearfix" style="padding: 15px 10px;margin-bottom: 5px">
-                            <div class="form-inline">
+                            <div class="form-inline bg-danger">
                                 <div class="form-group">
                                     <label>楼号:</label>
                                     <select class="form-control input-sm" ng-model="addressBuilding" ng-options="item.name for item in communityData.address.buildings"></select>
@@ -185,14 +186,58 @@
                             </div>
                         </div>
                     </div>
-                    <table class="table table-hover table-condensed" ng-hide="addAddressview">
+                    <table class="table table-hover table-condensed well" ng-hide="addAddressview">
+                        <colgroup>
+                            <col>
+                            <col>
+                            <col>
+                            <col>
+                            <col text-center col-lg-3>
+                            <col col-xs-1>
+                        </colgroup>
+                        <thead>
+
+                            <tr class="bg-danger">
+                                <th>地址</th>
+                                <th>居住</th>
+                                <th>人户一致</th>
+                                <th>与户主关系</th>
+                                <th>租赁期起始结束时间</th>
+                                <th><button class="btn btn-success btn-xs glyphicon glyphicon-plus"></button></th>
+                            </tr>
+                        </thead>
                         <tr ng-repeat="item in newPerson.rooms">
-                            <td>{{item.name}}</td>
-                            <td>{{item.living ? "居住" : "不居住"}}</td>
-                            <td><span ng-hide="item.uniform===undefined">人户一致：{{item.uniform ? "是" : "否"}}</span></td>
-                            <td>与户主关系：{{item.relative | relativeText}}</td>
-                            <td ng-show="item.rentalStart">租赁期从 {{item.rentalStart | date:'yyyy年MM月dd日'}} 到 {{item.rentalEnd | date:'yyyy年MM月dd日'}}</td>
-                            <td><button class="btn btn-warning btn-xs" ng-click="deleteAddAddress(item.guid)">删除</button></td>
+                            <td>
+                                <div class="form-inline">
+                                    <div class="form-group">
+                                        <select class="form-control input-sm" ng-model="addressBuilding" ng-options="item.name for item in communityData.address.buildings"></select>
+                                        <label class="small">-</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <select class="form-control input-sm" ng-model="addressUnit" ng-options="item.name for item in addressBuilding.units"></select>
+                                        <label class="small">-</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <select class="form-control input-sm" ng-model="addressRoom" ng-options="item.id for item in addressUnit.apartments | orderBy:'id'" ng-change="refreshAddAddressList()"></select>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="small">
+                                <label><input type="checkbox" is-true ng-model="item.living"> 是</label>&nbsp;
+                                <label><input type="checkbox" is-false ng-model="item.living"> 否</label>
+                            </td>
+                            <td class="small">
+                                <label><input type="checkbox" is-true ng-model="item.uniform"> 是</label>&nbsp;
+                                <label><input type="checkbox" is-false ng-model="item.uniform"> 否</label>
+                            </td>
+                            <td><select class="form-control input-sm" ng-model="item.relative" ng-options="item.id as item.name for item in relativeList"></select></td>
+                            <td>
+                                <form ng-show="item.relative===10" class="form-inline">
+                                    <input type="date" class="form-control input-sm" ng-model="item.rentalStart" style="width: 140px">
+                                    <span>- </span><input type="date" class="form-control input-sm" ng-model="item.rentalEnd" style="width: 140px">
+                                </form>
+                            </td>
+                            <td><button class="btn btn-warning btn-xs glyphicon glyphicon-minus" ng-click="deleteAddAddress(item.guid)"></button></td>
                         </tr>
                     </table>
                     <div class="row">

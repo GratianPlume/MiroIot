@@ -106,7 +106,36 @@ const srAngularApp = angular
         } catch (err) {
             if (typeof err === "string") document.getElementById("message_output").innerHTML = err;
         }
-    })
+    }).directive("isFalse", () => ({
+        restrict: "A",
+        require: "ngModel",
+        link: (scope, element, attr, ngModel) => {
+            function fromUser(value?: boolean) {
+                return value ? false : undefined;
+            }
+
+            function toUser(value?: boolean) {
+                return value === false;
+            }
+            (<ng.INgModelController>ngModel).$parsers.push(fromUser);
+            (<ng.INgModelController>ngModel).$formatters.push(toUser);
+        }
+    }))
+    .directive("isTrue", () => ({
+        restrict: "A",
+        require: "ngModel",
+        link: (scope, element, attr, ngModel) => {
+            function fromUser(value?: boolean) {
+                return value ? true : undefined;
+            }
+
+            function toUser(value?: boolean) {
+                return value;
+            }
+            (<ng.INgModelController>ngModel).$parsers.push(fromUser);
+            (<ng.INgModelController>ngModel).$formatters.push(toUser);
+        }
+    }))
     .filter("relativeText", () => (value: Relative): string => 
         value ? Helper.relativeConstans[value - 1].name : ""
     )
@@ -431,7 +460,6 @@ const srAngularApp = angular
                 case 1:
                     return "views/entranceGuardView/deviceManagement.html?" + $iot.startTime;
                 case 2:
-                    console.log("PersonnelManagement");
                     return "views/entranceGuardView/PersonnelManagement.html?" + $iot.startTime;
                 case 3:
                     $("#addFinger").modal({
