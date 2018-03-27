@@ -44,6 +44,9 @@ interface RoomView {
     rentalStart?: Date;
     rentalEnd?: Date;
     uniform?: Boolean;
+    block?: BlockData;
+    unit?: UnitData;
+    flat?: FlatData;
 }
 
 interface PersonView {
@@ -158,7 +161,6 @@ interface Scope extends angular.IScope {
     unalreadyAuthFingerprint: Dict<Device>;
     card_viewData: Card[];
     fingerprint_viewData: Fingerprint[];
-    addAddressList: RoomBinding[];
     nationList: ReadonlyArray<StConstans>;
     pac: ReadonlyArray<PcaCodeConstans>;
     cardPersonnels: Dict<Person>;
@@ -234,17 +236,15 @@ interface Scope extends angular.IScope {
     changepwd(oldPwd: string, newPwd: string): void;
     chooseDevice(device: Device): void;
     chooseDeviceStyle(device: Device): string;
-    addAddress(building: BlockData, unit: UnitData, room: FlatData): void;
+    addAddress(person: PersonView): void;
     initNew(): void;
-    deleteAddAddress(id: string): void;
+    deleteAddress(person: PersonView, index: number): void;
     queryPersonnerl(id: string): void;
     refreshAddAddressList(): void;
     addPersonnel(person: PersonView): void;
     choosePersonnel(person: Person): void;
     chooseStyle(person): string;
     deletePersonnel(): void;
-    editAddAddress(building: BlockData, unit: UnitData, room: FlatData): void;
-    editDeleteAddAddress(id: string): void;
     editPerson(person: PersonView): void;
     personPredicate(val: Person): boolean;
     addDevice(addressBuilding: BlockData, addressUnit: UnitData, deviceNumber: string, devicePwd: string, deviceRemark: string): void;

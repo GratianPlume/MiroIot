@@ -144,53 +144,7 @@
                         </div>
                     </div>
                     <label for="addHouseInfo">添加房屋信息:</label>
-                    <div class="collapse" id="addHouseInfo">
-                        <div class="well well-lg clearfix" style="padding: 15px 10px;margin-bottom: 5px">
-                            <div class="form-inline bg-danger">
-                                <div class="form-group">
-                                    <label>楼号:</label>
-                                    <select class="form-control input-sm" ng-model="addressBuilding" ng-options="item.name for item in communityData.address.buildings"></select>
-                                </div>
-                                <div class="form-group">
-                                    <label>单元:</label>
-                                    <select class="form-control input-sm" ng-model="addressUnit" ng-options="item.name for item in addressBuilding.units"></select>
-                                </div>
-                                <div class="form-group">
-                                    <label>房号:</label>
-                                    <select class="form-control input-sm" ng-model="addressRoom" ng-options="item.id for item in addressUnit.apartments | orderBy:'id'" ng-change="refreshAddAddressList()"></select>
-                                </div>
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" ng-model="roomSample.living">是否居住
-                                    </label>
-                                </div>
-                                <div class="form-group">
-                                    <label>与户主关系:</label>
-                                    <select class="form-control input-sm" ng-model="roomSample.relative"
-                                            ng-options="item.id as item.name for item in relativeList"></select>
-                                </div>
-                                <div class="form-group" ng-show="roomSample.relative===10">
-                                    <label>租赁区间:</label>
-                                    <input type="date" class="form-control input-sm" ng-model="roomSample.rentalStart">--<input type="date" class="form-control input-sm" ng-model="roomSample.rentalEnd">
-                                </div>
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" ng-model="roomSample.uniform">人户是否一致
-                                    </label>
-                                </div>
-                                <button type="button" class="btn btn-default btn-sm" ng-click="addAddress(addressBuilding,addressUnit,addressRoom)">添加</button>
-                            </div>
-                        </div>
-                    </div>
-                    <table class="table col-lg-12 table-hover table-condensed well" ng-hide="addAddressview">
-                        <colgroup>
-                            <col>
-                            <col>
-                            <col>
-                            <col>
-                            <col class="text-center col-lg-3">
-                            <col class="col-xs-1 text-right">
-                        </colgroup>
+                    <table class="table col-lg-12 table-hover table-condensed well">
                         <thead>
                             <tr class="bg-danger">
                                 <th>地址</th>
@@ -198,22 +152,22 @@
                                 <th>人户一致</th>
                                 <th>与户主关系</th>
                                 <th>租赁期起始结束时间</th>
-                                <th><button class="btn btn-success btn-xs glyphicon glyphicon-plus" ng-click="addAddress(addressBuilding,addressUnit,addressRoom)"></button></th>
+                                <th><button class="btn btn-success btn-xs glyphicon glyphicon-plus" ng-click="addAddress(newPerson)"></button></th>
                             </tr>
                         </thead>
                         <tr ng-repeat="item in newPerson.rooms">
                             <td>
                                 <div class="form-inline">
                                     <div class="form-group">
-                                        <select class="form-control input-sm" ng-model="addressBuilding" ng-options="item.name for item in communityData.address.buildings"></select>
+                                        <select class="form-control input-sm" ng-model="item.block" ng-options="item.name for item in communityData.address.buildings"></select>
                                         <label class="small">-</label>
                                     </div>
                                     <div class="form-group">
-                                        <select class="form-control input-sm" ng-model="addressUnit" ng-options="item.name for item in addressBuilding.units"></select>
+                                        <select class="form-control input-sm" ng-model="item.unit" ng-options="item.name for item in item.block.units"></select>
                                         <label class="small">-</label>
                                     </div>
                                     <div class="form-group">
-                                        <select class="form-control input-sm" ng-model="addressRoom" ng-options="item.id for item in addressUnit.apartments | orderBy:'id'" ng-change="refreshAddAddressList()"></select>
+                                        <select class="form-control input-sm" ng-model="item.flat" ng-options="item.id for item in item.unit.apartments | orderBy:'id'" ng-change="refreshAddAddressList()"></select>
                                     </div>
                                 </div>
                             </td>
@@ -232,7 +186,7 @@
                                     <span>- </span><input type="date" class="form-control input-sm" ng-model="item.rentalEnd" style="width: 140px">
                                 </form>
                             </td>
-                            <td><button class="btn btn-warning btn-xs glyphicon glyphicon-minus" ng-click="deleteAddAddress(item.guid)"></button></td>
+                            <td><button class="btn btn-warning btn-xs glyphicon glyphicon-minus" ng-click="deleteAddress(newPerson, $index)"></button></td>
                         </tr>
                     </table>
                     <div class="row">
@@ -347,8 +301,8 @@
                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 <h5 class="modal-title">修改人员信息</h5>
             </div>
-            <div class="modal-body clearfix" style="padding: 10px">
-                <div class="clearfix" style="border: dashed 1px red;padding: 4px">
+            <div class="modal-body clearfix" style="padding: 2px 4px">
+                <div class="clearfix bg-info" style="padding: 4px">
                     <div class="row">
                         <div class="form-horizontal col-xs-3">
                             <div class="form-group">
@@ -435,57 +389,49 @@
                             </div>
                         </div>
                     </div>
-                    <button class="btn btn-default btn-sm" type="button" data-toggle="collapse" data-target="#editHouseInfo"
-                            aria-expanded="false" aria-controls="editHouseInfo">
-                        添加房屋信息
-                    </button>
-                    <div></div>
-                    <div class="collapse" id="editHouseInfo">
-                        <div class="well well-lg clearfix" style="padding: 15px 10px;margin-bottom: 5px">
-                            <div class="form-inline">
-                                <div class="form-group">
-                                    <label>楼号:</label>
-                                    <select class="form-control input-sm" ng-model="addressBuilding" ng-options="item.name for item in communityData.address.buildings"></select>
-                                </div>
-                                <div class="form-group">
-                                    <label>单元:</label>
-                                    <select class="form-control input-sm" ng-model="addressUnit" ng-options="item.name for item in addressBuilding.units"></select>
-                                </div>
-                                <div class="form-group">
-                                    <label>房号:</label>
-                                    <select class="form-control input-sm" ng-model="addressRoom" ng-options="item.id for item in addressUnit.apartments | orderBy:'id'" ng-change="refreshAddAddressList()"></select>
-                                </div>
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" ng-model="roomSample.living">是否居住
-                                    </label>
-                                </div>
-                                <div class="form-group">
-                                    <label>与户主关系:</label>
-                                    <select class="form-control input-sm" ng-model="roomSample.relative"
-                                            ng-options="item.id as item.name for item in relativeList"></select>
-                                </div>
-                                <div class="form-group" ng-show="roomSample.relative===10">
-                                    <label>租赁区间:</label>
-                                    <input type="date" class="form-control input-sm" ng-model="roomSample.rentalStart">--<input type="date" class="form-control input-sm" ng-model="roomSample.rentalEnd">
-                                </div>
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" ng-model="roomSample.uniform">人户是否一致
-                                    </label>
-                                </div>
-                                <button type="button" class="btn btn-default btn-sm" ng-click="editAddAddress(addressBuilding,addressUnit,addressRoom)">添加</button>
-                            </div>
-                        </div>
-                    </div>
-                    <table class="table table-hover table-condensed">
+                    <table class="table col-lg-12 table-hover table-condensed well">
+                        <thead>
+                            <tr class="bg-danger">
+                                <th>地址</th>
+                                <th>居住</th>
+                                <th>人户一致</th>
+                                <th>与户主关系</th>
+                                <th>租赁期起始结束时间</th>
+                                <th><button class="btn btn-success btn-xs glyphicon glyphicon-plus" ng-click="addAddress(curPerson)"></button></th>
+                            </tr>
+                        </thead>
                         <tr ng-repeat="item in curPerson.rooms">
-                            <td>{{item.name}}</td>
-                            <td>{{item.living ? "居住" : "不居住"}}</td>
-                            <td>人户一致：{{item.uniform ? "是" : "否"}}</td>
-                            <td>与户主关系：{{item.relative | relativeText}}</td>
-                            <td ng-show="item.rentalStart">租赁期从 {{item.rentalStart | date:'yyyy年MM月dd日'}} 到 {{item.rentalEnd | date:'yyyy年MM月dd日'}}</td>
-                            <td><button class="btn btn-warning btn-xs" ng-click="editDeleteAddAddress(item.id)">删除</button></td>
+                            <td>
+                                <div class="form-inline">
+                                    <div class="form-group">
+                                        <select class="form-control input-sm" ng-model="item.block" ng-options="item.name for item in communityData.address.buildings"></select>
+                                        <label class="small">-</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <select class="form-control input-sm" ng-model="item.unit" ng-options="item.name for item in item.block.units"></select>
+                                        <label class="small">-</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <select class="form-control input-sm" ng-model="item.flat" ng-options="item.id for item in item.unit.apartments | orderBy:'id'" ng-change="refreshAddAddressList()"></select>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="small">
+                                <label><input type="checkbox" is-true ng-model="item.living"> 是</label>&nbsp;
+                                <label><input type="checkbox" is-false ng-model="item.living"> 否</label>
+                            </td>
+                            <td class="small">
+                                <label><input type="checkbox" is-true ng-model="item.uniform"> 是</label>&nbsp;
+                                <label><input type="checkbox" is-false ng-model="item.uniform"> 否</label>
+                            </td>
+                            <td><select class="form-control input-sm" ng-model="item.relative" ng-options="item.id as item.name for item in relativeList"></select></td>
+                            <td>
+                                <form ng-show="item.relative===10" class="form-inline">
+                                    <input type="date" class="form-control input-sm" ng-model="item.rentalStart" style="width: 140px">
+                                    <span>- </span><input type="date" class="form-control input-sm" ng-model="item.rentalEnd" style="width: 140px">
+                                </form>
+                            </td>
+                            <td><button class="btn btn-warning btn-xs glyphicon glyphicon-minus" ng-click="deleteAddress(curPerson, $index)"></button></td>
                         </tr>
                     </table>
                     <div class="row">
