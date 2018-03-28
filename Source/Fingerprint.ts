@@ -56,19 +56,53 @@ interface NricRoc extends Command {
 class FpService {
     private _captures: Capture[];
     private _merge: Merge;
-    assister = new WebSocket("ws://localhost:5018/");
-    onerror: (this: WebSocket, ev: Event) => void;
-    onclose: (this: WebSocket, ev: CloseEvent) => void;
-    onreset: () => void;
-    onopen: () => void;
-    onImage: (index: number, image: string) => void;
-    onsuccess: () => void;
-    onfail: (err: number) => void;
-    onNricRoc: (data: NricInfo) => void;
-    constructor() {
-        this.assister.onerror = this.onerror;
-        this.assister.onclose = this.onclose;
-        this.assister.onopen = () => this.reset();
+    assister: WebSocket;
+    private _onerror: (this: WebSocket, ev: Event) => void;
+    private _onclose: (this: WebSocket, ev: CloseEvent) => void;
+    private _onreset: () => void;
+    private _onopen: () => void;
+    private _onImage: (index: number, image: string) => void;
+    private _onsuccess: () => void;
+    private _onfail: (err: number) => void;
+    private _onNricRoc: (data: NricInfo) => void;
+
+    onerror(fn) {
+        this._onerror = fn;
+        return this;
+    }
+    onclose(fn) {
+        this._onclose = fn;
+        return this;
+    }
+    onreset(fn) {
+        this._onreset = fn;
+        return this;
+    }
+    onImage(fn) {
+        this._onImage = fn;
+        return this;
+    }
+    onsuccess(fn) {
+        this._onsuccess = fn;
+        return this;
+    }
+    onfail(fn) {
+        this._onfail = fn;
+        return this;
+    }
+    onNricRoc(fn: (data: NricInfo) => void) {
+        this._onNricRoc = fn;
+        return this;
+    }
+    onopen(fn) {
+        this._onopen = fn;
+        return this;
+    }
+    start(url: string) {
+        this.assister = new WebSocket(url);
+        this.assister.onerror = this._onerror;
+        this.assister.onclose = this._onclose;
+        this.assister.onopen = this._onopen;
         this.assister.onmessage = event => {
             const imgObj: Command = JSON.parse(event.data);
             if (this._merge) {
@@ -77,20 +111,21 @@ class FpService {
             }
             if (FpService.isCapture(imgObj)) {
                 this._captures.push(imgObj);
-                this.onImage(imgObj.index, `data:image/png;base64,${imgObj.data.image}`);
+                this._onImage(imgObj.index, `data:image/png;base64,${imgObj.data.image}`);
             } else if (FpService.isMerge(imgObj)) {
                 if (!imgObj.errcode) {
                     this._merge = imgObj;
-                    this.onsuccess();
+                    this._onsuccess();
                 } else {
                     this.reset();
-                    this.onfail(imgObj.errcode);
+                    this._onfail(imgObj.errcode);
                 }
             } else if (FpService.isNricRoc(imgObj)) {
-                this.onNricRoc(imgObj.data);
+                this._onNricRoc(imgObj.data);
             }
         };
     }
+    
 
     get item(): MergeImage {
         if (!this._merge)
@@ -109,7 +144,7 @@ class FpService {
         }));
         this._captures = [];
         this._merge = undefined;
-        this.onreset();
+        this._onreset();
     }
     close() {
         this.assister.close();

@@ -480,7 +480,28 @@ const srAngularApp = angular
             }
         };
         $scope.asideView = true;
-        /*门禁模块视图切换结束*/
+        let refreshOrNo = true;
+        let fpService: FpService;
+
+        function createNricDetector(person:PersonView) {
+            const ass = FpService.create().onNricRoc(data => {
+                $timeout(() => {
+                    person.name = data.baseInfo.name;
+                    person.id = data.baseInfo.id;
+                    person.birthday = new Date(data.baseInfo.birthDay);
+                    person.idValidBegin = new Date(data.baseInfo.termStart);
+                    person.idValidEnd = new Date(data.baseInfo.termEnd);
+                    person.sex = data.baseInfo.sex;
+                    person.idAddress = data.baseInfo.address;
+                    person.nation = Helper.nationDict.$[data.baseInfo.ethnic].name;
+                    person.head = "data:image/png;base64," + data.picture;
+                });
+            });
+            ass.start("ws://localhost:5018/ws/sv");
+            return ass;
+        }
+
+        /** 门禁模块视图切换结束 */
         //视图加载初始化
         $scope.initNew = () => {
             if (sideUrlChoose === 5) {
@@ -489,18 +510,30 @@ const srAngularApp = angular
             if (sideUrlChoose === 2) {
                 $(".addPersonnel").on("show.bs.modal", () => {
                     $timeout(() => {
-                        $scope.newPerson.rooms.push(<any>{});
-                        $scope.newPerson.rooms = $scope.newPerson.rooms.slice(0, 1);
-                        console.log("show");
+                        // 初始化数据
+                        refreshOrNo = true;
+                        const rooms = $scope.newPerson.rooms;
+                        $scope.newPerson = {} as any;
+                        $scope.newPerson.rooms = rooms;
+                        if ($scope.newPerson.rooms.length === 0)
+                            $scope.newPerson.rooms.push({} as any);
+
+                        // 打开身份证读卡器
+                        if (fpService)
+                            fpService.close();
+                        fpService = createNricDetector($scope.newPerson);
+                        console.log("打开身份证识别");
                     });
                 });
                 $(".addPersonnel").on("hide.bs.modal", () => {
                     console.log("hide");
+                    fpService.close();
+                    fpService = undefined;
                 });
 
             }
         };
-        /*账号管理数据*/
+        /* 账号管理数据 */
         $scope.adminData = new AdminView();
 
         /*进入账号管理时获取当前管理员管理的人员数据*/
@@ -1657,9 +1690,8 @@ const srAngularApp = angular
         $scope.relativeList = Helper.relativeConstans;
         $scope.newPerson = { rooms: [] } as any;
         $scope.roomSample = {} as any;
-        let refreshOrNo = true;
 
-        function matchDatas(id: Guid):[BlockData, UnitData, FlatData] {
+        function matchDatas(id: Guid): [BlockData, UnitData, FlatData] {
             for (const block of $scope.communityData.address.buildings) {
                 for (const unit of block.units) {
                     for (const flat of unit.apartments)
@@ -1696,7 +1728,6 @@ const srAngularApp = angular
             };
 
         }
-        // todo:
         function cleanRoomView(room: RoomView): RoomView {
             if (room.relative === 10) {
                 if (room.rentalStart && room.rentalEnd) {
@@ -1720,19 +1751,22 @@ const srAngularApp = angular
         }
         $scope.addAddress = person => {
             const length = person.rooms.length;
+            refreshOrNo = false;
             if (length === 0) {
                 person.rooms.push(<any>{});
             } else {
-                const room = angular.copy(person.rooms[length - 1]);
+                const room = angular.copy(person.rooms[0]);
+                room.block = person.rooms[0].block;
+                room.unit = person.rooms[0].unit;
                 room.flat = undefined;
-                person.rooms.push(room);
+                person.rooms.unshift(room);
             }
         };
-        //todo:要合并
         $scope.deleteAddress = (person, index) => {
             person.rooms.splice(index, 1);
         };
 
+        // TODO:加回去
         //根据身份证查询人员
         $scope.queryPersonnerl = (id: string) => {
             if (id.length !== 18) {
@@ -2841,85 +2875,76 @@ const srAngularApp = angular
         $scope.FingerConstans = Helper.fingerConstans;
 
         function createFingerprint() {
-            const fp = $fp.create();
-            fp.onImage = (index, image) => {
-                switch (index) {
-                    case 0:
-                        $("#fingerprint1").attr("src", image);
-                        break;
-                    case 1:
-                        $("#fingerprint2").attr("src", image);
-                        break;
-                    case 2:
-                        $("#fingerprint3").attr("src", image);
-                        break;
-                }
-            };
-            fp.onsuccess = () => {
+            function closed() {
+                $timeout(() => {
+                    $scope.websocketIsready = true;
+                });
                 $("#FingersInfo")
-                    .text("采集成功，请保存！")
-                    .removeClass("text-danger")
-                    .addClass("text-success");
-            };
-            fp.onfail = () => {
-                $("#FingersInfo")
-                    .text("采集失败，请重新采集！")
+                    .text("指纹服务连接失败，请查看是否启动服务或重新打开模块！")
                     .removeClass("text-success")
                     .addClass("text-danger");
-                $("#fingerprint1").attr("src", "images/scanfinger1.png");
-                $("#fingerprint2").attr("src", "images/scanfinger2.png");
-                $("#fingerprint3").attr("src", "images/scanfinger3.png");
-            };
-            fp.onreset = () => {
-                if (!$scope.websocketIsready) {
+            }
+
+            const fp = $fp
+                .create()
+                .onImage((index, image) => {
+                    switch (index) {
+                        case 0:
+                            $("#fingerprint1").attr("src", image);
+                            break;
+                        case 1:
+                            $("#fingerprint2").attr("src", image);
+                            break;
+                        case 2:
+                            $("#fingerprint3").attr("src", image);
+                            break;
+                    }
+                }).onsuccess(() => {
                     $("#FingersInfo")
-                        .text("指纹服务连接成功!")
+                        .text("采集成功，请保存！")
                         .removeClass("text-danger")
                         .addClass("text-success");
-                } else {
+                }).onfail(() => {
                     $("#FingersInfo")
-                        .text("指纹服务连接失败，请查看是否启动服务或重新打开模块！")
+                        .text("采集失败，请重新采集！")
                         .removeClass("text-success")
                         .addClass("text-danger");
-                }
-            };
-            fp.onerror = () => {
-                $timeout(() => {
-                    $scope.websocketIsready = true;
-                });
-                $("#FingersInfo")
-                    .text("指纹服务连接失败，请查看是否启动服务或重新打开模块！")
-                    .removeClass("text-success")
-                    .addClass("text-danger");
-                $("#fingerprint1").attr("src", "images/scanfinger1.png");
-                $("#fingerprint2").attr("src", "images/scanfinger2.png");
-                $("#fingerprint3").attr("src", "images/scanfinger3.png");
-            };
-            fp.onopen = () => {
-                $timeout(() => {
-                    $scope.websocketIsready = false;
-                });
-                $("#FingersInfo")
-                    .text("指纹服务连接成功！")
-                    .removeClass("text-danger")
-                    .addClass("text-success");
-                $("#fingerprint1").attr("src", "images/scanfinger1.png");
-                $("#fingerprint2").attr("src", "images/scanfinger2.png");
-                $("#fingerprint3").attr("src", "images/scanfinger3.png");
-            };
-            fp.onclose = () => {
-                $timeout(() => {
-                    $scope.websocketIsready = true;
-                });
-                $("#FingersInfo")
-                    .text("指纹服务连接失败，请查看是否启动服务或重新打开模块！")
-                    .removeClass("text-success")
-                    .addClass("text-danger");
-            };
+                    $("#fingerprint1").attr("src", "images/scanfinger1.png");
+                    $("#fingerprint2").attr("src", "images/scanfinger2.png");
+                    $("#fingerprint3").attr("src", "images/scanfinger3.png");
+                }).onreset(() => {
+                    if (!$scope.websocketIsready) {
+                        $("#FingersInfo")
+                            .text("指纹服务连接成功!")
+                            .removeClass("text-danger")
+                            .addClass("text-success");
+                    } else {
+                        $("#FingersInfo")
+                            .text("指纹服务连接失败，请查看是否启动服务或重新打开模块！")
+                            .removeClass("text-success")
+                            .addClass("text-danger");
+                    }
+                }).onerror(() => {
+                    closed();
+                    $("#fingerprint1").attr("src", "images/scanfinger1.png");
+                    $("#fingerprint2").attr("src", "images/scanfinger2.png");
+                    $("#fingerprint3").attr("src", "images/scanfinger3.png");
+                }).onopen(() => {
+                    $timeout(() => {
+                        $scope.websocketIsready = false;
+                    });
+                    $("#FingersInfo")
+                        .text("指纹服务连接成功！")
+                        .removeClass("text-danger")
+                        .addClass("text-success");
+                    $("#fingerprint1").attr("src", "images/scanfinger1.png");
+                    $("#fingerprint2").attr("src", "images/scanfinger2.png");
+                    $("#fingerprint3").attr("src", "images/scanfinger3.png");
+                }).onclose(closed);
+            fp.start("ws://localhost:5018/");
             return fp;
         }
 
-        let fpService: FpService;
 
         //已经添加过
         let fingeradded: Fingerprint[] = [];
@@ -2952,7 +2977,9 @@ const srAngularApp = angular
         };
         //打开添加指纹
         $scope.openAddFinger = () => {
-            fpService = fpService || createFingerprint();
+            if (fpService)
+                fpService.close();
+            fpService = createFingerprint();
             $("#addFinger").modal("show");
         };
         //重置指纹读取

@@ -394,9 +394,9 @@ class Helper {
      * 数组转换为字典管理器，以元素的id为键。
      * @param arr 要转换的数组
      */
-    static arrToDic<T extends Identifiable>(arr: T[]): Dict<T>;
-    static arrToDic<T extends Identifiable, R>(arr: T[], mapping: (source: T) => R): Dict<R>;
-    static arrToDic<T extends Identifiable, R>(arr: T[], mapping?: (source: T) => R): Dict<T | R> {
+    static arrToDic<T extends Identifiable<string | number>>(arr: ReadonlyArray<T>): Dict<T>;
+    static arrToDic<T extends Identifiable<string | number>, R>(arr: ReadonlyArray<T>, mapping: (source: T) => R): Dict<R>;
+    static arrToDic<T extends Identifiable<string | number>, R>(arr: ReadonlyArray<T>, mapping?: (source: T) => R): Dict<T | R> {
         return Dict.ofArray<T, R>(x => x.id, arr, mapping);
     }
 
@@ -500,6 +500,8 @@ class Helper {
         Dict.ofArray(x => x.code, Helper.pcaCode, x =>
             PcaDict.create(x, x.children, y =>
                 PcaDict.create(y, y.children)));
+
+    static nationDict = Helper.arrToDic(Helper.nationList);
 
     static statusConstans: ReadonlyArray<StatusConstans> = [
         { id: undefined, name: "全部" },

@@ -46,20 +46,20 @@ type WsCommand = RsaKey | ClearEvents | EventsCompleted | ClearLogs | LogsComple
 
 
 
-interface Identifiable {
-    id: string;
+interface Identifiable<T extends (string | number)> {
+    id: T;
 }
 
-interface FlatData extends Identifiable {
+interface FlatData extends Identifiable<string> {
     guid?: string;
 }
 
-interface UnitData extends Identifiable {
+interface UnitData extends Identifiable<string> {
     name: string;
     apartments: FlatData[];
 }
 
-interface BlockData extends Identifiable {
+interface BlockData extends Identifiable<string> {
     name: string;
     units: UnitData[];
 }
@@ -71,12 +71,12 @@ interface CommunityData {
 }
 
 
-interface UnitX extends Identifiable {
+interface UnitX extends Identifiable<string> {
     name: string;
     items: Dict<FlatData>;
 }
 
-interface BlockX extends Identifiable {
+interface BlockX extends Identifiable<string> {
     name: string;
     items: Dict<UnitX>;
 }
@@ -222,7 +222,7 @@ interface FingerBinder {
     id?: string;
 }
 
-interface CommunityDetail {
+interface CommunityDetail extends Identifiable<Guid> {
     id: Guid;
     name?: string;
     area?: number;
