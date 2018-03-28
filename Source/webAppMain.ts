@@ -809,14 +809,16 @@ const srAngularApp = angular
         // 转发配置
         //添加url
         $scope.addUrl = item => {
-            $scope.putUrlDisable = true;
-            $iot.collector.put(item).then(data => {
-                $timeout(()=> {
-                    item.id = data;
-                    $scope.adminData.urls.push(angular.copy(item));
-                    $scope.putUrlDisable = false;
+            if (item.url && item.token) {
+                $scope.putUrlDisable = true;
+                $iot.collector.put(item).then(data => {
+                    $timeout(()=> {
+                        item.id = data;
+                        $scope.adminData.urls.push(angular.copy(item));
+                        $scope.putUrlDisable = false;
+                    });
                 });
-            });
+            }
         };
         //添加新的url视图
         $scope.addNewUrlView = ()=> {
