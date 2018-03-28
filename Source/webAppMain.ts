@@ -496,11 +496,15 @@ const srAngularApp = angular
                     person.nation = Helper.nationDict.$[data.baseInfo.ethnic].name;
                     person.head = "data:image/png;base64," + data.picture;
                 });
-            }).onsuccess(()=> {
+            }).onopen(() => {
                 $timeout(() => {
                     $("#NricRocInfo").text("身份证读卡器已连接");
                 });
-            }).onerror(()=> {
+            }).onerror(() => {
+                $timeout(() => {
+                    $("#NricRocInfo").text("身份证读卡器未连接");
+                });
+            }).onclose(() => {
                 $timeout(() => {
                     $("#NricRocInfo").text("身份证读卡器未连接");
                 });
