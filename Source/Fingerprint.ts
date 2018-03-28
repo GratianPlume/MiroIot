@@ -125,8 +125,6 @@ class FpService {
             }
         };
     }
-    
-
     get item(): MergeImage {
         if (!this._merge)
             return undefined;

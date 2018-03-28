@@ -483,7 +483,7 @@ const srAngularApp = angular
         let refreshOrNo = true;
         let fpService: FpService;
 
-        function createNricDetector(person:PersonView) {
+        function createNricDetector(person: PersonView) {
             const ass = FpService.create().onNricRoc(data => {
                 $timeout(() => {
                     person.name = data.baseInfo.name;
@@ -495,6 +495,14 @@ const srAngularApp = angular
                     person.idAddress = data.baseInfo.address;
                     person.nation = Helper.nationDict.$[data.baseInfo.ethnic].name;
                     person.head = "data:image/png;base64," + data.picture;
+                });
+            }).onsuccess(()=> {
+                $timeout(() => {
+                    $("#NricRocInfo").text("身份证读卡器已连接");
+                });
+            }).onerror(()=> {
+                $timeout(() => {
+                    $("#NricRocInfo").text("身份证读卡器未连接");
                 });
             });
             ass.start("ws://localhost:5018/ws/sv");
@@ -517,10 +525,10 @@ const srAngularApp = angular
                         $scope.newPerson.rooms = rooms;
                         if ($scope.newPerson.rooms.length === 0)
                             $scope.newPerson.rooms.push({} as any);
-
                         // 打开身份证读卡器
-                        if (fpService)
+                        if (fpService) {
                             fpService.close();
+                        }
                         fpService = createNricDetector($scope.newPerson);
                         console.log("打开身份证识别");
                     });
@@ -2944,8 +2952,6 @@ const srAngularApp = angular
             fp.start("ws://localhost:5018/");
             return fp;
         }
-
-
         //已经添加过
         let fingeradded: Fingerprint[] = [];
         //切换手指初始化指纹输入
