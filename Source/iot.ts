@@ -47,7 +47,7 @@ class Iot {
     }
 
     static collector = {
-        load():Promise<UrlObj[]> {
+        load(): Promise<UrlObj[]> {
             return $.get("/collector");
         },
         put(item: UrlObj): Promise<Guid> {
@@ -61,7 +61,7 @@ class Iot {
         delete(id: Guid): Promise<void> {
             return $.get(`/collector/delete/${id}`);
         }
-    }
+    };
 
     static accounts = {
         login(user: string, password: string, remember: boolean): Promise<AdminData> {

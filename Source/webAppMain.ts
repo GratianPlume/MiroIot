@@ -556,6 +556,12 @@ const srAngularApp = angular
                     $scope.adminData.manager = data;
                 });
             });
+            $iot.collector.load().then(data => {
+                $timeout(() => {
+                    $scope.adminData.urls = data;
+                    $scope.urlViews = angular.copy(data);
+                });
+            });
 
         };
         /*管理界面视图切换开始*/
@@ -801,18 +807,34 @@ const srAngularApp = angular
         };
         /*修改密码结束*/
         // 转发配置
-        
         //添加url
         $scope.addUrl = item => {
-
+            $scope.putUrlDisable = true;
+            $iot.collector.put(item).then(data => {
+                $timeout(()=> {
+                    item.id = data;
+                    $scope.adminData.urls.push(angular.copy(item));
+                    $scope.putUrlDisable = false;
+                });
+            });
         };
         //添加新的url视图
         $scope.addNewUrlView = ()=> {
-
+            $scope.urlViews.push({} as any);
         };
         //删除url
         $scope.delUrl = (index,id)=> {
-
+            if(id) {
+                $iot.collector.delete(id).then(()=> {
+                    $timeout(()=> {
+                        $scope.adminData.urls = $scope.adminData.urls.filter(x => x.id !== id);
+                        $scope.urlViews.splice(index,1);
+                    });
+                });
+            } else {
+                $scope.urlViews.splice(index,1);
+            }
+            
         };
         $scope.communityData = new MainView();
 

@@ -173,6 +173,7 @@ interface Scope extends angular.IScope {
     cardPersonnel: { x?: string };
     whoFile: Adfile;
     adminData: AdminView;
+    urlViews: UrlObj[];
     searchData: {
         GateList: DeviceView[];
         Gate?: string;
@@ -235,6 +236,7 @@ interface Scope extends angular.IScope {
     generateInviteCode(remark: string): void;
     changepwd(oldPwd: string, newPwd: string): void;
     addUrl(item: UrlObj);
+    putUrlDisable:boolean;
     addNewUrlView(): void;
     delUrl(index: number,id: string)
     chooseDevice(device: Device): void;

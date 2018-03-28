@@ -180,13 +180,13 @@
                         </div>
                     </td>
                     <td>
-                        <button 
-                            class="btn btn-warning btn-xs glyphicon glyphicon-remove" 
-                            ng-click="addUrl(item)">
+                        <button
+                            class="btn btn-warning btn-xs glyphicon glyphicon-remove"
+                            ng-click="delUrl($index,item.id)" >
                         </button>
-                        <button 
+                        <button ng-disabled="putUrlDisable"
                             class="btn btn-success btn-xs glyphicon glyphicon-ok" 
-                            ng-click="delUrl($index,item.id)">
+                            ng-click="addUrl(item)">
                         </button>
                     </td>
                 </tr>
