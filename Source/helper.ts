@@ -19,13 +19,20 @@ class MainView {
     ADunAuthDevice: Dict<Device>;
     queryAddress: CommunityData = {};
 }
-
+interface UrlObj {
+    name: string;
+    url: string;
+    token: string;
+    remark: string;
+    id?: string;
+}
 class AdminView {
     name = "";
     communities: CommunityDetail[] = [];
     manager = Dict.zero<AdminData>();
     level: number;
     Advertising: Adfile[] = [];
+    urls: UrlObj[];
 }
 
 class TimeConvert {

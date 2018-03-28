@@ -138,6 +138,60 @@
                 </form>
             </div>
         </div>
+        <!-- 转发管理 -->
+        <div ng-switch-when="4">
+            <table class="table col-lg-12 table-hover table-condensed well">
+                <thead>
+                    <tr class="bg-danger">
+                        <th>名称</th>
+                        <th>URL</th>
+                        <th>Token</th>
+                        <th>备注</th>
+                        <th><button class="btn btn-success btn-xs glyphicon glyphicon-plus" ng-click="addNewUrlView()"></button></th>
+                    </tr>
+                </thead>
+                <tr ng-repeat="item in urlViews">
+                    <td>
+                        <div class="form-inline">
+                            <div class="form-group">
+                                <input type="text" class="form-control input-sm" ng-model="item.name">
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-inline">
+                            <div class="form-group">
+                                <input type="url" class="form-control input-sm" ng-model="item.url">
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-inline">
+                            <div class="form-group">
+                                <input type="text" class="form-control input-sm" ng-model="item.token">
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-inline">
+                            <div class="form-group">
+                                <input type="text" class="form-control input-sm" ng-model="item.remark">
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <button 
+                            class="btn btn-warning btn-xs glyphicon glyphicon-remove" 
+                            ng-click="addUrl(item)">
+                        </button>
+                        <button 
+                            class="btn btn-success btn-xs glyphicon glyphicon-ok" 
+                            ng-click="delUrl($index,item.id)">
+                        </button>
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div>
     <!--模态框for编辑小区-->
     <div class="modal" id="editCommunity" tabindex="-1" role="dialog">

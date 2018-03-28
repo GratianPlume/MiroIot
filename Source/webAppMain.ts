@@ -556,9 +556,16 @@ const srAngularApp = angular
                     $scope.adminData.manager = data;
                 });
             });
+
         };
         /*管理界面视图切换开始*/
-        $scope.adminViewList = [{ control: 0, name: "小区列表" }, { control: 1, name: "管理员列表" }, { control: 2, name: "生成邀请码" }, { control: 3, name: "修改密码" }];
+        $scope.adminViewList = [
+            { control: 0, name: "小区列表" }, 
+            { control: 1, name: "管理员列表" }, 
+            { control: 2, name: "生成邀请码" }, 
+            { control: 3, name: "修改密码" },
+            { control: 4, name: "转发配置"}
+        ];
         $scope.viewSwitch = { mode: 0 };
         $scope.switchView = control => {
             $scope.viewSwitch.mode = control;
@@ -793,7 +800,20 @@ const srAngularApp = angular
                 });
         };
         /*修改密码结束*/
+        // 转发配置
+        
+        //添加url
+        $scope.addUrl = item => {
 
+        };
+        //添加新的url视图
+        $scope.addNewUrlView = ()=> {
+
+        };
+        //删除url
+        $scope.delUrl = (index,id)=> {
+
+        };
         $scope.communityData = new MainView();
 
         /*小区结构开始*/

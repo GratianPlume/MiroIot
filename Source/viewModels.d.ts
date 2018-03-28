@@ -234,6 +234,9 @@ interface Scope extends angular.IScope {
     showList(): void;
     generateInviteCode(remark: string): void;
     changepwd(oldPwd: string, newPwd: string): void;
+    addUrl(item: UrlObj);
+    addNewUrlView(): void;
+    delUrl(index: number,id: string)
     chooseDevice(device: Device): void;
     chooseDeviceStyle(device: Device): string;
     addAddress(person: PersonView): void;
