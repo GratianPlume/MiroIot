@@ -45,6 +45,24 @@ class Iot {
         Iot.comms.addOrUpdate(y.id, y);
         return y;
     }
+
+    static collector = {
+        load():Promise<UrlObj[]> {
+            return $.get("/collector");
+        },
+        put(item: UrlObj): Promise<Guid> {
+            return ($.ajax({
+                type: "put",
+                url: "/collector",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(item)
+            }));
+        },
+        delete(id: Guid): Promise<void> {
+            return $.get(`/collector/delete/${id}`);
+        }
+    }
+
     static accounts = {
         login(user: string, password: string, remember: boolean): Promise<AdminData> {
             const loginData = {
