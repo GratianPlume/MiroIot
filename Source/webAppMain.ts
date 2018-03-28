@@ -177,6 +177,7 @@ const srAngularApp = angular
         }
     })
     .filter("bindingroomToaddress", ($iot: typeof Iot) => (room: string): string => {
+        console.log(room);
         if (!room || room.length !== 10) return "";
         const blockId = room.slice(0, 4);
         const block = $iot.current.arch.communityX.items.$[blockId];
@@ -2251,10 +2252,9 @@ const srAngularApp = angular
                         $scope.alreadyBinding = true; //启用选择绑定房号下拉框
                     }
                     $scope.bindingRoom = flats.toArray(
-                        x =>
-                            <BindingRoom>{
+                        x =><BindingRoom> {
                                 room: x.id,
-                                id: authDeviceAddress[0].slice(0, 6) + x
+                                id: authDeviceAddress[0].slice(0, 6) + x.id
                             }
                     );
                 })
