@@ -227,6 +227,7 @@ interface CommunityDetail extends Identifiable<Guid> {
     name?: string;
     area?: number;
     remark?: string;
+    url?:string;
 }
 
 interface AdminData {

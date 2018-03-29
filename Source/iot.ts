@@ -144,11 +144,12 @@ class Iot {
     };
 
     static communities = {
-        modify(id: Guid, name: string, remark: string): Promise<boolean> {
+        modify(id: Guid, name: string, remark: string,url: string): Promise<boolean> {
             const editData = {
                 id: id,
                 name: name,
-                remark: remark
+                remark: remark,
+                url:url
             };
             return $.ajax({
                 type: "POST",

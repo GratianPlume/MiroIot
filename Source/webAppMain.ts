@@ -139,6 +139,9 @@ const srAngularApp = angular
     .filter("relativeText", () => (value: Relative): string =>
         value ? Helper.relativeConstans[value - 1].name : ""
     )
+    .filter("urlIdToName", ()=> (id: string,urls: UrlObj[]) => {
+       return urls.filter(x=> x.id === id)[0].name;
+    })
     .filter("roomName", ($iot: typeof Iot) => (input: Guid): string => {
         const id = $iot.current.id;
         const x = $iot.communities.flatten(id, input);
@@ -558,19 +561,20 @@ const srAngularApp = angular
             });
             $iot.collector.load().then(data => {
                 $timeout(() => {
-                    $scope.adminData.urls = data;
                     $scope.urlViews = angular.copy(data);
+                    $scope.adminData.urls = data;
+                    $scope.adminData.urls.unshift({name:"禁用"} as any);
                 });
             });
 
         };
         /*管理界面视图切换开始*/
         $scope.adminViewList = [
-            { control: 0, name: "小区列表" }, 
-            { control: 1, name: "管理员列表" }, 
-            { control: 2, name: "生成邀请码" }, 
+            { control: 0, name: "小区列表" },
+            { control: 1, name: "管理员列表" },
+            { control: 2, name: "生成邀请码" },
             { control: 3, name: "修改密码" },
-            { control: 4, name: "转发配置"}
+            { control: 4, name: "转发配置" }
         ];
         $scope.viewSwitch = { mode: 0 };
         $scope.switchView = control => {
@@ -584,20 +588,22 @@ const srAngularApp = angular
             $("#editCommunity").modal("show");
             $scope.newCommunityName = community.name;
             $scope.newCommunityRemark = community.remark;
+            $scope.newCommunityUrl = community.url;
         };
-        $scope.editCommunity = (name, remark) => {
+        $scope.editCommunity = (name, remark, url) => {
             if (!name) {
                 alert("请填写名称");
                 return;
             }
             $iot.communities
-                .modify(editCommunityData.id, name, remark)
+                .modify(editCommunityData.id,name,remark,url)
                 .then(data => {
                     if (data) {
                         alert("修改成功！");
                         $timeout(() => {
                             editCommunityData.name = name;
                             editCommunityData.remark = remark;
+                            editCommunityData.url = url;
                         });
                     }
                 })
@@ -812,31 +818,51 @@ const srAngularApp = angular
             if (item.url && item.token) {
                 $scope.putUrlDisable = true;
                 $iot.collector.put(item).then(data => {
-                    $timeout(()=> {
+                    $timeout(() => {
                         item.id = data;
                         $scope.adminData.urls.push(angular.copy(item));
                         $scope.putUrlDisable = false;
+                        $("#operationUrlInfo").popover({
+                            trigger: "manual",
+                            content: "操作成功"
+                        });
+                        $("#operationUrlInfo").popover("show");
+                        $timeout(() => {
+                            $("#operationUrlInfo").popover("hide");
+                        }, 2000);
                     });
+                }).catch(() => {
+                    $("#operationUrlInfo").popover({
+                        trigger: "manual",
+                        content: "操作失败"
+                    });
+                    $("#operationUrlInfo").popover("show");
+                    $timeout(() => {
+                        $("#operationUrlInfo").popover("hide");
+                    }, 3000);
                 });
             }
         };
         //添加新的url视图
-        $scope.addNewUrlView = ()=> {
+        $scope.addNewUrlView = () => {
             $scope.urlViews.push({} as any);
         };
         //删除url
-        $scope.delUrl = (index,id)=> {
-            if(id) {
-                $iot.collector.delete(id).then(()=> {
-                    $timeout(()=> {
-                        $scope.adminData.urls = $scope.adminData.urls.filter(x => x.id !== id);
-                        $scope.urlViews.splice(index,1);
+        $scope.delUrl = (index, id) => {
+            if (id) {
+                const sure = confirm("确认输出这个转发地址吗");
+                if (sure) {
+                    $iot.collector.delete(id).then(() => {
+                        $timeout(() => {
+                            $scope.adminData.urls = $scope.adminData.urls.filter(x => x.id !== id);
+                            $scope.urlViews.splice(index, 1);
+                        });
                     });
-                });
+                }
+
             } else {
-                $scope.urlViews.splice(index,1);
+                $scope.urlViews.splice(index, 1);
             }
-            
         };
         $scope.communityData = new MainView();
 
@@ -2296,10 +2322,10 @@ const srAngularApp = angular
                         $scope.alreadyBinding = true; //启用选择绑定房号下拉框
                     }
                     $scope.bindingRoom = flats.toArray(
-                        x =><BindingRoom> {
-                                room: x.id,
-                                id: authDeviceAddress[0].slice(0, 6) + x.id
-                            }
+                        x => <BindingRoom>{
+                            room: x.id,
+                            id: authDeviceAddress[0].slice(0, 6) + x.id
+                        }
                     );
                 })
                 .none(() => {

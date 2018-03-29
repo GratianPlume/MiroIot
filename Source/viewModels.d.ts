@@ -114,6 +114,7 @@ interface Scope extends angular.IScope {
     GradeValue: string;
     newCommunityName: string;
     newCommunityRemark: string;
+    newCommunityUrl:string;
     editedAdmin: string;
     choosedeviceGuid: string;
     newDevicepwd: string;
@@ -225,7 +226,7 @@ interface Scope extends angular.IScope {
     functionalView(): void;
     getAdminList(): void;
     openEditCommunity(community: CommunityDetail): void;
-    editCommunity(name: string, remark: string): void;
+    editCommunity(name: string, remark: string, url: string): void;
     deleteCommunity(): void;
     createNewCommunity(area: number, name: string, remark: string): void;
     deleteAdmin(): void;
