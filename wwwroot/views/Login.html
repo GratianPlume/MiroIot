@@ -16,9 +16,11 @@
         </div>
     </form>
     <form class="form-signin" name="registerForm" role="form" ng-hide="Login_register" ng-submit="registerActive(registerUserName,registerPassWord,invitationCode)">
+        <input type="text" style="display: none">
+        <input type="password" style="display: none;">
         <input type="text" class="form-control userName" placeholder="用户名" ng-model="registerUserName" required autofocus>
         <input type="password" class="form-control registerPassword" placeholder="密码" ng-model="registerPassWord" required>
-        <input type="text" class="form-control registerCode" placeholder="邀请码" ng-model="invitationCode" required autofocus>
+        <input type="text" class="form-control registerCode" placeholder="邀请码" ng-model="invitationCode" required>
         <button class="btn btn-lg btn-primary btn-block" type="submit" ng-disabled="registerForm.$invalid">注册</button>
         <span class="badge"></span>
         <div>
