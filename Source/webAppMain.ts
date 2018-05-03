@@ -1,6 +1,7 @@
 ﻿/// <reference path="./node_modules/@types/bootstrap/index.d.ts" />
 /// <reference path="./node_modules/@types/bootstrap-treeview/index.d.ts" />
 /// <reference path="./node_modules/@types/angular-route/index.d.ts" />
+/// <reference path="./node_modules/@types/jqueryui/index.d.ts"/>
 /// <reference path="./local.d.ts" />
 const srAngularApp = angular
     .module("srAngular", ["ngRoute"])
@@ -139,8 +140,9 @@ const srAngularApp = angular
     .filter("relativeText", () => (value: Relative): string =>
         value ? Helper.relativeConstans[value - 1].name : ""
     )
-    .filter("urlIdToName", ()=> (id: string,urls: UrlObj[]) => {
-       return urls.filter(x=> x.id === id)[0].name;
+    .filter("urlIdToName", () => (id: string, urls: UrlObj[]) => {
+        if (!urls) return "";
+        return urls.filter(x => x.id === id)[0].name;
     })
     .filter("roomName", ($iot: typeof Iot) => (input: Guid): string => {
         const id = $iot.current.id;
@@ -525,11 +527,12 @@ const srAngularApp = angular
             }
             if (sideUrlChoose === 2) {
                 $(".addPersonnel").on("show.bs.modal", () => {
+                    $(".addPersonnel").draggable();
                     $timeout(() => {
                         // 初始化数据
                         refreshOrNo = true;
                         const rooms = $scope.newPerson.rooms;
-                        $scope.newPerson = {} as any;
+                        $scope.newPerson = { head:"data:image/png;base64,"} as any;
                         $scope.newPerson.rooms = rooms;
                         if ($scope.newPerson.rooms.length === 0)
                             $scope.newPerson.rooms.push({} as any);
@@ -563,7 +566,7 @@ const srAngularApp = angular
                 $timeout(() => {
                     $scope.urlViews = angular.copy(data);
                     $scope.adminData.urls = data;
-                    $scope.adminData.urls.unshift({name:"禁用"} as any);
+                    $scope.adminData.urls.unshift({ name: "禁用" } as any);
                 });
             });
 
@@ -596,7 +599,7 @@ const srAngularApp = angular
                 return;
             }
             $iot.communities
-                .modify(editCommunityData.id,name,remark,url)
+                .modify(editCommunityData.id, name, remark, url)
                 .then(data => {
                     if (data) {
                         alert("修改成功！");
@@ -815,7 +818,7 @@ const srAngularApp = angular
         // 转发配置
         //添加url
         $scope.addUrl = item => {
-            if (item.url && item.token) {
+            if (item.name && item.url && item.token) {
                 $scope.putUrlDisable = true;
                 $iot.collector.put(item).then(data => {
                     $timeout(() => {
@@ -1816,7 +1819,7 @@ const srAngularApp = angular
                 if (room.rentalStart && room.rentalEnd) {
                     return angular.copy(room);
                 } else {
-                    alert("请选择租赁区间");
+                    alert("需要提供租赁时间");
                     return undefined;
                 }
             } else {
@@ -1928,12 +1931,38 @@ const srAngularApp = angular
             return result;
         }
 
+        function isComplete(person: PersonView) {
+            return person.name &&
+                person.tel &&
+                person.id &&
+                person.idAddress &&
+                person.district &&
+                person.domicile &&
+                person.fluidity &&
+                (person.head || "").substring(22) &&
+                person.kind &&
+                person.nation &&
+                person.regCode &&
+                person.sex &&
+                person.idValidBegin &&
+                (person.permanent || person.idValidEnd) &&
+                person.birthday;
+        }
+
         //添加人员
         $scope.addPersonnel = person => {
-            if (!person.name) {
-                alert("请填写姓名!");
-                return;
+            if ($iot.strictPolice) {
+                if (!isComplete(person)) {
+                    alert("人员信息不完整。");
+                    return;
+                }
+            } else {
+                if (!person.name) {
+                    alert("请填写姓名!");
+                    return;
+                }
             }
+
             const rooms = mapRoomViews(person.rooms);
             if (rooms === undefined) return;
 
@@ -2086,10 +2115,19 @@ const srAngularApp = angular
         };
         //修改人员
         $scope.editPerson = person => {
-            if (!person.name) {
-                alert("请填写姓名!");
-                return;
+
+            if ($iot.strictPolice) {
+                if (!isComplete(person)) {
+                    alert("人员信息不完整。");
+                    return;
+                }
+            } else {
+                if (!person.name) {
+                    alert("请填写姓名!");
+                    return;
+                }
             }
+
             const rooms = mapRoomViews(person.rooms);
             if (rooms === undefined) return;
 

@@ -14,6 +14,7 @@ class Iot {
     static startTime: string;
     static title: string;
     static advertisingMode: boolean;
+    static strictPolice: boolean;
     static comms = Dict.zero<Community>();
     static current: Community;
 

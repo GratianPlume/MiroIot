@@ -22,6 +22,7 @@ class MainView {
 interface UrlObj {
     name: string;
     url: string;
+    key: string;
     token: string;
     remark: string;
     id?: string;

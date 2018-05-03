@@ -239,7 +239,7 @@ interface Scope extends angular.IScope {
     addUrl(item: UrlObj);
     putUrlDisable:boolean;
     addNewUrlView(): void;
-    delUrl(index: number,id: string)
+    delUrl(index: number,id: string);
     chooseDevice(device: Device): void;
     chooseDeviceStyle(device: Device): string;
     addAddress(person: PersonView): void;
