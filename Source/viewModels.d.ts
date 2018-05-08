@@ -222,7 +222,7 @@ interface Scope extends angular.IScope {
     accountUrl(num: number): string;
     login(user: string, password: string, remember: boolean): void;
     changeLogin(): void;
-    registerActive(user: string, password: string, inviteCode: string): void;
+    registerActive(user: string, password: string, password2: string, inviteCode: string): void;
     functionalView(): void;
     getAdminList(): void;
     openEditCommunity(community: CommunityDetail): void;

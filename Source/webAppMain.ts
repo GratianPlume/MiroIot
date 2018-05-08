@@ -405,8 +405,12 @@ const srAngularApp = angular
             $scope.Login_register = !$scope.Login_register;
             $("#errorText").text("");
         };
-        $scope.registerActive = (user, pwd, code) => {
-            if (user && pwd && code) {
+        $scope.registerActive = (user, pwd, pwd2, code) => {
+            if (!user || !pwd || !code) {
+                alert("请填写完所有数据！");
+            } else if (pwd !== pwd2) {
+                alert("两次密码输入不一致。");
+            } else {
                 $iot.accounts
                     .register(user, pwd, code)
                     .then(data => {
@@ -419,8 +423,6 @@ const srAngularApp = angular
                         }
                     })
                     .catch(err => console.log(err));
-            } else {
-                alert("请填写完所有数据！");
             }
         };
         /*注册登录结束*/
@@ -532,7 +534,7 @@ const srAngularApp = angular
                         // 初始化数据
                         refreshOrNo = true;
                         const rooms = $scope.newPerson.rooms;
-                        $scope.newPerson = { head:"data:image/png;base64,"} as any;
+                        $scope.newPerson = { head: "data:image/png;base64," } as any;
                         $scope.newPerson.rooms = rooms;
                         if ($scope.newPerson.rooms.length === 0)
                             $scope.newPerson.rooms.push({} as any);
@@ -1196,7 +1198,7 @@ const srAngularApp = angular
         //删除楼
         $scope.deleteBuilding = () => {
             for (let i = 0; i < treeData[0].nodes.length; i++) {
-                if (treeData[0].nodes[i].blockName === blockData.blockNumber) {
+                if (treeData[0].nodes[i].blockNumber === blockData.blockNumber) {
                     if ($scope.communityData.devices.some(t => Helper.deviceAddressToStr(t.address).slice(0, 4) === blockData.blockNumber)) {
                         alert("请先清除节点下的设备！");
                         return;
