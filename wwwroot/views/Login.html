@@ -15,20 +15,11 @@
             <p>还没有账号？ <a ng-click="changeLogin()">注册</a></p>
         </div>
     </form>
-<<<<<<< HEAD
     <form class="form-signin" name="registerForm" role="form" ng-hide="Login_register" ng-submit="registerActive(registerUserName,registerPassWord,registerPassWord2,invitationCode)">
         <input type="text" class="form-control userName" placeholder="用户名" ng-model="registerUserName" required autofocus>
         <input type="password" autocomplete="new-password" class="form-control registerPassword" placeholder="输入密码" ng-model="registerPassWord" required>
         <input type="password" autocomplete="new-password" class="form-control registerPassword" placeholder="再次输入密码" ng-model="registerPassWord2" required>
         <input type="text" autocomplete="off" class="form-control registerCode" placeholder="邀请码" ng-model="invitationCode" required autofocus>
-=======
-    <form class="form-signin" name="registerForm" role="form" ng-hide="Login_register" ng-submit="registerActive(registerUserName,registerPassWord,invitationCode)">
-        <input type="text" style="display: none">
-        <input type="password" style="display: none;">
-        <input type="text" class="form-control userName" placeholder="用户名" ng-model="registerUserName" required autofocus>
-        <input type="password" class="form-control registerPassword" placeholder="密码" ng-model="registerPassWord" required>
-        <input type="text" class="form-control registerCode" placeholder="邀请码" ng-model="invitationCode" required>
->>>>>>> 5abf9822481744429d24c8ee6b9e1936a76c6727
         <button class="btn btn-lg btn-primary btn-block" type="submit" ng-disabled="registerForm.$invalid">注册</button>
         <span class="badge"></span>
         <div>
