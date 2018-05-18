@@ -330,6 +330,11 @@ class Dict<TValue> {
         }
         return new Dict<TValue>(x, this.length);
     }
+
+    sort(keySelector: KeySelector<TValue>, compareFn) {
+        const arr = this.toArray().sort(compareFn) as ReadonlyArray<TValue>;
+        return Dict.ofArray(keySelector, arr);
+    }
     /**
      * 创建一个空的字典
      * @param keySelector 键选择器
@@ -343,13 +348,19 @@ class Dict<TValue> {
         const src = arr || [];
         return new Dict<T | R>(Dict.arrToDicc(keySelector, src, mapping), src.length);
     }
-    static orderByArray<T>(keySelector: KeySelector<T>, arr: ReadonlyArray<T>, sortKeySelector: KeySelector<T>): Dict<T>;
-    static orderByArray<T, R>(keySelector: KeySelector<R>, arr: ReadonlyArray<T>, sortKeySelector: KeySelector<T>, mapping: (source: T) => R): Dict<R>;
-    static orderByArray<T, R>(keySelector: KeySelector<T | R>, arr: ReadonlyArray<T>, sortKeySelector: KeySelector<T>, mapping?: (source: T) => R): Dict<T | R> {
+    static orderByArray<T>(keySelector: KeySelector<T>, arr: ReadonlyArray<T>, sortSelectors: ReadonlyArray<KeySelector<T>>): Dict<T>;
+    static orderByArray<T, R>(keySelector: KeySelector<R>, arr: ReadonlyArray<T>, sortSelectors: ReadonlyArray<KeySelector<T>>, mapping: (source: T) => R): Dict<R>;
+    static orderByArray<T, R>(keySelector: KeySelector<T | R>, arr: ReadonlyArray<T>, sortSelectors: ReadonlyArray<KeySelector<T>>, mapping?: (source: T) => R): Dict<T | R> {
         const sortedArr: ReadonlyArray<T> = arr.slice(0).sort((a, b) => {
-            const av = sortKeySelector(a);
-            const bv = sortKeySelector(b);
-            return av > bv ? 1 : (av === bv ? 0 : -1);
+            for (let compareFn of sortSelectors) {
+                const av = compareFn(a);
+                const bv = compareFn(b);
+                if (av > bv)
+                    return 1;
+                if (bv > av)
+                    return -1;
+            }
+            return 0;
         });
         return new Dict<T | R>(Dict.arrToDicc(keySelector, sortedArr, mapping), arr.length);
     }
@@ -418,6 +429,20 @@ class Helper {
             return doorStr.slice(-7);
         }
         return "";
+    }
+    static personComparator(a: Person, b: Person) {
+        const id = Iot.current.id;
+        const personAddress = (person: Person) => {
+            return person.rooms
+                .map(x => {
+                    const flat = Iot.communities.flatten(id, x.id);
+                    return flat.block.id + flat.unit.id + flat.flat.id;
+                }).sort()[0];
+        }
+        const av = personAddress(a);
+        const bv = personAddress(b);
+        const result = av.localeCompare(bv);
+        return result ? result : a.name.localeCompare(b.name);
     }
 
     static deviceToView(source: Device): DeviceView {

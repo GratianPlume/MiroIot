@@ -203,7 +203,7 @@ const srAngularApp = angular
     })
     .filter("personFilter", ($filter: Filter) => (viewData: MainView, filter: string): DictCore<Person> => {
         if (!filter) {
-            return viewData.personnel.copy.$;
+            return viewData.personnel.sort(x=>x.nric, Helper.personComparator).$;
         }
         const roomPredicate = (room: RoomBinding) => $filter("roomName")(room.id).indexOf(filter) !== -1 || $filter("roomToAddressid")(room.id).indexOf(filter) !== -1;
         const predicate = (item: Person) => {
@@ -211,14 +211,14 @@ const srAngularApp = angular
                 if (item.hasOwnProperty(prop)) {
                     if (prop === "rooms" && item[prop].some(roomPredicate)) {
                         return true;
-                    } else if (item[prop].toString().indexOf(filter) !== -1) {
+                    } else if (item[prop] && item[prop].toString().indexOf(filter) !== -1) {
                         return true;
                     }
                 }
             }
             return false;
         };
-        return viewData.personnel.filter(predicate).$;
+        return viewData.personnel.filter(predicate).sort(x=>x.nric, Helper.personComparator).$;
     })
     .filter("unAuthDevice_filter", () => (deviceList: Dict<Device>, str: string) => {
         const num = Number(str);
@@ -498,7 +498,8 @@ const srAngularApp = angular
                     person.id = data.baseInfo.id;
                     person.birthday = new Date(data.baseInfo.birthDay);
                     person.idValidBegin = new Date(data.baseInfo.termStart);
-                    person.idValidEnd = new Date(data.baseInfo.termEnd);
+                    person.idValidEnd = data.baseInfo.termEnd ? new Date(data.baseInfo.termEnd): undefined;
+                    person.permanent = !data.baseInfo.termEnd;
                     person.sex = data.baseInfo.sex;
                     person.idAddress = data.baseInfo.address;
                     person.nation = Helper.nationDict.$[data.baseInfo.ethnic].name;
@@ -1880,7 +1881,7 @@ const srAngularApp = angular
                         idAddress: data.address,
                         birthday: new Date(data.birthDay),
                         idValidBegin: new Date(data.validFrom),
-                        idValidEnd: new Date(data.validTo),
+                        idValidEnd: data.validTo ? new Date(data.validTo): undefined,
                         mac: data.phoneMac,
                         nation: data.nation,
                         qq: data.QQ,
@@ -2015,6 +2016,7 @@ const srAngularApp = angular
                     addData.nric = data;
                     $timeout(() => {
                         refreshOrNo = true;
+                        person.head = "data:image/png;base64,";
                         $scope.communityData.personnel.addOrUpdate(data, addData);
                         $scope.alertSuccess = true;
                         $timeout(() => {
@@ -2025,6 +2027,7 @@ const srAngularApp = angular
                 .catch(() => {
                     $timeout(() => {
                         $scope.alertFail = true;
+                        person.head = "data:image/png;base64,";
                         $timeout(() => {
                             $scope.alertFail = false;
                         }, 2000);
@@ -2064,7 +2067,7 @@ const srAngularApp = angular
                 id: $scope.editing ? person.nric : undefined,
                 name: person.name,
                 sex: person.sex,
-                head: person.head ? `data:image/png;base64,${person.head}` : "",
+                head: `data:image/png;base64,${person.head || ""}`,
                 province: pcas[0],
                 city: pcas[1],
                 district: pcas[2],
@@ -2967,21 +2970,34 @@ const srAngularApp = angular
             $scope.authCompleteinfo = [];
             unauthGenerator(authCardList, unAuthDeviceList);
         };
+        /**
+         * 字符串是否出现在人员
+         */ 
+        const aboutPerson = (str: string) => (nric: string) => {
+            const roomPredicate = (room: RoomBinding) => $filter("roomName")(room.id).indexOf(str) !== -1 || $filter("roomToAddressid")(room.id).indexOf(str) !== -1;
+            if (nric.indexOf(str) !== -1) {
+                return true;
+            } else {
+                const people = $scope.communityData.personnel.$[nric];
+                if (people && (people.name.indexOf(str) !== -1 || people.rooms.some(roomPredicate))) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         //卡片查询过滤器
         $scope.cardFilter = str => {
+            const personPredicate = aboutPerson(str);
             $scope.card_viewData = !str
                 ? $scope.communityData.cards.slice(0)
                 : $scope.communityData.cards.filter(item => {
                     for (const prop in item) {
                         if (item.hasOwnProperty(prop)) {
-                            if (prop === "serial") {
-                                if (item[prop].indexOf(str) !== -1) {
-                                    return true;
-                                }
-                            } else if (prop === "nric") {
-                                if (item[prop].indexOf(str) !== -1 || $filter("nricToname")(item[prop], $scope.communityData.personnel).indexOf(str) !== -1) {
-                                    return true;
-                                }
+                            if (prop === "serial" && item[prop].indexOf(str) !== -1) {
+                                return true;
+                            } else if (prop === "nric" && personPredicate(item[prop])) {
+                                return true;
                             }
                         }
                     }
@@ -3504,29 +3520,19 @@ const srAngularApp = angular
         };
         //指纹查询过滤器
         $scope.fingerprintFilter = str => {
-            if (!str) {
-                $scope.fingerprint_viewData = $scope.communityData.Fingerprints.slice(0);
-                return;
-            }
-            const filterData: Fingerprint[] = [];
-            $scope.communityData.Fingerprints.forEach(item => {
-                for (const prop in item) {
-                    if (item.hasOwnProperty(prop)) {
-                        if (prop === "nric") {
-                            if (item[prop].indexOf(str) !== -1) {
-                                filterData.push(item);
-                                break;
-                            } else {
-                                if ($filter("nricToname")(item[prop], $scope.communityData.personnel).indexOf(str) !== -1) {
-                                    filterData.push(item);
-                                    break;
-                                }
+            const personPredicate = aboutPerson(str);
+            $scope.fingerprint_viewData = (!str)
+                ? $scope.communityData.Fingerprints.slice(0)
+                : $scope.communityData.Fingerprints.filter(item => {
+                    for (const prop in item) {
+                        if (item.hasOwnProperty(prop)) {
+                            if (prop === "nric" && personPredicate(item[prop])) {
+                                return true;
                             }
                         }
                     }
-                }
-            });
-            $scope.fingerprint_viewData = filterData;
+                    return false;
+                });
         };
         /*指纹管理结束*/
 
@@ -3966,7 +3972,7 @@ const srAngularApp = angular
             $iot.ranger.devices.get(comid).then((data: Device[]) => {
                 $timeout(() => {
                     const dataView = data.map(Helper.deviceToView);
-                    $scope.searchData.GateList = orderBy(dataView, "Name");
+                    $scope.searchData.GateList = orderBy(dataView, "address");
                     $scope.searchData.GateList.unshift({
                         id: "",
                         address: "全部"

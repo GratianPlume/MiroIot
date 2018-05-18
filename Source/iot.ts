@@ -261,7 +261,7 @@ class Iot {
             else {
                 ($.get(`Devices/Folk/${communityId}`) as Promise<Device[]>)
                     .then(x => {
-                        const data = Dict.orderByArray<Device>(t => t.id, x, t => t.address);
+                        const data = Dict.orderByArray<Device>(t => t.id, x, [t => t.address]);
                         Iot.getCommunity(communityId).devices = data;
                         callbackfn(data);
                     });

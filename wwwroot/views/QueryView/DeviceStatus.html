@@ -95,7 +95,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="X in Status">
+                <tr ng-repeat="X in Status | orderBy:'-timestamp'">
                     <td style="text-align:center">{{$index }}</td>
                     <td style="text-align:center">{{comName}}</td>
                     <td style="text-align:center">{{X.address| deviceAddress}}</td>
