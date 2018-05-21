@@ -32,7 +32,7 @@
                     <td>{{item.nric | nricFilter}}</td>
                     <td>
                         <table>
-                            <tr ng-repeat="room in item.rooms">
+                            <tr ng-repeat="room in item.rooms | orderBy:'id':false:roomComparator">
                                 <td>{{room.id | roomName}}</td>
                             </tr>
                         </table>

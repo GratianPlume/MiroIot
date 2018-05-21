@@ -125,6 +125,7 @@ interface Scope extends angular.IScope {
     rentalEnd: string;
     newPerson: PersonView;
     curPerson: PersonView;
+    roomComparator(roomId1: Guid, roomId2: Guid): number;
     roomSample: RoomView;
     chooseBackColor: string;
     moreQuery: string;

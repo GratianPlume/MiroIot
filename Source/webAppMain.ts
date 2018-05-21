@@ -152,6 +152,8 @@ const srAngularApp = angular
     .filter("roomToAddressid", ($iot: typeof Iot) => (input: Guid): string => {
         const id = $iot.current.id;
         const x = $iot.communities.flatten(id, input);
+        if (!x)
+            return "";
         return x.block.id + x.unit.id + x.flat.id;
     })
     .filter("nricFilter", () => (nric: string) => (nric.length > 18 ? "" : nric))
@@ -703,11 +705,12 @@ const srAngularApp = angular
             $scope.editedAdminCommunities = Helper.arrToDic<CommunityDetail>(manager.communities);
             //未授权小区列表
             if ($scope.editedAdminCommunities.length === 0) {
-                $scope.uneditedAdminCommunities = Helper.arrToDic<CommunityDetail>(manager.communities);
+                $scope.uneditedAdminCommunities = Helper.arrToDic<CommunityDetail>($scope.adminData.communities);
             } else {
-                $scope.uneditedAdminCommunities = Seq.ofArray($scope.adminData.communities)
+                $scope.uneditedAdminCommunities = Seq
+                    .ofArray($scope.adminData.communities)
                     .filter(x => !$scope.editedAdminCommunities.containKey(x.id))
-                    .toDict();
+                    .toDict(x => x.id);
             }
         };
         //授权小区
@@ -989,6 +992,7 @@ const srAngularApp = angular
                         $scope.addTree = false;
                     });
                 } else {
+                    data.name = com.name;
                     treeData = Helper.toTreeItem(data);
                     $("#tree").treeview({
                         data: treeData, // 数据不是可选的
@@ -1773,6 +1777,11 @@ const srAngularApp = angular
         /*小区结构结束*/
 
         /*人员管理开始*/
+        $scope.roomComparator = (id1: Guid, id2: Guid) => {
+            const a = $filter("roomToAddressid")(id1);
+            const b = $filter("roomToAddressid")(id2);
+            return a.localeCompare(b);
+        }
         $scope.editing = true;
         $scope.nationList = Helper.nationList;
         $scope.pac = Helper.pcaCode;

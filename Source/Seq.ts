@@ -25,9 +25,10 @@ class Seq<T> {
         };
         return new Seq<T>(this._iter, combo);
     }
-    toDict() {
+    toDict(keySelector: KeySelector<T>) {
         const dict = Dict.zero<T>();
-        this._iter(this._state(dict.tryAdd.bind(dict)));
+        const cont: (x: T) => void = x => dict.tryAdd(keySelector(x), x);
+        this._iter(this._state(cont));
         console.log(dict);
         return dict;
     }
