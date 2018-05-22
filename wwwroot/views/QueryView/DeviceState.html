@@ -22,8 +22,8 @@
                     <td style="text-align:center">{{$index+1}}</td>
                     <td style="text-align:center">{{item.address| deviceAddress}}</td>
                     <td style="text-align:center">{{item.remark}}</td>
-                    <td style="text-align:center" ng-class="{{item.isOpened ? 'text-danger' : ''}}">{{item.isOpened ? "打开" : "关闭"}}</td>
-                    <td style="text-align:center" ng-class="{{item.isOnline ? '' : 'text-muted'}}">{{item.isOnline ? "在线" : "离线"}}</td>
+                    <td style="text-align:center" ng-class="{'text-danger':item.isOpened}">{{item.isOnline ? (item.isOpened ? "打开" : "关闭"):""}}</td>
+                    <td style="text-align:center" ng-class="{'text-danger':!item.isOnline}">{{item.isOnline ? "在线" : "离线"}}</td>
                 </tr>
             </tbody>
         </table>

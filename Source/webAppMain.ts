@@ -3668,6 +3668,7 @@ const srAngularApp = angular
         //设备状态
         $scope.StatusIds = Helper.statusConstans;
         $scope.StatusId = undefined;
+        $scope.listState = false;
         $scope.QueryStatus = (com, gate, statusid) => {
             if (!com || com.length === 0) return;
             //查询的小区
@@ -3700,11 +3701,12 @@ const srAngularApp = angular
         $scope.getStates = (com) => {
             if (!com || com.length === 0) return;
             $iot.devices.status(com).then(data => {
-                $timeout(function(){
+                $timeout(() => {
+                    $scope.listState = true;
                     $scope.deviceStatus = data;
-                })
+                });
             }).catch(err => {
-                console.log(err)
-            })
+                console.log(err);
+            });
         }
     });

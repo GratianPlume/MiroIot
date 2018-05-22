@@ -319,7 +319,8 @@ interface Scope extends angular.IScope {
     QueryRecord(com: string, gate: string, event: number, name: string, nric: string, phone: string, addressBuilding: BlockData, addressUnit: UnitData, addressRoom: FlatData): void;
     detail(id: string, eventType: string): void;
     QueryStatus(com: string, gate: string, statusid: number): void;
-    deviceStatus:DeviceStatus[] ;
+    deviceStatus:DeviceStatus[];
+    listState: boolean;
     getStates(com: string): void;
     enlargeImg(): void;
     restoreImg(): void;
