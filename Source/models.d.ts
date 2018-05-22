@@ -166,6 +166,13 @@ interface Device {
     remark: string;
 }
 
+interface DeviceStatus {
+    address: number;
+    isOpened: boolean;
+    remark: string;
+    isOnline: boolean;
+}
+
 interface Auth {
     deviceId: Guid;
     expire?: number;

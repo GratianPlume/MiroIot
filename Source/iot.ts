@@ -254,6 +254,9 @@ class Iot {
     };
 
     static devices = {
+        status(communityId: Guid) {
+            return $.get(`Devices/Status/${communityId}`) as Promise<DeviceStatus[]>;
+        },
         items(communityId: Guid, callbackfn: (x: Dict<Device>) => void) {
             const devices = Iot.getCommunity(communityId).devices;
             if (devices)
