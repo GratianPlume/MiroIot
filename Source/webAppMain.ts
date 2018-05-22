@@ -3554,6 +3554,10 @@ const srAngularApp = angular
                     sideUrlChooseQuery = 2;
                     $scope.selectedView = 2;
                     return;
+                case 3:
+                    sideUrlChooseQuery = 3;
+                    $scope.selectedView = 3;
+                    return;    
             }
         };
         $scope.functionalQueryView = () => {
@@ -3562,6 +3566,8 @@ const srAngularApp = angular
                     return "views/QueryView/record.html?" + $iot.startTime;
                 case 2:
                     return "views/QueryView/DeviceStatus.html?" + $iot.startTime;
+                case 3:
+                    return "views/QueryView/DeviceState.html?" + $iot.startTime;
                 default:
                     sideUrlChooseQuery = 1;
                     return "views/QueryView/record.html?" + $iot.startTime;
@@ -3691,4 +3697,14 @@ const srAngularApp = angular
                     console.log(err);
                 });
         };
+        $scope.getStates = (com) => {
+            if (!com || com.length === 0) return;
+            $iot.devices.status(com).then(data => {
+                $timeout(function(){
+                    $scope.deviceStatus = data;
+                })
+            }).catch(err => {
+                console.log(err)
+            })
+        }
     });
