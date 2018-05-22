@@ -81,6 +81,12 @@ interface PersonView {
     rooms?: RoomView[];
 }
 
+interface CompareValue {
+    type: string;
+    index: number;
+    value: string;
+}
+
 interface Scope extends angular.IScope {
     asideView: boolean;
     addTree: boolean;
@@ -125,7 +131,7 @@ interface Scope extends angular.IScope {
     rentalEnd: string;
     newPerson: PersonView;
     curPerson: PersonView;
-    roomComparator(roomId1: Guid, roomId2: Guid): number;
+    roomComparator(roomId1: CompareValue, roomId2: CompareValue): number;
     roomSample: RoomView;
     chooseBackColor: string;
     moreQuery: string;

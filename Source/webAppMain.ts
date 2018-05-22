@@ -205,7 +205,7 @@ const srAngularApp = angular
     })
     .filter("personFilter", ($filter: Filter) => (viewData: MainView, filter: string): DictCore<Person> => {
         if (!filter) {
-            return viewData.personnel.sort(x=>x.nric, Helper.personComparator).$;
+            return viewData.personnel.sort(x => x.nric, Helper.personComparator).$;
         }
         const roomPredicate = (room: RoomBinding) => $filter("roomName")(room.id).indexOf(filter) !== -1 || $filter("roomToAddressid")(room.id).indexOf(filter) !== -1;
         const predicate = (item: Person) => {
@@ -220,7 +220,7 @@ const srAngularApp = angular
             }
             return false;
         };
-        return viewData.personnel.filter(predicate).sort(x=>x.nric, Helper.personComparator).$;
+        return viewData.personnel.filter(predicate).sort(x => x.nric, Helper.personComparator).$;
     })
     .filter("unAuthDevice_filter", () => (deviceList: Dict<Device>, str: string) => {
         const num = Number(str);
@@ -500,7 +500,7 @@ const srAngularApp = angular
                     person.id = data.baseInfo.id;
                     person.birthday = new Date(data.baseInfo.birthDay);
                     person.idValidBegin = new Date(data.baseInfo.termStart);
-                    person.idValidEnd = data.baseInfo.termEnd ? new Date(data.baseInfo.termEnd): undefined;
+                    person.idValidEnd = data.baseInfo.termEnd ? new Date(data.baseInfo.termEnd) : undefined;
                     person.permanent = !data.baseInfo.termEnd;
                     person.sex = data.baseInfo.sex;
                     person.idAddress = data.baseInfo.address;
@@ -880,7 +880,43 @@ const srAngularApp = angular
         let treeComData: TreeItem; //小区数据
         let blockData: BlockItem; //楼数据
         let unitData: UnitItem; //单元数据
-        let roomData: FlatItem; //房间数据
+        const nodeSelected = (event: JQueryEventObject, data: NodeItem) => {
+            switch (data.id) {
+                case "0":
+                    treeComData = data;
+                    $timeout(() => {
+                        $scope.ComStrViewSwitch.mode = "0";
+                        $scope.ComStrViewSwitch.buildingID = "";
+                        $scope.ComStrViewSwitch.buildingName = "";
+                    });
+                    break;
+                case "1":
+                    blockData = data;
+                    $timeout(() => {
+                        $scope.ComStrViewSwitch.editbuildingID = data.blockNumber;
+                        $scope.ComStrViewSwitch.editbuildingName = data.blockName;
+                        $scope.ComStrViewSwitch.unitID = "";
+                        $scope.ComStrViewSwitch.unitName = "";
+                        $scope.ComStrViewSwitch.mode = "1";
+                    });
+                    break;
+                case "2":
+                    unitData = data;
+                    $timeout(() => {
+                        $scope.ComStrViewSwitch.mode = "2";
+                        $scope.ComStrViewSwitch.editunitID = data.unitNumber;
+                        $scope.ComStrViewSwitch.editunitName = data.unitName;
+                    });
+                    break;
+                case "3":
+                    $timeout(() => {
+                        $scope.ComStrViewSwitch.mode = "3";
+                        $scope.ComStrViewSwitch.editroomID = data.roomNumber;
+                    });
+                    break;
+            }
+        }
+
         $scope.addTree = true;
         $scope.closeaddTree = () => {
             $scope.addTree = true;
@@ -896,42 +932,8 @@ const srAngularApp = angular
                     levels: 3, //水平
                     multiSelect: false //多
                 });
-                $("#tree").on("nodeSelected", (event, data) => {
-                    switch (data.id) {
-                        case "0":
-                            treeComData = data;
-                            $timeout(() => {
-                                $scope.ComStrViewSwitch.mode = "0";
-                                $scope.ComStrViewSwitch.buildingID = "";
-                                $scope.ComStrViewSwitch.buildingName = "";
-                            });
-                            break;
-                        case "1":
-                            blockData = data;
-                            $timeout(() => {
-                                $scope.ComStrViewSwitch.editbuildingID = data.blockNumber;
-                                $scope.ComStrViewSwitch.editbuildingName = data.blockName;
-                                $scope.ComStrViewSwitch.unitID = "";
-                                $scope.ComStrViewSwitch.unitName = "";
-                                $scope.ComStrViewSwitch.mode = "1";
-                            });
-                            break;
-                        case "2":
-                            unitData = data;
-                            $timeout(() => {
-                                $scope.ComStrViewSwitch.mode = "2";
-                                $scope.ComStrViewSwitch.editunitID = data.unitNumber;
-                                $scope.ComStrViewSwitch.editunitName = data.unitName;
-                            });
-                            break;
-                        case "3":
-                            roomData = data;
-                            $timeout(() => {
-                                $scope.ComStrViewSwitch.mode = "3";
-                                $scope.ComStrViewSwitch.editroomID = data.roomNumber;
-                            });
-                            break;
-                    }
+                $("#tree").on("nodeSelected", (e:JQueryEventObject, x) => {
+                    nodeSelected(e, x);
                     $scope.addTree = false;
                 });
             }
@@ -962,33 +964,8 @@ const srAngularApp = angular
                         levels: 2, //水平
                         multiSelect: false //多
                     });
-                    $("#tree").on("nodeSelected", (event, data: NodeItem) => {
-                        switch (data.id) {
-                            case "0":
-                                $timeout(() => {
-                                    $scope.ComStrViewSwitch.mode = "0";
-                                });
-                                treeComData = data;
-                                break;
-                            case "1":
-                                $timeout(() => {
-                                    $scope.ComStrViewSwitch.mode = "1";
-                                });
-                                blockData = data;
-                                break;
-                            case "2":
-                                $timeout(() => {
-                                    $scope.ComStrViewSwitch.mode = "2";
-                                });
-                                unitData = data;
-                                break;
-                            case "3":
-                                $timeout(() => {
-                                    $scope.ComStrViewSwitch.mode = "3";
-                                });
-                                roomData = data;
-                                break;
-                        }
+                    $("#tree").on("nodeSelected", (e: JQueryEventObject, x) => {
+                        nodeSelected(e, x);
                         $scope.addTree = false;
                     });
                 } else {
@@ -999,42 +976,8 @@ const srAngularApp = angular
                         levels: 3, //水平
                         multiSelect: false //多
                     });
-                    $("#tree").on("nodeSelected", (event, data: TreeItem | BlockItem | UnitItem | FlatItem) => {
-                        switch (data.id) {
-                            case "0":
-                                treeComData = data;
-                                $timeout(() => {
-                                    $scope.ComStrViewSwitch.mode = "0";
-                                    $scope.ComStrViewSwitch.buildingID = "";
-                                    $scope.ComStrViewSwitch.buildingName = "";
-                                });
-                                break;
-                            case "1":
-                                blockData = data;
-                                $timeout(() => {
-                                    $scope.ComStrViewSwitch.editbuildingID = data.blockNumber;
-                                    $scope.ComStrViewSwitch.editbuildingName = data.blockName;
-                                    $scope.ComStrViewSwitch.unitID = "";
-                                    $scope.ComStrViewSwitch.unitName = "";
-                                    $scope.ComStrViewSwitch.mode = "1";
-                                });
-                                break;
-                            case "2":
-                                unitData = data;
-                                $timeout(() => {
-                                    $scope.ComStrViewSwitch.mode = "2";
-                                    $scope.ComStrViewSwitch.editunitID = data.unitNumber;
-                                    $scope.ComStrViewSwitch.editunitName = data.unitName;
-                                });
-                                break;
-                            case "3":
-                                roomData = data;
-                                $timeout(() => {
-                                    $scope.ComStrViewSwitch.mode = "3";
-                                    $scope.ComStrViewSwitch.editroomID = data.roomNumber;
-                                });
-                                break;
-                        }
+                    $("#tree").on("nodeSelected", (e:JQueryEventObject, x) => {
+                        nodeSelected(e, x);
                         $scope.addTree = false;
                     });
                 }
@@ -1096,43 +1039,7 @@ const srAngularApp = angular
                 levels: 2, //水平
                 multiSelect: false //多
             });
-            $("#tree").on("nodeSelected", (event, data) => {
-                switch (data.id) {
-                    case "0":
-                        treeComData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "0";
-                            $scope.ComStrViewSwitch.buildingID = "";
-                            $scope.ComStrViewSwitch.buildingName = "";
-                        });
-                        break;
-                    case "1":
-                        blockData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.editbuildingID = data.blockNumber;
-                            $scope.ComStrViewSwitch.editbuildingName = data.blockName;
-                            $scope.ComStrViewSwitch.unitID = "";
-                            $scope.ComStrViewSwitch.unitName = "";
-                            $scope.ComStrViewSwitch.mode = "1";
-                        });
-                        break;
-                    case "2":
-                        unitData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "2";
-                            $scope.ComStrViewSwitch.editunitID = data.unitNumber;
-                            $scope.ComStrViewSwitch.editunitName = data.unitName;
-                        });
-                        break;
-                    case "3":
-                        roomData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "3";
-                            $scope.ComStrViewSwitch.editroomID = data.roomNumber;
-                        });
-                        break;
-                }
-            });
+            $("#tree").on("nodeSelected", nodeSelected);
         };
         //修改楼
         $scope.editBuilding = (id, name) => {
@@ -1162,43 +1069,7 @@ const srAngularApp = angular
                 levels: 2, //水平
                 multiSelect: false //多
             });
-            $("#tree").on("nodeSelected", (event, data) => {
-                switch (data.id) {
-                    case "0":
-                        treeComData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "0";
-                            $scope.ComStrViewSwitch.buildingID = "";
-                            $scope.ComStrViewSwitch.buildingName = "";
-                        });
-                        break;
-                    case "1":
-                        blockData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.editbuildingID = data.blockNumber;
-                            $scope.ComStrViewSwitch.editbuildingName = data.blockName;
-                            $scope.ComStrViewSwitch.unitID = "";
-                            $scope.ComStrViewSwitch.unitName = "";
-                            $scope.ComStrViewSwitch.mode = "1";
-                        });
-                        break;
-                    case "2":
-                        unitData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "2";
-                            $scope.ComStrViewSwitch.editunitID = data.unitNumber;
-                            $scope.ComStrViewSwitch.editunitName = data.unitName;
-                        });
-                        break;
-                    case "3":
-                        roomData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "3";
-                            $scope.ComStrViewSwitch.editroomID = data.roomNumber;
-                        });
-                        break;
-                }
-            });
+            $("#tree").on("nodeSelected", nodeSelected);
         };
         //删除楼
         $scope.deleteBuilding = () => {
@@ -1222,43 +1093,7 @@ const srAngularApp = angular
                 $scope.ComStrViewSwitch.editbuildingID = "";
                 $scope.ComStrViewSwitch.editbuildingName = "";
             });
-            $("#tree").on("nodeSelected", (event, data) => {
-                switch (data.id) {
-                    case "0":
-                        treeComData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "0";
-                            $scope.ComStrViewSwitch.buildingID = "";
-                            $scope.ComStrViewSwitch.buildingName = "";
-                        });
-                        break;
-                    case "1":
-                        blockData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.editbuildingID = data.blockNumber;
-                            $scope.ComStrViewSwitch.editbuildingName = data.blockName;
-                            $scope.ComStrViewSwitch.unitID = "";
-                            $scope.ComStrViewSwitch.unitName = "";
-                            $scope.ComStrViewSwitch.mode = "1";
-                        });
-                        break;
-                    case "2":
-                        unitData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "2";
-                            $scope.ComStrViewSwitch.editunitID = data.unitNumber;
-                            $scope.ComStrViewSwitch.editunitName = data.unitName;
-                        });
-                        break;
-                    case "3":
-                        roomData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "3";
-                            $scope.ComStrViewSwitch.editroomID = data.roomNumber;
-                        });
-                        break;
-                }
-            });
+            $("#tree").on("nodeSelected", nodeSelected);
         };
         //添加单元
         $scope.addunit = (unitid, unitname) => {
@@ -1291,43 +1126,7 @@ const srAngularApp = angular
                 levels: 3, //水平
                 multiSelect: false //多
             });
-            $("#tree").on("nodeSelected", (event, data) => {
-                switch (data.id) {
-                    case "0":
-                        treeComData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "0";
-                            $scope.ComStrViewSwitch.buildingID = "";
-                            $scope.ComStrViewSwitch.buildingName = "";
-                        });
-                        break;
-                    case "1":
-                        blockData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.editbuildingID = data.blockNumber;
-                            $scope.ComStrViewSwitch.editbuildingName = data.blockName;
-                            $scope.ComStrViewSwitch.unitID = "";
-                            $scope.ComStrViewSwitch.unitName = "";
-                            $scope.ComStrViewSwitch.mode = "1";
-                        });
-                        break;
-                    case "2":
-                        unitData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "2";
-                            $scope.ComStrViewSwitch.editunitID = data.unitNumber;
-                            $scope.ComStrViewSwitch.editunitName = data.unitName;
-                        });
-                        break;
-                    case "3":
-                        roomData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "3";
-                            $scope.ComStrViewSwitch.editroomID = data.roomNumber;
-                        });
-                        break;
-                }
-            });
+            $("#tree").on("nodeSelected", nodeSelected);
         };
         //修改单元
         $scope.editunit = (editunitId, editunitName) => {
@@ -1362,43 +1161,7 @@ const srAngularApp = angular
                 levels: 3, //水平
                 multiSelect: false //多
             });
-            $("#tree").on("nodeSelected", (event, data) => {
-                switch (data.id) {
-                    case "0":
-                        treeComData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "0";
-                            $scope.ComStrViewSwitch.buildingID = "";
-                            $scope.ComStrViewSwitch.buildingName = "";
-                        });
-                        break;
-                    case "1":
-                        blockData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.editbuildingID = data.blockNumber;
-                            $scope.ComStrViewSwitch.editbuildingName = data.blockName;
-                            $scope.ComStrViewSwitch.unitID = "";
-                            $scope.ComStrViewSwitch.unitName = "";
-                            $scope.ComStrViewSwitch.mode = "1";
-                        });
-                        break;
-                    case "2":
-                        unitData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "2";
-                            $scope.ComStrViewSwitch.editunitID = data.unitNumber;
-                            $scope.ComStrViewSwitch.editunitName = data.unitName;
-                        });
-                        break;
-                    case "3":
-                        roomData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "3";
-                            $scope.ComStrViewSwitch.editroomID = data.roomNumber;
-                        });
-                        break;
-                }
-            });
+            $("#tree").on("nodeSelected", nodeSelected);
         };
         $scope.deleteunit = () => {
             if (
@@ -1425,43 +1188,7 @@ const srAngularApp = angular
                 levels: 3, //水平
                 multiSelect: false //多
             });
-            $("#tree").on("nodeSelected", (event, data) => {
-                switch (data.id) {
-                    case "0":
-                        treeComData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "0";
-                            $scope.ComStrViewSwitch.buildingID = "";
-                            $scope.ComStrViewSwitch.buildingName = "";
-                        });
-                        break;
-                    case "1":
-                        blockData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.editbuildingID = data.blockNumber;
-                            $scope.ComStrViewSwitch.editbuildingName = data.blockName;
-                            $scope.ComStrViewSwitch.unitID = "";
-                            $scope.ComStrViewSwitch.unitName = "";
-                            $scope.ComStrViewSwitch.mode = "1";
-                        });
-                        break;
-                    case "2":
-                        unitData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "2";
-                            $scope.ComStrViewSwitch.editunitID = data.unitNumber;
-                            $scope.ComStrViewSwitch.editunitName = data.unitName;
-                        });
-                        break;
-                    case "3":
-                        roomData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "3";
-                            $scope.ComStrViewSwitch.editroomID = data.roomNumber;
-                        });
-                        break;
-                }
-            });
+            $("#tree").on("nodeSelected", nodeSelected);
         };
         $scope.addroom = (roomidstart, roomidend, storeyidstart, storeyidend) => {
             if (!roomidstart || !roomidend || !storeyidstart || !storeyidend) {
@@ -1511,43 +1238,7 @@ const srAngularApp = angular
                 levels: 3, //水平
                 multiSelect: false //多
             });
-            $("#tree").on("nodeSelected", (event, data) => {
-                switch (data.id) {
-                    case "0":
-                        treeComData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "0";
-                            $scope.ComStrViewSwitch.buildingID = "";
-                            $scope.ComStrViewSwitch.buildingName = "";
-                        });
-                        break;
-                    case "1":
-                        blockData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.editbuildingID = data.blockNumber;
-                            $scope.ComStrViewSwitch.editbuildingName = data.blockName;
-                            $scope.ComStrViewSwitch.unitID = "";
-                            $scope.ComStrViewSwitch.unitName = "";
-                            $scope.ComStrViewSwitch.mode = "1";
-                        });
-                        break;
-                    case "2":
-                        unitData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "2";
-                            $scope.ComStrViewSwitch.editunitID = data.unitNumber;
-                            $scope.ComStrViewSwitch.editunitName = data.unitName;
-                        });
-                        break;
-                    case "3":
-                        roomData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "3";
-                            $scope.ComStrViewSwitch.editroomID = data.roomNumber;
-                        });
-                        break;
-                }
-            });
+            $("#tree").on("nodeSelected", nodeSelected);
         };
         $scope.editroom = editroomId => {
             if (!editroomId) {
@@ -1566,6 +1257,11 @@ const srAngularApp = angular
                 alert("房间号格式不对！");
                 return;
             }
+            const roomData = TreeView.getCurrent();
+            if (!TreeView.isFlat(roomData)) {
+                return;
+            }
+
             for (let i = 0; i < treeData[0].nodes.length; i++) {
                 if (treeData[0].nodes[i].blockNumber === roomData.blockNumber) {
                     for (let j = 0; j < treeData[0].nodes[i].nodes.length; j++) {
@@ -1589,45 +1285,12 @@ const srAngularApp = angular
                 levels: 3, //水平
                 multiSelect: false //多
             });
-            $("#tree").on("nodeSelected", (event, data) => {
-                switch (data.id) {
-                    case "0":
-                        treeComData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "0";
-                            $scope.ComStrViewSwitch.buildingID = "";
-                            $scope.ComStrViewSwitch.buildingName = "";
-                        });
-                        break;
-                    case "1":
-                        blockData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.editbuildingID = data.blockNumber;
-                            $scope.ComStrViewSwitch.editbuildingName = data.blockName;
-                            $scope.ComStrViewSwitch.unitID = "";
-                            $scope.ComStrViewSwitch.unitName = "";
-                            $scope.ComStrViewSwitch.mode = "1";
-                        });
-                        break;
-                    case "2":
-                        unitData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "2";
-                            $scope.ComStrViewSwitch.editunitID = data.unitNumber;
-                            $scope.ComStrViewSwitch.editunitName = data.unitName;
-                        });
-                        break;
-                    case "3":
-                        roomData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "3";
-                            $scope.ComStrViewSwitch.editroomID = data.roomNumber;
-                        });
-                        break;
-                }
-            });
+            $("#tree").on("nodeSelected", nodeSelected);
         };
         $scope.deleteroom = () => {
+            const roomData = TreeView.getCurrent();
+            if (!TreeView.isFlat(roomData)) return;
+            const nodeId:number = roomData['nodeId'];
             for (let i = 0; i < treeData[0].nodes.length; i++) {
                 if (treeData[0].nodes[i].blockNumber === roomData.blockNumber) {
                     for (let j = 0; j < treeData[0].nodes[i].nodes.length; j++) {
@@ -1637,6 +1300,12 @@ const srAngularApp = angular
                                     treeData[0].nodes[i].nodes[j].nodes.splice(n, 1);
                                     $timeout(() => {
                                         $scope.ComStrViewSwitch.editroomID = "";
+                                        const node = TreeView.getNode(nodeId);
+                                        if (TreeView.isFlat(node)) {
+                                            $('#tree').treeview('selectNode', [nodeId, { silent: true }]);
+                                            $scope.ComStrViewSwitch.editroomID = node.roomNumber;
+                                            $scope.ComStrViewSwitch.mode = "3";
+                                        }
                                     });
                                     break;
                                 }
@@ -1652,43 +1321,7 @@ const srAngularApp = angular
                 levels: 4, //水平
                 multiSelect: false //多
             });
-            $("#tree").on("nodeSelected", (event, data) => {
-                switch (data.id) {
-                    case "0":
-                        treeComData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "0";
-                            $scope.ComStrViewSwitch.buildingID = "";
-                            $scope.ComStrViewSwitch.buildingName = "";
-                        });
-                        break;
-                    case "1":
-                        blockData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.editbuildingID = data.blockNumber;
-                            $scope.ComStrViewSwitch.editbuildingName = data.blockName;
-                            $scope.ComStrViewSwitch.unitID = "";
-                            $scope.ComStrViewSwitch.unitName = "";
-                            $scope.ComStrViewSwitch.mode = "1";
-                        });
-                        break;
-                    case "2":
-                        unitData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "2";
-                            $scope.ComStrViewSwitch.editunitID = data.unitNumber;
-                            $scope.ComStrViewSwitch.editunitName = data.unitName;
-                        });
-                        break;
-                    case "3":
-                        roomData = data;
-                        $timeout(() => {
-                            $scope.ComStrViewSwitch.mode = "3";
-                            $scope.ComStrViewSwitch.editroomID = data.roomNumber;
-                        });
-                        break;
-                }
-            });
+            $("#tree").on("nodeSelected", nodeSelected);
         };
         $scope.SubmitComTree = () => {
             const submitData: CommunityData = {
@@ -1730,42 +1363,8 @@ const srAngularApp = angular
                             levels: 3, //水平
                             multiSelect: false //多
                         });
-                        $("#tree").on("nodeSelected", (event, data: TreeItem | BlockItem | UnitItem | FlatItem) => {
-                            switch (data.id) {
-                                case "0":
-                                    treeComData = data;
-                                    $timeout(() => {
-                                        $scope.ComStrViewSwitch.mode = "0";
-                                        $scope.ComStrViewSwitch.buildingID = "";
-                                        $scope.ComStrViewSwitch.buildingName = "";
-                                    });
-                                    break;
-                                case "1":
-                                    blockData = data;
-                                    $timeout(() => {
-                                        $scope.ComStrViewSwitch.editbuildingID = data.blockNumber;
-                                        $scope.ComStrViewSwitch.editbuildingName = data.blockName;
-                                        $scope.ComStrViewSwitch.unitID = "";
-                                        $scope.ComStrViewSwitch.unitName = "";
-                                        $scope.ComStrViewSwitch.mode = "1";
-                                    });
-                                    break;
-                                case "2":
-                                    unitData = data;
-                                    $timeout(() => {
-                                        $scope.ComStrViewSwitch.mode = "2";
-                                        $scope.ComStrViewSwitch.editunitID = data.unitNumber;
-                                        $scope.ComStrViewSwitch.editunitName = data.unitName;
-                                    });
-                                    break;
-                                case "3":
-                                    roomData = data;
-                                    $timeout(() => {
-                                        $scope.ComStrViewSwitch.mode = "3";
-                                        $scope.ComStrViewSwitch.editroomID = data.roomNumber;
-                                    });
-                                    break;
-                            }
+                        $("#tree").on("nodeSelected", (e: JQueryEventObject, x) => {
+                            nodeSelected(e, x);
                             $scope.addTree = false;
                         });
                     });
@@ -1777,9 +1376,12 @@ const srAngularApp = angular
         /*小区结构结束*/
 
         /*人员管理开始*/
-        $scope.roomComparator = (id1: Guid, id2: Guid) => {
-            const a = $filter("roomToAddressid")(id1);
-            const b = $filter("roomToAddressid")(id2);
+        $scope.roomComparator = (id1, id2) => {
+            if (id1.type !== 'string' || id2.type !== 'string') {
+                return (id1.index < id2.index) ? -1 : 1;
+            }
+            const a = $filter("roomToAddressid")(id1.value);
+            const b = $filter("roomToAddressid")(id2.value);
             return a.localeCompare(b);
         }
         $scope.editing = true;
@@ -1890,7 +1492,7 @@ const srAngularApp = angular
                         idAddress: data.address,
                         birthday: new Date(data.birthDay),
                         idValidBegin: new Date(data.validFrom),
-                        idValidEnd: data.validTo ? new Date(data.validTo): undefined,
+                        idValidEnd: data.validTo ? new Date(data.validTo) : undefined,
                         mac: data.phoneMac,
                         nation: data.nation,
                         qq: data.QQ,
@@ -2981,7 +2583,7 @@ const srAngularApp = angular
         };
         /**
          * 字符串是否出现在人员
-         */ 
+         */
         const aboutPerson = (str: string) => (nric: string) => {
             const roomPredicate = (room: RoomBinding) => $filter("roomName")(room.id).indexOf(str) !== -1 || $filter("roomToAddressid")(room.id).indexOf(str) !== -1;
             if (nric.indexOf(str) !== -1) {

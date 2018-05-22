@@ -735,6 +735,7 @@ class Helper {
     static getUnixTimeSeconds(x: Date) {
         return (x ? x.valueOf() / 1000 : undefined) || undefined;
     }
+
     static formatDate(x: Date) {
         return x ? x.getFullYear() + "/" + x.getMonth() + "/" + x.getDate() : "";
     }
@@ -743,4 +744,18 @@ class Helper {
         return Helper.formatDate(new Date(x * 1000));
     }
 
+}
+
+class TreeView {
+    static getCurrent(): NodeItem {
+        const items: NodeItem[] = <any>$('#tree').treeview('getSelected');
+        return items.length ? items[0] : undefined;
+    }
+    static getNode(nodeId: number) {
+        const item: NodeItem = <any>$('#tree').treeview('getNode', nodeId);
+        return item;
+    }
+    static isFlat(node: NodeItem): node is FlatItem {
+        return node && node.id === "3";
+    }
 }
