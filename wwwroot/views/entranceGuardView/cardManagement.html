@@ -34,7 +34,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="item in card_viewData" ng-mousedown="chooseCard($index,$event,item)">
+                    <tr ng-repeat="item in card_viewData | orderBy:'nric':false:nricComparator" ng-mousedown="chooseCard($index,$event,item)">
                         <td>{{$index+1}}</td>
                         <td style="position: relative">
                             <input type="checkbox" value="{{item}}" name="chooseAuthCard" id="{{$index}}">
@@ -192,11 +192,14 @@
                     <button ng-hide="showSpeedyAddCard" ng-click="switchAddCard()" class="btn btn-xs btn-default pull-right">常规</button>
                 </div>
                 <!--正常添加卡form-->
-                <form class="form-horizontal" ng-show="showSpeedyAddCard" style="padding: 15px 5px 5px 0;margin: 10px 0 0 10px;width: auto">
+                <form class="form-horizontal" onsubmit="return false" ng-show="showSpeedyAddCard" style="padding: 15px 5px 5px 0;margin: 10px 0 0 10px;width: auto">
                     <div class="form-group" style="margin-left: 0;margin-right: 0">
                         <label class="col-sm-2 control-label" style="padding: 7px 0 0 0;min-width: 35px">卡号:</label>
-                        <div class="col-sm-10" style="padding-right: 0;width: inherit">
-                            <input class="form-control" style="width: inherit" ng-model="cardNumber" onfocus="this.style.imeMode='disabled'">
+                        <div class="col-sm-10" style="padding-right: 0; width: inherit">
+                            <input id="txtcardDisplay" class="form-control" readonly="readonly" type="text" style="text-align:left;font-family: 'Courier New';left: 15px; top: 0; border: none; width: 200px">
+                            <input id="txtCardInput" class="form-control" style="-webkit-text-fill-color: transparent;font-family: 'Courier New'; background: transparent; border-width: 1px; position: absolute; left: 15px; top: 0; width: 200px" ng-model="cardNumber"
+                                   type="password" autocomplete="off" 
+                                   oninput="if (!this.value) { this.value = ' '; }else{this.value = this.value.trim()}txtcardDisplay.value = this.value;" onfocus="this.value=' '">
                         </div>
                     </div>
                     <div class="form-group" style="margin-left: 0;margin-right: 0" ng-hide="addCardNumberValidate">
@@ -236,11 +239,14 @@
                     </div>
                 </form>
                 <!--快速添加卡form-->
-                <form class="form-horizontal" ng-hide="showSpeedyAddCard" style="padding: 15px 5px 5px 0;margin: 10px 0 0 10px;width: auto">
+                <form class="form-horizontal" onsubmit="return false" ng-hide="showSpeedyAddCard" style="padding: 15px 5px 5px 0;margin: 10px 0 0 10px;width: auto">
                     <div class="form-group" style="margin-left: 0;margin-right: 0">
                         <label class="col-sm-2 control-label" style="padding: 7px 0 0 0;min-width: 35px">卡号:</label>
-                        <div class="col-sm-10" style="padding-right: 0;width: inherit">
-                            <input id="speedyAddCard_input" class="form-control" style="width: inherit" ng-model="cardNumber_speedy" ng-keydown="addCard_speedy($event,cardNumber_speedy)" onfocus="this.style.imeMode='disabled'">
+                        <div class="col-sm-10" style="padding-right: 0; width: inherit">
+                            <input type="text" autocomplete="off" style="display:none" value="~\r\n!@#$%^&*`">
+                            <input type="password" autocomplete="off" id="speedyAddCard_input" class="form-control" style="width: inherit; -webkit-text-fill-color:transparent" ng-model="cardNumber_speedy" ng-keydown="addCard_speedy($event,cardNumber_speedy)"
+                                   oninput="this.value=this.value.trim()"
+                                   onfocus="this.value=' '">
                         </div>
                     </div>
                     <div class="form-group" style="margin-left: 0;margin-right: 0" ng-hide="speedyAddCardInfo">

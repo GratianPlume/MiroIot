@@ -298,7 +298,7 @@ const srAngularApp = angular
                     $rootScope.isAuthorize = true;
                     $timeout(() => {
                         $scope.chooseNumber = 5;
-                        $scope.adminData.communities = data.communities;
+                        $scope.adminData.communities = data.communities.sort(Helper.comparefn<CommunityDetail>(x=>x.name));
                         $scope.adminData.name = data.name;
                         $scope.adminData.level = data.level;
                         //超级管理员
@@ -729,7 +729,7 @@ const srAngularApp = angular
                 .authCommunities(editedManagerOpenid, authCommunityIdList)
                 .then(() => {
                     $timeout(() => {
-                        const addition = authCommunityIdList.map($scope.uneditedAdminCommunities.tryRemoveKey).filter(x => !!x);
+                        const addition = authCommunityIdList.map(x => $scope.uneditedAdminCommunities.tryRemoveKey(x)).filter(x => !!x);
                         $scope.editedAdminCommunities.tryAddHead(x => x.id, addition);
                         $scope.adminData.manager.$[editedManagerOpenid].communities = $scope.editedAdminCommunities.toArray();
                     });
@@ -757,7 +757,8 @@ const srAngularApp = angular
                 .unAuthCommunities(editedManagerOpenid, unauthCommunityIdList)
                 .then(() => {
                     $timeout(() => {
-                        const addtion = unauthCommunityIdList.map($scope.editedAdminCommunities.tryRemoveKey).filter(x => !!x);
+                        const addtion = unauthCommunityIdList.map(x => $scope.editedAdminCommunities.tryRemoveKey(x)).filter(x => !!x);
+                        console.log($scope.editedAdminCommunities);
                         $scope.uneditedAdminCommunities.tryAddHead(x => x.id, addtion);
                         $scope.adminData.manager.$[editedManagerOpenid].communities = $scope.editedAdminCommunities.toArray();
                     });
@@ -915,7 +916,7 @@ const srAngularApp = angular
                     });
                     break;
             }
-        }
+        };
 
         $scope.addTree = true;
         $scope.closeaddTree = () => {
@@ -932,7 +933,7 @@ const srAngularApp = angular
                     levels: 3, //水平
                     multiSelect: false //多
                 });
-                $("#tree").on("nodeSelected", (e:JQueryEventObject, x) => {
+                $("#tree").on("nodeSelected", (e: JQueryEventObject, x) => {
                     nodeSelected(e, x);
                     $scope.addTree = false;
                 });
@@ -976,7 +977,7 @@ const srAngularApp = angular
                         levels: 3, //水平
                         multiSelect: false //多
                     });
-                    $("#tree").on("nodeSelected", (e:JQueryEventObject, x) => {
+                    $("#tree").on("nodeSelected", (e: JQueryEventObject, x) => {
                         nodeSelected(e, x);
                         $scope.addTree = false;
                     });
@@ -1290,7 +1291,7 @@ const srAngularApp = angular
         $scope.deleteroom = () => {
             const roomData = TreeView.getCurrent();
             if (!TreeView.isFlat(roomData)) return;
-            const nodeId:number = roomData['nodeId'];
+            const nodeId: number = roomData["nodeId"];
             for (let i = 0; i < treeData[0].nodes.length; i++) {
                 if (treeData[0].nodes[i].blockNumber === roomData.blockNumber) {
                     for (let j = 0; j < treeData[0].nodes[i].nodes.length; j++) {
@@ -1302,7 +1303,7 @@ const srAngularApp = angular
                                         $scope.ComStrViewSwitch.editroomID = "";
                                         const node = TreeView.getNode(nodeId);
                                         if (TreeView.isFlat(node)) {
-                                            $('#tree').treeview('selectNode', [nodeId, { silent: true }]);
+                                            $("#tree").treeview("selectNode", [nodeId, { silent: true }]);
                                             $scope.ComStrViewSwitch.editroomID = node.roomNumber;
                                             $scope.ComStrViewSwitch.mode = "3";
                                         }
@@ -1377,13 +1378,13 @@ const srAngularApp = angular
 
         /*人员管理开始*/
         $scope.roomComparator = (id1, id2) => {
-            if (id1.type !== 'string' || id2.type !== 'string') {
+            if (id1.type !== "string" || id2.type !== "string") {
                 return (id1.index < id2.index) ? -1 : 1;
             }
             const a = $filter("roomToAddressid")(id1.value);
             const b = $filter("roomToAddressid")(id2.value);
             return a.localeCompare(b);
-        }
+        };
         $scope.editing = true;
         $scope.nationList = Helper.nationList;
         $scope.pac = Helper.pcaCode;
@@ -1939,6 +1940,19 @@ const srAngularApp = angular
         /*设备管理结束*/
 
         /*门禁卡管理开始*/
+        $scope.nricComparator = (id1, id2) => {
+            if (id1.type !== "string" || id2.type !== "string") {
+                return (id1.index < id2.index) ? -1 : 1;
+            }
+            const a = $scope.communityData.personnel.$[id1.value];
+            const b = $scope.communityData.personnel.$[id2.value];
+            if (!b)
+                return -1;
+            if (!a)
+                return 1;
+            return Helper.personComparator(a, b);
+        };
+
         //选定待授权设备判断是否可以绑定房间
         $scope.selectAuthDevice = () => {
             //获取选择的门口机
@@ -2071,7 +2085,7 @@ const srAngularApp = angular
                         } else {
                             $timeout(() => {
                                 $scope.speedyAddCardSuccessList.unshift(cardNumber);
-                                $("#speedyAddCard_input").val("");
+                                $("#speedyAddCard_input").val(" ");
                                 data.auth = [];
                                 $scope.communityData.cards.unshift(data);
                                 $scope.card_viewData.unshift(data);
@@ -2140,7 +2154,10 @@ const srAngularApp = angular
                         });
                     } else {
                         $(".addCardcomplete").text("添加成功");
+                        $("#txtCardInput").val(" ");
+                        $("#txtcardDisplay").val("");
                         $timeout(() => {
+                            $scope.cardNumber = "";
                             $scope.addCardcomplete = false;
                             data.auth = [];
                             $scope.communityData.cards.unshift(data);
@@ -2401,15 +2418,15 @@ const srAngularApp = angular
             }
         }
         function issueFail(deviceIdx: number, secretIdx: number, devices: Guid[], secrets: Guid[], message: string) {
-            if (deviceIdx === 0) {
+            if (secretIdx === 0) {
                 $scope.authCompleteinfo.push({
                     device: devices[deviceIdx],
                     success: [],
-                    fail: secrets.slice(deviceIdx),
+                    fail: secrets.slice(secretIdx),
                     message
                 });
             } else {
-                $scope.authCompleteinfo[deviceIdx].fail.concat(secrets.slice(deviceIdx));
+                $scope.authCompleteinfo[deviceIdx].fail.concat(secrets.slice(secretIdx));
                 $scope.authCompleteinfo[deviceIdx].message = message;
             }
         }
@@ -2595,7 +2612,7 @@ const srAngularApp = angular
                 }
             }
             return false;
-        }
+        };
 
         //卡片查询过滤器
         $scope.cardFilter = str => {
@@ -3015,9 +3032,11 @@ const srAngularApp = angular
                         if (data.errorCode === 70000003 || data.result) {
                             issueSuccess(deviceIdx, fpIdx, deviceList, fingerprintList);
                         } else if (data.errorCode === 24) {
-                            issueIgnoreError(deviceIdx, fpIdx, deviceList, fingerprintList, data.message);
+                            issueIgnoreError(deviceIdx, fpIdx, deviceList, fingerprintList, `${data.message}(${data.errorCode})`);
+                        } else if (data.errorCode === 2) {
+                            issueFail(deviceIdx, fpIdx, deviceList, fingerprintList, "该设备不支持指纹");
                         } else {
-                            issueFail(deviceIdx, fpIdx, deviceList, fingerprintList, data.message);
+                            issueFail(deviceIdx, fpIdx, deviceList, fingerprintList, `${data.message}(${data.errorCode})`);
                         }
 
                         if (deviceIdx === deviceList.length - 1) {
@@ -3042,7 +3061,7 @@ const srAngularApp = angular
         //授权指纹到门口机
         $scope.authFingerprintToDevice = () => {
             const selectFingerprint = angular.element("input:checkbox[name='chooseAuthFingerprint']:checked");
-            const authFingerprintList: Guid[] = mapToArray(selectFingerprint, x => angular.fromJson(x.value));
+            const authFingerprintList: Guid[] = mapToArray(selectFingerprint, x => angular.fromJson(x.value).id);
             if (authFingerprintList.length === 0) {
                 alert("请选择授权指纹");
                 return;
@@ -3105,7 +3124,7 @@ const srAngularApp = angular
                             if (value) {
                                 issueSuccess(deviceIdx, fpIdx, deviceList, fingerprintList);
                             } else {
-                                issueFail(deviceIdx, fpIdx, deviceList, fingerprintList, data.message);
+                                issueFail(deviceIdx, fpIdx, deviceList, fingerprintList, `${data.message}(${data.errorCode})`);
                             }
                             if (deviceIdx === deviceList.length - 1) {
                                 if (!data.result || fpIdx === fingerprintList.length - 1) {
@@ -3557,7 +3576,7 @@ const srAngularApp = angular
                 case 3:
                     sideUrlChooseQuery = 3;
                     $scope.selectedView = 3;
-                    return;    
+                    return;
             }
         };
         $scope.functionalQueryView = () => {
@@ -3654,8 +3673,12 @@ const srAngularApp = angular
                     console.log(err);
                 });
         };
-        $scope.detail = (id, eventType) => {
-            $scope.Imgbase = `Ranger/EventImage/${id}/${eventType}`;
+        $scope.detail = (id, eventType, time) => {
+            if (eventType === "6") {
+                $scope.Imgbase = `Ranger/Image/${id}/${time}`;
+            } else {
+                $scope.Imgbase = `Ranger/EventImage/${id}/${eventType}`;
+            }
             $("#detailImage").modal("show");
         };
         $scope.enlargeImg = () => {
@@ -3698,7 +3721,7 @@ const srAngularApp = angular
                     console.log(err);
                 });
         };
-        $scope.getStates = (com) => {
+        $scope.getStates = com => {
             if (!com || com.length === 0) return;
             $iot.devices.status(com).then(data => {
                 $timeout(() => {

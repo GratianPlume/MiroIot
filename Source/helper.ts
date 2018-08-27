@@ -352,7 +352,7 @@ class Dict<TValue> {
     static orderByArray<T, R>(keySelector: KeySelector<R>, arr: ReadonlyArray<T>, sortSelectors: ReadonlyArray<KeySelector<T>>, mapping: (source: T) => R): Dict<R>;
     static orderByArray<T, R>(keySelector: KeySelector<T | R>, arr: ReadonlyArray<T>, sortSelectors: ReadonlyArray<KeySelector<T>>, mapping?: (source: T) => R): Dict<T | R> {
         const sortedArr: ReadonlyArray<T> = arr.slice(0).sort((a, b) => {
-            for (let compareFn of sortSelectors) {
+            for (const compareFn of sortSelectors) {
                 const av = compareFn(a);
                 const bv = compareFn(b);
                 if (av > bv)
@@ -438,7 +438,7 @@ class Helper {
                     const flat = Iot.communities.flatten(id, x.id);
                     return flat.block.id + flat.unit.id + flat.flat.id;
                 }).sort()[0];
-        }
+        };
         const av = personAddress(a);
         const bv = personAddress(b);
         const result = av.localeCompare(bv);
@@ -558,7 +558,9 @@ class Helper {
         { id: 2, name: "QQ开锁" },
         { id: 3, name: "IC卡开锁" },
         { id: 4, name: "监视" },
-        { id: 5, name: "人脸识别" }];
+        { id: 5, name: "人脸识别" },
+        { id: 6, name: "人证合一" }
+    ];
 
     static toTreeItem(data: CommunityData): TreeItem[] {
         return [{
@@ -748,11 +750,11 @@ class Helper {
 
 class TreeView {
     static getCurrent(): NodeItem {
-        const items: NodeItem[] = <any>$('#tree').treeview('getSelected');
+        const items: NodeItem[] = <any>$("#tree").treeview("getSelected");
         return items.length ? items[0] : undefined;
     }
     static getNode(nodeId: number) {
-        const item: NodeItem = <any>$('#tree').treeview('getNode', nodeId);
+        const item: NodeItem = <any>$("#tree").treeview("getNode", nodeId);
         return item;
     }
     static isFlat(node: NodeItem): node is FlatItem {

@@ -3,6 +3,7 @@
         <span>人员管理</span>
         <input style="width: 200px;border: 1px;border-radius: 4px;margin-left: 15px;padding: 1px 5px" ng-model="personnelFilterStr">
         <button class="btn btn-xs btn-primary" ng-click="personnelFilterStr=''">全部</button>
+        <a target="_blank" class="btn btn-success btn-xs" href="/citizen/excel/{{communityData.chooseCommunity.id}}">导出所有人</a>
         <div class="btn-group pull-right" role="group" aria-label="...">
             <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target=".addPersonnel">添加人员</button>
             <button type="button" class="btn btn-default btn-xs" ng-click="deletePersonnel()">删除人员</button>

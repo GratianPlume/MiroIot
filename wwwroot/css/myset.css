@@ -1,6 +1,11 @@
 
+#txtCardInput::selection {
+    color: HighlightText;
+    background-color: #338fff;
+    opacity:0.0;
+}
 /*main*/
-.mainContent{
+.mainContent {
     margin-top: 20px;
 }
 /*table.select_high ::selection{

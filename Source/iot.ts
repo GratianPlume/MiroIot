@@ -1,11 +1,10 @@
 ﻿/// <reference path="./node_modules/@types/jquery/index.d.ts" />
-
 class Community {
     arch: ArchService;
     devices: Dict<Device>;
     cards: Dict<Card>;
     fingerprints: Dict<Fingerprint>;
-    constructor(public readonly id: Guid) {
+    constructor(readonly id: Guid) {
     }
 }
 

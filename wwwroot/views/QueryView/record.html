@@ -60,12 +60,12 @@
             </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="X in events" ng-dblclick="detail(X.id,X.eventType)">
+                <tr ng-repeat="X in events | orderBy:'-timestamp'" ng-dblclick="detail(X.id,X.eventType, X.timestamp)">
                     <td style="text-align:center">{{events.length - $index}}</td>
                     <td style="text-align:center">{{comName}}</td>
                     <td style="text-align:center">{{X.address | deviceAddress}}</td>
                     <td style="text-align:center">{{X.name}}</td>
-                    <td style="text-align:center">{{["指纹开锁","呼叫","QQ开锁","IC卡开锁","监视","人脸识别"][X.eventType]}}</td>
+                    <td style="text-align:center">{{["指纹开锁","呼叫","QQ开锁","IC卡开锁","监视","人脸识别","人证合一"][X.eventType]}}</td>
                     <td style="text-align:center">{{X.timestamp | dateFilter}}</td>
                     <td style="text-align:center">{{X.qq}}</td>
                     <td style="text-align:center">{{X.nric}}</td>

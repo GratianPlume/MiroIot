@@ -1,15 +1,14 @@
 {
-  "compilerOptions": {
-    "noImplicitAny": false,
-    "noEmitOnError": true,
-    "removeComments": false,
-    "sourceMap": true,
-    "target": "es5",
-    "outDir": "Release",
-    "noUnusedLocals": false
-  },
-  "exclude": [
-    "node_modules",
-    "wwwroot"
-  ]
+    "compileOnSave": true,
+    "compilerOptions": {
+        "noImplicitAny": false,
+        "noEmitOnError": true,
+        "removeComments": false,
+        "sourceMap": true,
+        "target": "es5",
+        "outDir": "Release",
+        "lib": ["es5","dom"],
+        "noUnusedLocals": false
+    },
+    "exclude": ["node_modules", "wwwroot"]
 }

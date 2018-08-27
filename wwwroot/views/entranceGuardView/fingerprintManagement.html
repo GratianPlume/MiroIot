@@ -31,7 +31,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="item in fingerprint_viewData" ng-mousedown="chooseFingerprint($index,$event,item)">
+                <tr ng-repeat="item in fingerprint_viewData | orderBy:'nric':false:nricComparator" ng-mousedown="chooseFingerprint($index,$event,item)">
                     <td>{{$index+1}}</td>
                     <td style="position: relative">
                         <input id="{{$index}}" type="checkbox" name="chooseAuthFingerprint" value="{{item}}">

@@ -108,6 +108,7 @@ interface Scope extends angular.IScope {
     addCardNumberValidate: boolean;
     addcardPersonnelsValidate: boolean;
     addCardcomplete: boolean;
+    cardNumber:string;
     showSpeedyAddCard: boolean;
     speedyAddCardInfo: boolean;
     cardEdit_show: boolean;
@@ -132,6 +133,7 @@ interface Scope extends angular.IScope {
     newPerson: PersonView;
     curPerson: PersonView;
     roomComparator(roomId1: CompareValue, roomId2: CompareValue): number;
+    nricComparator(nric1:CompareValue, nric2: CompareValue):number;
     roomSample: RoomView;
     chooseBackColor: string;
     moreQuery: string;
@@ -317,7 +319,7 @@ interface Scope extends angular.IScope {
     initTime(): void;
     getGate(comId: string): void;
     QueryRecord(com: string, gate: string, event: number, name: string, nric: string, phone: string, addressBuilding: BlockData, addressUnit: UnitData, addressRoom: FlatData): void;
-    detail(id: string, eventType: string): void;
+    detail(id: string, eventType: string, time: number): void;
     QueryStatus(com: string, gate: string, statusid: number): void;
     deviceStatus:DeviceStatus[];
     listState: boolean;
